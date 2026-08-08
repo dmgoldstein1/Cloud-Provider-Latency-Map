@@ -1,0 +1,41 @@
+{
+  "regions": {
+    "itm": {
+      "id": "2ccc4269-4438-40cf-b493-d4b0deb85acb",
+      "ip": "64.176.62.78",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "waw": {
+      "id": "cf1bdf3a-8830-4e08-b65c-716acf9717b6",
+      "ip": "64.176.73.207",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "sto": {
+      "id": "58e3cab9-45f0-4560-8cfd-1a2d1e911d9f",
+      "ip": "70.34.199.76",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "mel": {
+      "id": "13621ebb-e312-44d2-a33c-297aaae3c666",
+      "ip": "67.219.108.114",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "atl": {
+      "id": "4cc8af55-533f-4bd7-9e2a-c88e84e15df2",
+      "ip": "96.30.204.77",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "ewr": {
+      "id": "949ea83a-5084-45d8-88da-f0d964ef78d3",
+      "ip": "108.61.158.95",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    }
+  },
+  "status": "ok"
+}

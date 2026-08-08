@@ -18,7 +18,6 @@
     defaults: {
       metric: 'latency',
       source: 'ams',
-      dataset: 'synthetic',
       thresholdFactor: 0.98
     }
   };

@@ -8,8 +8,10 @@
   };
 
   var state;
-  var sourceSelect, metricButtons, thresholdSlider, thresholdLabel, datasetSelect, statsEl;
-  var continentsBuilt = false;
+  var sourceListEl, metricButtons, thresholdSlider, thresholdLabel, statsEl;
+  var sourceCheckboxes = {};
+  var groupCountEls = {};
+  var continentCodes = {};
 
   VML.tooltip = {
     el: document.getElementById('tooltip'),
@@ -29,18 +31,18 @@
   };
 
   function unit() { return VML.config.metrics[state.metric].unit; }
+  function nameOf(code) { return state.byCode.get(code).name; }
 
   function buildState(regionsRaw, dataset) {
+    var order = dataset.matrices.latency.order;
     state = {
       data: dataset,
       regions: regionsRaw.regions,
       byCode: new Map(regionsRaw.regions.map(function (r) { return [r.code, r]; })),
-      idx: new Map(dataset.matrices.latency.order.map(function (c, i) { return [c, i]; })),
+      idx: new Map(order.map(function (c, i) { return [c, i]; })),
       metric: VML.config.defaults.metric,
-      source: VML.config.defaults.source,
+      sources: new Set(order),
       threshold: null,
-      continents: new Set(VML.config.continents),
-      dataset: state && state.dataset ? state.dataset : VML.config.defaults.dataset,
       pair: null,
       world: state && state.world ? state.world : null,
       arcs: [],
@@ -53,7 +55,6 @@
       fit: { slope: null, intercept: null }
     };
 
-    var order = dataset.matrices.latency.order;
     order.forEach(function (src) {
       var avg = 0, cnt = 0;
       order.forEach(function (dst) {
@@ -81,13 +82,14 @@
     state.metricMax = Math.round(raw * 10) / 10;
     state.colorScale.domain([0, state.metricMax]);
 
-    var n = state.arcs.length;
-    var mx = d3.mean(state.arcs, function (d) { return d.distance; });
-    var my = d3.mean(state.arcs, function (d) {
+    var arcs = state.arcs.filter(function (d) { return state.sources.has(d.src); });
+    var n = arcs.length;
+    var mx = d3.mean(arcs, function (d) { return d.distance; });
+    var my = d3.mean(arcs, function (d) {
       return state.data.matrices[state.metric].values[state.idx.get(d.src)][state.idx.get(d.dst)];
     });
     var num = 0, den = 0;
-    state.arcs.forEach(function (d) {
+    arcs.forEach(function (d) {
       var y = state.data.matrices[state.metric].values[state.idx.get(d.src)][state.idx.get(d.dst)];
       num += (d.distance - mx) * (y - my);
       den += (d.distance - mx) * (d.distance - mx);
@@ -106,48 +108,135 @@
   }
 
   function widthScaleFn() {
-    return d3.scaleLinear().domain([state.metricMax * 0.2, state.metricMax]).range([0.8, 3.5]);
+    return d3.scaleLinear().domain([state.metricMax * 0.2, state.metricMax]).range([0.6, 2.6]);
   }
 
   function emitRender() {
     computeScale();
     state.widthScale = widthScaleFn();
-    if (sourceSelect && sourceSelect.value !== state.source) sourceSelect.value = state.source;
+    syncSourceList();
     VML.events.emit('render');
   }
 
-  function updateSourceOptions() {
-    sourceSelect.innerHTML = '';
-    state.data.matrices.latency.order.forEach(function (code) {
-      var o = document.createElement('option');
-      o.value = code;
-      o.textContent = state.byCode.get(code).name + ' (' + code + ')';
-      sourceSelect.appendChild(o);
+  function toggleSource(code, checked) {
+    if (checked) state.sources.add(code);
+    else state.sources.delete(code);
+    emitRender();
+  }
+
+  function buildSourceList() {
+    sourceListEl.innerHTML = '';
+    sourceCheckboxes = {};
+    groupCountEls = {};
+    continentCodes = {};
+
+    var order = state.data.matrices.latency.order;
+    order.forEach(function (code) {
+      var cont = state.byCode.get(code).continent || 'Unknown';
+      (continentCodes[cont] = continentCodes[cont] || []).push(code);
     });
-    if (state.data.matrices.latency.order.indexOf(state.source) === -1) {
-      state.source = state.data.matrices.latency.order[0];
-    }
-    sourceSelect.value = state.source;
+
+    var contOrder = VML.config.continents.concat(
+      Object.keys(continentCodes).filter(function (c) { return VML.config.continents.indexOf(c) === -1; }).sort()
+    );
+
+    contOrder.forEach(function (cont) {
+      var codes = continentCodes[cont];
+      if (!codes) return;
+      codes.sort(function (a, b) { return nameOf(a).localeCompare(nameOf(b)); });
+
+      var group = document.createElement('div');
+      group.className = 'src-group';
+
+      var head = document.createElement('div');
+      head.className = 'src-group-head';
+      var sw = document.createElement('span');
+      sw.className = 'sw';
+      sw.style.background = state.continentColors[cont] || '#94a3b8';
+      var title = document.createElement('span');
+      title.appendChild(sw);
+      title.appendChild(document.createTextNode(cont));
+      var seg = document.createElement('span');
+      seg.className = 'src-group-btns';
+      var allBtn = document.createElement('button');
+      allBtn.type = 'button';
+      allBtn.className = 'src-group-all';
+      allBtn.textContent = 'All';
+      allBtn.title = 'Select all ' + cont + ' sources';
+      allBtn.addEventListener('click', function () {
+        continentCodes[cont].forEach(function (c) { state.sources.add(c); });
+        emitRender();
+      });
+      var noneBtn = document.createElement('button');
+      noneBtn.type = 'button';
+      noneBtn.className = 'src-group-none';
+      noneBtn.textContent = 'None';
+      noneBtn.title = 'Unselect all ' + cont + ' sources';
+      noneBtn.addEventListener('click', function () {
+        continentCodes[cont].forEach(function (c) { state.sources.delete(c); });
+        emitRender();
+      });
+      seg.appendChild(allBtn);
+      seg.appendChild(noneBtn);
+      title.appendChild(seg);
+      var count = document.createElement('span');
+      count.className = 'src-group-count';
+      head.appendChild(title);
+      head.appendChild(count);
+      group.appendChild(head);
+      groupCountEls[cont] = count;
+
+      codes.forEach(function (code) {
+        var label = document.createElement('label');
+        label.className = 'src';
+        var input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = state.sources.has(code);
+        input.addEventListener('change', function () {
+          toggleSource(code, input.checked);
+        });
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(nameOf(code)));
+        group.appendChild(label);
+        sourceCheckboxes[code] = input;
+      });
+
+      sourceListEl.appendChild(group);
+    });
+    syncGroupCounts();
+  }
+
+  function syncGroupCounts() {
+    Object.keys(groupCountEls).forEach(function (cont) {
+      var n = continentCodes[cont].filter(function (c) { return state.sources.has(c); }).length;
+      groupCountEls[cont].textContent = n + '/' + continentCodes[cont].length;
+    });
+  }
+
+  function syncSourceList() {
+    state.data.matrices.latency.order.forEach(function (code) {
+      var cb = sourceCheckboxes[code];
+      if (cb) cb.checked = state.sources.has(code);
+    });
+    syncGroupCounts();
+    var label = document.getElementById('sources-label');
+    if (label) label.textContent = 'Sources (' + state.sources.size + ' checked)';
   }
 
   function buildControls() {
-    sourceSelect = document.getElementById('source');
+    sourceListEl = document.getElementById('source-list');
     metricButtons = document.querySelectorAll('.metric-btn');
     thresholdSlider = document.getElementById('threshold');
     thresholdLabel = document.getElementById('threshold-label');
-    datasetSelect = document.getElementById('dataset');
     statsEl = document.getElementById('stats');
 
-    updateSourceOptions();
-    sourceSelect.addEventListener('change', function () {
-      state.source = sourceSelect.value;
-      emitRender();
-    });
+    buildSourceList();
 
     metricButtons.forEach(function (b) {
       b.addEventListener('click', function () {
         if (state.metric === b.dataset.metric) return;
         state.metric = b.dataset.metric;
+        state.threshold = null;
         metricButtons.forEach(function (x) { x.classList.toggle('active', x === b); });
         emitRender();
       });
@@ -159,58 +248,52 @@
       VML.events.emit('render');
     });
 
-    if (!continentsBuilt) {
-      var contWrap = document.getElementById('continents');
-      VML.config.continents.forEach(function (c) {
-        var label = document.createElement('label');
-        label.className = 'cont';
-        var input = document.createElement('input');
-        input.type = 'checkbox';
-        input.checked = true;
-        input.addEventListener('change', function () {
-          if (input.checked) state.continents.add(c);
-          else state.continents.delete(c);
-          emitRender();
-        });
-        label.appendChild(input);
-        label.appendChild(document.createTextNode(c));
-        contWrap.appendChild(label);
+    var tab = document.getElementById('side-tab');
+    if (tab) {
+      tab.addEventListener('click', function () {
+        document.body.classList.toggle('panel-hidden');
+        tab.textContent = document.body.classList.contains('panel-hidden') ? '◂' : '▸';
+        VML.events.emit('render');
       });
-      continentsBuilt = true;
     }
 
-    datasetSelect.addEventListener('change', function () {
-      if (datasetSelect.value === state.dataset) return;
-      state.dataset = datasetSelect.value;
-      reload();
-    });
+    var srcTab = document.getElementById('src-tab');
+    if (srcTab) {
+      srcTab.addEventListener('click', function () {
+        document.body.classList.toggle('src-hidden');
+        srcTab.textContent = document.body.classList.contains('src-hidden') ? '▴' : '▾';
+        VML.events.emit('render');
+      });
+    }
+
+    window.addEventListener('resize', onResize);
   }
 
-  function reload() {
-    VML.normalize.loadDataset(state.dataset).then(function (dataset) {
-      return fetch('data/regions.json').then(function (r) { return r.json(); }).then(function (rr) {
-        buildState(rr, dataset);
-        updateSourceOptions();
-        emitRender();
-      });
-    }).catch(function (err) {
-      console.error(err);
-      state.dataset = 'synthetic';
-      datasetSelect.value = 'synthetic';
-      reload();
-    });
+  var resizeTimeout = null;
+  function onResize() {
+    document.body.classList.add('resizing');
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function () {
+      document.body.classList.remove('resizing');
+    }, 200);
   }
 
   function renderStats() {
     var metric = state.metric;
-    var vals = state.arcs.filter(function (d) { return d.src === state.source; })
+    var vals = state.arcs.filter(function (d) { return state.sources.has(d.src); })
       .map(function (d) { return state.data.matrices[metric].values[state.idx.get(d.src)][state.idx.get(d.dst)]; });
     var shown = vals.filter(function (v) { return state.threshold >= v; }).length;
     var avg = d3.mean(vals);
-    var srcName = state.byCode.get(state.source).name;
+    var nSrc = state.sources.size;
+    var first = state.data.matrices.latency.order.find(function (c) { return state.sources.has(c); });
+    var header = first != null
+      ? 'from <b>' + nSrc + '</b> checked source' + (nSrc === 1 ? '' : 's') +
+        ' (e.g. ' + nameOf(first) + ')'
+      : 'no sources checked';
     statsEl.innerHTML =
-      '<b>' + srcName + '</b> (' + state.source + ') · avg ' + metric + ' to ' + vals.length +
-      ' regions: <b>' + avg.toFixed(0) + '</b> ' + unit() +
+      header +
+      ' · avg ' + metric + ' across ' + (nSrc ? vals.length / nSrc : 0) +
+      ' targets: <b>' + (avg != null ? avg.toFixed(0) : '—') + '</b> ' + unit() +
       ' · showing <b>' + shown + '</b> arc' + (shown === 1 ? '' : 's') + ' ≤ <b>' + state.threshold.toFixed(0) + '</b> ' + unit();
   }
 
@@ -219,6 +302,12 @@
     VML.config.continents.forEach(function (c) {
       html += '<span class="lg"><span class="sw" style="background:' + state.continentColors[c] + '"></span>' + c + '</span>';
     });
+    html += '<span class="lg" title="Dot size = a source region\'s average latency to all other selected regions, rescaled to the current selection">' +
+      '<svg width="30" height="10" style="vertical-align:middle">' +
+      '<circle cx="5" cy="5" r="3" fill="' + state.continentColors['Europe'] + '"/>' +
+      '<circle cx="25" cy="5" r="7" fill="' + state.continentColors['Europe'] + '"/>' +
+      '</svg>' +
+      ' <b>Dot size = avg latency</b> (8–32px diameter)</span>';
     var c0 = state.colorScale(0), c1 = state.colorScale(state.metricMax);
     var gid = 'mcolor';
     html += '<span class="lg" title="' + VML.config.metrics[state.metric].label + ' scale">' +
@@ -233,37 +322,42 @@
   }
 
   function main() {
-    Promise.all([
-      fetch('data/regions.json').then(function (r) { return r.json(); }),
-      fetch('data/countries-110m.json').then(function (r) { return r.json(); }),
-      VML.normalize.loadDataset(VML.config.defaults.dataset)
-    ]).then(function (res) {
-      var regionsRaw = res[0];
-      state = {
-        world: topojson.feature(res[1], res[1].objects.countries)
-      };
-      buildState(regionsRaw, res[2]);
-      buildControls();
-      renderLegend();
-      VML.map.init(document.getElementById('map'), state);
-      VML.charts.init();
-      VML.events.on(function (name) {
-        if (name === 'render') {
-          VML.map.render();
-          VML.charts.render();
-          renderStats();
-          renderLegend();
-        } else if (name === 'pair') {
-          VML.map.pair();
-          VML.charts.pair();
-        }
-        if (name === 'render' && sourceSelect && sourceSelect.value !== state.source) {
-          sourceSelect.value = state.source;
-        }
+    var D = window.VML_DATA;
+    if (!D || !D.world || !D.regions || !D.synthetic) {
+      document.getElementById('stats').textContent = 'error: data/data.js missing — re-run python3 scripts/build_data_js.py';
+      return;
+    }
+    state = {
+      world: topojson.feature(D.world, D.world.objects.countries)
+    };
+    state.world.features = state.world.features.filter(function (f) {
+      return f.properties.name !== 'Antarctica' && f.properties.name !== 'Fr. S. Antarctic Lands';
+    });
+    buildState(D.regions, VML.normalize.loadDataset());
+    buildControls();
+    renderLegend();
+    VML.map.init(document.getElementById('map'), state);
+    VML.charts.init();
+    VML.events.on(function (name) {
+      if (name === 'render') {
+        VML.map.render();
+        VML.charts.render();
+        renderStats();
+        renderLegend();
+      } else if (name === 'pair') {
+        VML.map.pair();
+        VML.charts.pair();
+      }
+    });
+    emitRender();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        document.body.classList.remove('booting');
       });
-      emitRender();
     });
   }
 
   document.addEventListener('DOMContentLoaded', main);
+
+  VML.app = { toggleSource: toggleSource };
 })();

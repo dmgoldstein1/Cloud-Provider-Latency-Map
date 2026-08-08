@@ -1,0 +1,185 @@
+{
+  "regions": {
+    "ams": {
+      "id": "f93c715d-de11-46d0-89d3-598aec311882",
+      "ip": "95.179.191.101",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "blr": {
+      "id": "15d1c86b-8d62-4d54-a4b3-f981b248ced4",
+      "ip": "139.84.130.162",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "ord": {
+      "id": "1b26f2ec-b4e9-4668-acd7-7560802bce9c",
+      "ip": "64.177.8.161",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "dfw": {
+      "id": "c947c89e-2e97-45c6-9aa1-58713f610e03",
+      "ip": "207.148.4.80",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "del": {
+      "id": "5f419090-7c35-4f03-8133-a69cb24ab52f",
+      "ip": "139.84.175.27",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "fra": {
+      "id": "9889d5de-9cec-4f55-b26e-c12243f214a6",
+      "ip": "80.240.21.111",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "hnl": {
+      "id": "7d914d37-af1b-4195-b9c4-4cbb167d6a49",
+      "ip": "208.83.234.171",
+      "plan": "vhp-1c-1gb-intel",
+      "state": "confirmed"
+    },
+    "jnb": {
+      "id": "447a1477-8656-481a-9f4c-bfad1720178b",
+      "ip": "139.84.243.66",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "lhr": {
+      "id": "280f75f0-39b0-44cc-9c9d-1cfec4d59c21",
+      "ip": "104.238.185.40",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "lax": {
+      "id": "60ffccfa-698f-4427-b2ea-ebd2adb44afd",
+      "ip": "45.76.169.69",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "mad": {
+      "id": "b46e49c1-174f-48b2-8c9f-b3a7501d1c38",
+      "ip": "65.20.101.216",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "man": {
+      "id": "ea15ccc8-b6ea-45e1-a6eb-98b357f8d88a",
+      "ip": "64.176.190.129",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "mel": {
+      "id": "263f5dde-b7ae-4c59-9231-22ac2c5d5d42",
+      "ip": "139.84.201.146",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "mex": {
+      "id": "85e24e63-d6a4-4ca0-a1bb-dd0c0510cf48",
+      "ip": "216.238.95.134",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "mia": {
+      "id": "bc8fb3be-2fbb-42c1-af5a-a9d2320b2d1b",
+      "ip": "207.246.78.209",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "mxp": {
+      "id": "a8d67663-4c63-4d6f-9c09-79ae04f4b832",
+      "ip": "66.245.204.233",
+      "plan": "voc-c-1c-2gb-25s-amd",
+      "state": "confirmed"
+    },
+    "bom": {
+      "id": "cceaff78-8d0e-4726-94f4-02294d0055d9",
+      "ip": "65.20.66.14",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "itm": {
+      "id": "da8c407e-9b98-4095-93e3-ae7209e6a3f5",
+      "ip": "64.176.55.242",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "cdg": {
+      "id": "c00788dd-b93b-4e2e-8064-a25d886156fd",
+      "ip": "217.69.2.106",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "scl": {
+      "id": "7688c16d-c39a-42d1-80d5-66af7c9ae728",
+      "ip": "64.176.21.68",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "sao": {
+      "id": "62ab7d3c-6942-4d93-8290-5db0a45f7193",
+      "ip": "216.238.123.60",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "sea": {
+      "id": "54d1755c-d0e3-4e91-b605-4d2e6040c07d",
+      "ip": "144.202.89.218",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "icn": {
+      "id": "b360a297-9024-42c0-ac0a-e9841d862624",
+      "ip": "141.164.58.189",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "sjc": {
+      "id": "8167731e-6b34-42ca-8dc0-4400be6d89a4",
+      "ip": "45.77.6.246",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "sgp": {
+      "id": "c41f5999-22a3-4333-ae2f-d71ba092e50e",
+      "ip": "139.180.145.186",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "sto": {
+      "id": "42684e04-0db9-4a0c-8f7c-27d905a4f9db",
+      "ip": "70.34.200.251",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "syd": {
+      "id": "80ad2e9b-7606-4e64-84c4-97fb92c47c17",
+      "ip": "139.180.168.220",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "tlv": {
+      "id": "9e995c41-a840-490b-902e-70d9c6a63bb4",
+      "ip": "64.176.163.9",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "nrt": {
+      "id": "1a7d3930-762a-4dba-882a-6ad2ac423448",
+      "ip": "104.238.151.234",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    },
+    "yto": {
+      "id": "d5d79d53-30bd-4ec1-8824-0b77c016d209",
+      "ip": "155.138.141.41",
+      "plan": "vc2-1c-1gb",
+      "state": "confirmed"
+    }
+  },
+  "status": "ok"
+}

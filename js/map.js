@@ -2,78 +2,38 @@
   var VML = window.VML = window.VML || {};
   var m = {};
 
-  function latLonToVec3(lat, lon) {
-    var phi = lat * Math.PI / 180;
-    var lam = lon * Math.PI / 180;
-    return [Math.cos(phi) * Math.cos(lam), Math.cos(phi) * Math.sin(lam), Math.sin(phi)];
-  }
-  function vec3ToLatLon(v) {
-    return [Math.asin(v[2]) * 180 / Math.PI, Math.atan2(v[1], v[0]) * 180 / Math.PI];
-  }
-  function slerp(a, b, t) {
-    var dot = Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]));
-    var theta = Math.acos(dot);
-    if (theta < 1e-8) return a.slice();
-    var w1 = Math.sin((1 - t) * theta) / Math.sin(theta);
-    var w2 = Math.sin(t * theta) / Math.sin(theta);
-    return [w1 * a[0] + w2 * b[0], w1 * a[1] + w2 * b[1], w1 * a[2] + w2 * b[2]];
-  }
-  function arcScreenPoints(projection, a, b, samples) {
-    var A = latLonToVec3(a.lat, a.lon);
-    var B = latLonToVec3(b.lat, b.lon);
-    var pts = [];
-    for (var i = 0; i <= samples; i++) {
-      var t = i / samples;
-      var v = slerp(A, B, t);
-      var ll = vec3ToLatLon(v);
-      pts.push(projection([ll[1], ll[0]]));
-    }
-    return pts;
-  }
-  function bowScreenPts(pts, height) {
-    if (pts.length < 2) return pts;
-    var x0 = pts[0][0], y0 = pts[0][1], x1 = pts[pts.length - 1][0], y1 = pts[pts.length - 1][1];
-    var dx = x1 - x0, dy = y1 - y0;
-    var L = Math.hypot(dx, dy) || 1;
-    var ux = -dy / L, uy = dx / L;
-    var n = pts.length - 1;
-    return pts.map(function (p, i) {
-      var mid = Math.sin(Math.PI * i / n);
-      return [p[0] + ux * height * mid, p[1] + uy * height * mid];
-    });
-  }
-  function arcPath(projection, a, b, distKm) {
-    var h = Math.max(8, Math.min(110, distKm * 0.02));
-    var pts = bowScreenPts(arcScreenPoints(projection, a, b, 64), h);
-    return 'M' + pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join('L');
+  function arcPath(projection, a, b) {
+    var p0 = projection([a.lon, a.lat]);
+    var p1 = projection([b.lon, b.lat]);
+    return 'M' + p0[0].toFixed(1) + ',' + p0[1].toFixed(1) +
+      'L' + p1[0].toFixed(1) + ',' + p1[1].toFixed(1);
   }
 
   function init(container, state) {
     m.state = state;
+    m.transform = d3.zoomIdentity;
     m.svg = d3.select(container).append('svg').attr('class', 'map-svg');
     m.defs = m.svg.append('defs');
-    m.defs.append('marker')
-      .attr('id', 'arrow')
-      .attr('viewBox', '0 0 10 10')
-      .attr('refX', 8)
-      .attr('refY', 5)
-      .attr('markerWidth', 5)
-      .attr('markerHeight', 5)
-      .attr('orient', 'auto')
-      .append('path')
-      .attr('d', 'M0,0 L10,5 L0,10 z')
-      .attr('fill', '#f8fafc');
-    m.g = m.svg.append('g');
-    m.graticuleG = m.g.append('g').attr('class', 'graticule');
-    m.landG = m.g.append('g').attr('class', 'land');
-    m.arcsG = m.g.append('g').attr('class', 'arcs');
-    m.markerG = m.g.append('g').attr('class', 'markers');
-    m.labelsG = m.g.append('g').attr('class', 'labels');
+
+    m.worldG = m.svg.append('g').attr('class', 'world');
+    m.graticuleG = m.worldG.append('g').attr('class', 'graticule');
+    m.landG = m.worldG.append('g').attr('class', 'land');
+    m.arcsG = m.worldG.append('g').attr('class', 'arcs');
+
+    m.clipPath = m.defs.append('clipPath').attr('id', 'map-clip');
+    m.clipRect = m.clipPath.append('rect');
+    m.worldG.attr('clip-path', 'url(#map-clip)');
+
+    m.overlayG = m.svg.append('g').attr('class', 'overlay');
+    m.markerG = m.overlayG.append('g').attr('class', 'markers');
+    m.labelsG = m.overlayG.append('g').attr('class', 'labels');
 
     m.projection = d3.geoNaturalEarth1();
     m.path = d3.geoPath(m.projection);
     m.zoom = d3.zoom().scaleExtent([1, 12]).on('zoom', function (e) {
-      m.g.attr('transform', e.transform);
+      m.transform = e.transform;
+      m.worldG.attr('transform', e.transform);
+      positionOverlay();
     });
     m.svg.call(m.zoom);
 
@@ -88,6 +48,9 @@
     m.width = w; m.height = h;
     m.svg.attr('width', w).attr('height', h);
     m.projection.fitSize([w, h], { type: 'Sphere' });
+    var yTop = m.projection([0, 84])[1];
+    var yBot = m.projection([0, -60])[1];
+    m.clipRect.attr('x', 0).attr('y', yTop).attr('width', w).attr('height', Math.max(0, yBot - yTop));
     render();
   }
 
@@ -97,6 +60,7 @@
     renderLayoutOnly();
     drawArcs();
     drawMarkers();
+    positionOverlay();
   }
 
   function renderLayoutOnly() {
@@ -115,28 +79,27 @@
     return state.data.matrices[state.metric].values[state.idx.get(d.src)][state.idx.get(d.dst)];
   }
 
+  function nameOf(code) { return m.state.byCode.get(code).name; }
+
   function drawArcs() {
     var state = m.state;
     var arcs = state.arcs.filter(function (d) {
-      return d.src === state.source &&
-        state.continents.has(state.byCode.get(d.dst).continent) &&
+      return state.sources.has(d.src) &&
         state.metricMax >= valueOf(d) &&
         state.threshold >= valueOf(d);
     });
     var s = state.colorScale;
     var widthFn = state.widthScale;
-    var self = m;
-    var sel = m.arcsG.selectAll('path.arc').data(arcs, function (d) { return d.dst; });
+    var sel = m.arcsG.selectAll('path.arc').data(arcs, function (d) { return d.src + ':' + d.dst; });
     sel.join('path')
       .attr('class', function (d) {
         return 'arc' + (state.pair && state.pair.src === d.src && state.pair.dst === d.dst ? ' pair' : '');
       })
       .attr('d', function (d) {
-        return arcPath(m.projection, state.byCode.get(d.src), state.byCode.get(d.dst), d.distance);
+        return arcPath(m.projection, state.byCode.get(d.src), state.byCode.get(d.dst));
       })
       .attr('stroke', function (d) { return s(valueOf(d)); })
       .attr('stroke-width', function (d) { return widthFn(valueOf(d)); })
-      .attr('marker-end', 'url(#arrow)')
       .on('mouseenter', function (e, d) {
         state.pair = { src: d.src, dst: d.dst };
         emitPair();
@@ -150,7 +113,7 @@
     var state = m.state;
     var lat = state.data.matrices.latency.values[state.idx.get(d.src)][state.idx.get(d.dst)];
     var jit = state.data.matrices.jitter.values[state.idx.get(d.src)][state.idx.get(d.dst)];
-    return '<b>' + d.src + ' → ' + d.dst + '</b><br>' +
+    return '<b>' + nameOf(d.src) + ' → ' + nameOf(d.dst) + '</b> (' + d.src + ' → ' + d.dst + ')<br>' +
       'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms<br>' +
       d.distance.toFixed(0) + ' km';
   }
@@ -162,19 +125,16 @@
 
   function drawMarkers() {
     var state = m.state;
-    var s = state.regions.filter(function (r) { return state.continents.has(r.continent); });
-    var sel = m.markerG.selectAll('circle.region').data(s, function (d) { return d.code; });
-    var self = m;
-    var enters = sel.join('circle');
-    enters
-      .attr('class', 'region')
-      .attr('cx', function (d) { return m.projection([d.lon, d.lat])[0]; })
-      .attr('cy', function (d) { return m.projection([d.lon, d.lat])[1]; })
+    var visible = state.regions;
+    var sel = m.markerG.selectAll('circle.region').data(visible, function (d) { return d.code; });
+    sel.join('circle')
+      .attr('class', function (d) {
+        return 'region' + (state.sources.has(d.code) ? ' checked' : ' unchecked');
+      })
       .attr('r', function (d) { return markerRadius(state.centrality[d.code], state.centralityExtent); })
       .attr('fill', function (d) { return state.continentColors[d.continent]; })
       .on('click', function (e, d) {
-        state.source = d.code;
-        emitRender();
+        toggleSource(d.code, !state.sources.has(d.code));
       })
       .on('mouseenter', function (e, d) {
         state.pair = { src: d.code };
@@ -184,19 +144,29 @@
       .on('mousemove', function (e) { moveTip(e); })
       .on('mouseleave', function () { state.pair = null; emitPair(); hideTip(); });
 
-    var rings = m.markerG.selectAll('circle.source-ring').data([state.source], function (d) { return d; });
-    rings.join('circle')
-      .attr('class', 'source-ring')
-      .attr('cx', function (d) { var p = m.projection([state.byCode.get(d).lon, state.byCode.get(d).lat]); return p[0]; })
-      .attr('cy', function (d) { var p = m.projection([state.byCode.get(d).lon, state.byCode.get(d).lat]); return p[1]; })
-      .attr('r', function (d) { return markerRadius(state.centrality[d], state.centralityExtent) + 5; });
-
-    var labels = m.labelsG.selectAll('text.label').data([state.source], function (d) { return d; });
+    var checked = state.data.matrices.latency.order.filter(function (c) {
+      return state.sources.has(c);
+    });
+    var labelData = state.sources.size <= 8 ? checked : [];
+    var labels = m.labelsG.selectAll('text.label').data(labelData, function (d) { return d; });
     labels.join('text')
       .attr('class', 'label')
-      .attr('x', function (d) { return m.projection([state.byCode.get(d).lon, state.byCode.get(d).lat])[0] + 10; })
-      .attr('y', function (d) { return m.projection([state.byCode.get(d).lon, state.byCode.get(d).lat])[1] + 4; })
       .text(function (d) { return state.byCode.get(d).name; });
+  }
+
+  function positionOverlay() {
+    var t = m.transform || d3.zoomIdentity;
+    m.markerG.selectAll('circle.region').each(function (d) {
+      var p = t.apply(m.projection([d.lon, d.lat]));
+      this.setAttribute('cx', p[0]);
+      this.setAttribute('cy', p[1]);
+    });
+    m.labelsG.selectAll('text.label').each(function (code) {
+      var r = m.state.byCode.get(code);
+      var p = t.apply(m.projection([r.lon, r.lat]));
+      this.setAttribute('x', p[0] + 10);
+      this.setAttribute('y', p[1] + 4);
+    });
   }
 
   function markerTip(d) {
@@ -208,12 +178,14 @@
       out.push(v);
     });
     var avg = out.reduce(function (a, b) { return a + b; }, 0) / out.length;
+    var status = state.sources.has(d.code) ? '<b>checked</b> — outgoing arcs shown' : 'unchecked — click to toggle';
     return '<b>' + d.name + '</b> (' + d.code + ')<br>' +
       d.country + ' · ' + d.continent + '<br>' +
       'avg latency to ' + out.length + ' regions: <b>' + avg.toFixed(0) + '</b> ms<br>' +
-      '<i>click to set as source</i>';
+      '<i>' + status + '</i>';
   }
 
+  function toggleSource(code, checked) { VML.app.toggleSource(code, checked); }
   function emitRender() { VML.events.emit('render'); }
   function emitPair() { VML.events.emit('pair'); }
 
@@ -225,7 +197,7 @@
 
   m.render = render;
   m.renderLayout = renderLayout;
-  m.pair = function () { drawArcs(); drawMarkers(); };
+  m.pair = function () { drawArcs(); drawMarkers(); positionOverlay(); };
   m.init = init;
 
   VML.map = m;

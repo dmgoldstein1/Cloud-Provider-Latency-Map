@@ -5,8 +5,10 @@
   function valueAt(state, src, dst) {
     return state.data.matrices[state.metric].values[state.idx.get(src)][state.idx.get(dst)];
   }
+  function nameOf(state, code) { return state.byCode.get(code).name; }
 
   var heatSvg, barSvg, scatterSvg;
+  var heatLayout = null;
 
   function init() {
     heatSvg = d3.select('#heatmap').append('svg');
@@ -14,13 +16,22 @@
     scatterSvg = d3.select('#scatter').append('svg');
   }
 
+  function maxNameLen(state) {
+    return state.data.matrices[state.metric].order.reduce(function (mx, c) {
+      return Math.max(mx, nameOf(state, c).length);
+    }, 0);
+  }
+
   function renderHeatmap() {
     var state = VML.state;
     var order = state.data.matrices[state.metric].order;
     var n = order.length;
-    var cell = 15, padL = 44, padT = 44;
+    var maxPx = maxNameLen(state) * 5.5;
+    var padL = Math.max(60, maxPx + 22);
+    var padT = Math.max(60, maxPx * 0.71 + 20);
+    var cell = 13;
     var w = padL + n * cell, h = padT + n * cell;
-    var self = this;
+    heatLayout = { padL: padL, padT: padT, cell: cell };
     heatSvg
       .attr('width', w)
       .attr('height', h)
@@ -29,23 +40,19 @@
     var xLabels = heatSvg.selectAll('text.col').data(order, function (d) { return d; });
     xLabels.join('text')
       .attr('class', 'axis-label col')
-      .attr('x', padL + cell / 2)
-      .attr('y', padT - 6)
       .attr('transform', function (d, i) {
         return 'translate(' + (padL + i * cell + cell / 2) + ',' + (padT - 6) + ') rotate(-45)';
       })
-      .attr('text-anchor', 'end')
-      .text(function (d) { return d; });
+      .attr('text-anchor', 'start')
+      .text(function (d) { return nameOf(state, d); });
 
     var yLabels = heatSvg.selectAll('text.row').data(order, function (d) { return d; });
     yLabels.join('text')
-      .attr('class', 'axis-label row')
-      .attr('x', padL - 6)
-      .attr('y', padT + cell / 2)
+      .attr('class', function (d) { return 'axis-label row' + (state.sources.has(d) ? '' : ' off'); })
       .attr('transform', function (d, i) { return 'translate(' + (padL - 6) + ',' + (padT + i * cell + cell / 2) + ')'; })
       .attr('text-anchor', 'end')
       .attr('dominant-baseline', 'middle')
-      .text(function (d) { return d; });
+      .text(function (d) { return nameOf(state, d); });
 
     var rows = heatSvg.selectAll('g.heat-row').data(order, function (d) { return d; });
     var rowEnters = rows.join('g')
@@ -55,7 +62,11 @@
     rowEnters.selectAll('rect.cell').data(order, function (d) { return d; })
       .join('rect')
       .attr('class', function (d) {
-        return 'cell' + (this.parentNode.__data__ === d ? ' diag' : '');
+        var src = this.parentNode.__data__;
+        var cls = 'cell';
+        if (src === d) cls += ' diag';
+        if (!state.sources.has(src)) cls += ' off';
+        return cls;
       })
       .attr('x', function (d, j) { return j * cell; })
       .attr('y', 0)
@@ -77,49 +88,57 @@
       .on('click', function (e, d) {
         var src = this.parentNode.__data__;
         if (src === d) return;
-        state.source = src;
-        VML.events.emit('render');
+        VML.app.toggleSource(src, !state.sources.has(src));
       });
-
-    heatSvg.selectAll('rect.heat-hl').remove();
-    var i = state.idx.get(state.source);
-    if (i != null) {
-      heatSvg.append('rect')
-        .attr('class', 'heat-hl')
-        .attr('x', padL - 0.5)
-        .attr('y', padT + i * cell - 0.5)
-        .attr('width', n * cell + 1)
-        .attr('height', cell + 1)
-        .attr('fill', 'none')
-        .attr('stroke', '#f8fafc')
-        .attr('stroke-width', 1.5);
-    }
   }
 
   function heatTip(state, src, dst) {
     var lat = state.data.matrices.latency.values[state.idx.get(src)][state.idx.get(dst)];
     var jit = state.data.matrices.jitter.values[state.idx.get(src)][state.idx.get(dst)];
-    return '<b>' + src + ' → ' + dst + '</b><br>latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms<br><i>click to select source</i>';
+    return '<b>' + nameOf(state, src) + ' → ' + nameOf(state, dst) + '</b> (' + src + ' → ' + dst + ')<br>' +
+      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms<br><i>click to toggle source</i>';
   }
 
   function renderBars() {
     var state = VML.state;
-    var src = state.source;
-    var items = state.arcs.filter(function (d) { return d.src === src; })
-      .map(function (d) {
-        return { dst: d.dst, v: valueAt(state, src, d.dst) };
-      })
-      .sort(function (a, b) { return a.v - b.v; });
-    var n = items.length;
-    var barH = 13, gap = 2, padL = 36, padR = 52, padT = 8, padB = 4;
+    var order = state.data.matrices[state.metric].order;
+    var srcs = order.filter(function (c) { return state.sources.has(c); });
+    var items = [];
+    order.forEach(function (dst) {
+      var vs = srcs.filter(function (s) { return s !== dst; })
+        .map(function (s) { return valueAt(state, s, dst); });
+      if (vs.length) items.push({ dst: dst, v: d3.mean(vs) });
+    });
+    items.sort(function (a, b) { return a.v - b.v; });
+
+    var titleEl = document.getElementById('bars-title');
+    if (titleEl) titleEl.textContent = srcs.length ? '· mean of ' + srcs.length + ' checked source' + (srcs.length === 1 ? '' : 's') : '';
+
+    var n = Math.max(items.length, 1);
+    var barH = 13, gap = 2;
+    var maxPx = maxNameLen(state) * 5.5;
+    var padL = Math.max(40, maxPx + 14), padR = 52, padT = 8, padB = 4;
     var w = Math.max(300, (barSvg.node().parentElement.clientWidth || 360));
     var h = padT + n * (barH + gap) + padB;
     var x = d3.scaleLinear().domain([0, state.metricMax]).range([padL, w - padR]);
     barSvg.attr('width', w).attr('height', h).attr('viewBox', '0 0 ' + w + ' ' + h);
 
+    if (!items.length) {
+      var empty = barSvg.selectAll('text.empty').data([1]);
+      empty.join('text')
+        .attr('class', 'empty')
+        .attr('x', padL)
+        .attr('y', padT + 14)
+        .text('check at least one source above');
+      return;
+    }
+    barSvg.selectAll('text.empty').remove();
+
     var bars = barSvg.selectAll('g.bar').data(items, function (d) { return d.dst; });
     var enter = bars.join('g')
-      .attr('class', function (d) { return 'bar' + (state.pair && state.pair.dst === d.dst && state.pair.src === src ? ' pair' : ''); })
+      .attr('class', function (d) {
+        return 'bar' + (state.pair && state.pair.dst === d.dst ? ' pair' : '');
+      })
       .attr('transform', function (d, i) { return 'translate(0,' + (padT + i * (barH + gap)) + ')'; })
       .style('cursor', 'pointer');
 
@@ -129,7 +148,7 @@
       .attr('y', barH / 2)
       .attr('text-anchor', 'end')
       .attr('dominant-baseline', 'middle')
-      .text(function (d) { return d.dst; });
+      .text(function (d) { return nameOf(state, d.dst); });
 
     enter.append('rect')
       .attr('class', 'bar-rect')
@@ -139,15 +158,15 @@
       .attr('height', barH)
       .attr('fill', function (d) { return state.colorScale(d.v); })
       .on('mouseenter', function (e, d) {
-        state.pair = { src: src, dst: d.dst };
+        var src = srcs.find(function (s) { return s !== d.dst; });
+        state.pair = src ? { src: src, dst: d.dst } : { dst: d.dst };
         VML.events.emit('pair');
-        showTip(heatTip(state, src, d.dst), e);
+        showTip(barTip(state, d), e);
       })
       .on('mousemove', function (e) { moveTip(e); })
       .on('mouseleave', function () { state.pair = null; VML.events.emit('pair'); hideTip(); })
       .on('click', function (e, d) {
-        state.source = d.dst;
-        VML.events.emit('render');
+        VML.app.toggleSource(d.dst, !state.sources.has(d.dst));
       });
 
     enter.append('text')
@@ -156,6 +175,16 @@
       .attr('y', barH / 2)
       .attr('dominant-baseline', 'middle')
       .text(function (d) { return d.v.toFixed(d.v >= 10 ? 0 : 1); });
+  }
+
+  function barTip(state, d) {
+    var lines = state.data.matrices[state.metric].order
+      .filter(function (s) { return state.sources.has(s) && s !== d.dst; })
+      .map(function (s) {
+        return nameOf(state, s) + ' → ' + nameOf(state, d.dst) + ': <b>' + valueAt(state, s, d.dst) + '</b> ms';
+      });
+    return '<b>' + nameOf(state, d.dst) + '</b> — mean ' + d.v.toFixed(0) + ' ms<br>' +
+      lines.join('<br>') + '<br><i>click to toggle source</i>';
   }
 
   function renderScatter() {
@@ -167,18 +196,17 @@
     var y = d3.scaleLinear().domain([0, state.metricMax]).range([padT + innerH, padT]);
     scatterSvg.attr('width', w).attr('height', h).attr('viewBox', '0 0 ' + w + ' ' + h);
 
-    var self = this;
-    var dots = scatterSvg.selectAll('circle.dot').data(state.arcs, function (d) { return d.src + ':' + d.dst; });
+    var dots = scatterSvg.selectAll('circle.dot').data(state.arcs.filter(function (d) { return state.sources.has(d.src); }), function (d) { return d.src + ':' + d.dst; });
     dots.join('circle')
       .attr('class', function (d) {
         var cls = 'dot';
-        if (d.src === state.source) cls += ' src';
+        if (state.sources.has(d.src)) cls += ' src';
         if (state.pair && state.pair.src === d.src && state.pair.dst === d.dst) cls += ' pair';
         return cls;
       })
       .attr('cx', function (d) { return x(d.distance); })
       .attr('cy', function (d) { return y(valueAt(state, d.src, d.dst)); })
-      .attr('r', function (d) { return d.src === state.source ? 3.2 : 2.2; })
+      .attr('r', function (d) { return state.sources.has(d.src) ? 3.2 : 2.2; })
       .attr('fill', function (d) { return state.colorScale(valueAt(state, d.src, d.dst)); })
       .on('mouseenter', function (e, d) {
         state.pair = { src: d.src, dst: d.dst };
@@ -188,8 +216,7 @@
       .on('mousemove', function (e) { moveTip(e); })
       .on('mouseleave', function () { state.pair = null; VML.events.emit('pair'); hideTip(); })
       .on('click', function (e, d) {
-        state.source = d.src;
-        VML.events.emit('render');
+        VML.app.toggleSource(d.src, !state.sources.has(d.src));
       });
 
     if (state.fit && state.fit.slope !== null) {
@@ -236,16 +263,20 @@
   };
   c.pair = function () {
     var state = VML.state;
-    heatSvg.selectAll('rect.cell').classed('pair', function (d) {
-      var src = this.parentNode.__data__;
-      return state.pair && state.pair.src === src && state.pair.dst === d;
-    });
     barSvg.selectAll('g.bar').classed('pair', function (d) {
-      return state.pair && state.pair.src === state.source && state.pair.dst === d.dst;
+      return state.pair && state.pair.dst === d.dst;
     });
     scatterSvg.selectAll('circle.dot').classed('pair', function (d) {
       return state.pair && state.pair.src === d.src && state.pair.dst === d.dst;
     });
+    var hlData = state.pair && heatLayout ? [state.pair] : [];
+    var hl = heatSvg.selectAll('rect.pair-hl').data(hlData, function (d) { return d.src + ':' + d.dst; });
+    hl.join('rect')
+      .attr('class', 'pair-hl')
+      .attr('x', function (d) { return heatLayout.padL + state.idx.get(d.dst) * heatLayout.cell + 1; })
+      .attr('y', function (d) { return heatLayout.padT + state.idx.get(d.src) * heatLayout.cell + 1; })
+      .attr('width', heatLayout.cell - 2)
+      .attr('height', heatLayout.cell - 2);
   };
   c.init = init;
 

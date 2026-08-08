@@ -19,11 +19,9 @@ MEASURE_TIMEOUT="${NETLAT_MEASURE_TIMEOUT:-600}"       # sec
 CREATE_THROTTLE="${NETLAT_CREATE_THROTTLE:-1}"         # sec between creates
 RUN_ID="$(date +%Y%m%d-%H%M%S)"
 TAG="netlat-$RUN_ID"
-DATA_DIR="data/run-$RUN_ID"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DATA_DIR="$SCRIPT_DIR/runs/run-$RUN_ID"
 RAW_DIR="$DATA_DIR/raw"
-KEEP_INSTANCES=0
-[[ "${1:-}" == "--keep" ]] && KEEP_INSTANCES=1
-
 # tuple arrays (key:value, colon-separated) - bash 3.2 compatible
 REGIONS=()      # region codes
 PLAN_MAP=()     # region:plan
@@ -33,6 +31,18 @@ CONFIRMED=()    # region:ip  (ssh reachable)
 
 log()  { echo "[$(date +%H:%M:%S)] $*"; }
 die()  { log "FATAL: $*"; exit 1; }
+
+# arg parsing (die is defined above)
+KEEP_INSTANCES=0
+REGIONS_OVERRIDE=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --keep) KEEP_INSTANCES=1 ;;
+    --regions) shift; REGIONS_OVERRIDE="$1" ;;
+    *) die "unknown arg: $1" ;;
+  esac
+  shift
+done
 
 # ---------------- Vultr API helper (retry on 429/5xx) ----------------
 api() {
@@ -89,8 +99,10 @@ preflight() {
   fi
 
   # region list (authoritative: locations.json; fallback: status.json)
-  if [ -f locations.json ]; then
-    while IFS= read -r r; do REGIONS+=("$r"); done < <(jq -r '.regions[].code' locations.json)
+  if [ -n "$REGIONS_OVERRIDE" ]; then
+    IFS=, read -ra REGIONS <<< "$REGIONS_OVERRIDE"
+  elif [ -f "$SCRIPT_DIR/locations.json" ]; then
+    while IFS= read -r r; do REGIONS+=("$r"); done < <(jq -r '.regions[].code' "$SCRIPT_DIR/locations.json")
   else
     while IFS= read -r r; do REGIONS+=("$r"); done < <(jq -r '.regions | to_entries[] | select(.key!="global") | .key' \
       "$DATA_DIR/status_snapshot.json" 2>/dev/null || true)
@@ -103,30 +115,19 @@ preflight() {
   [ -n "$OS_ID" ] || die "could not determine Ubuntu os_id"
   log "  os_id=$OS_ID"
 
-  # cheap plan common to all regions (fallback: cheapest per region)
+  # cheap plan per region (cheapest plan available in each region; latency
+  # measurement is plan-independent, so no need for a plan common to all)
   PLANS_JSON="$(api GET /plans)"
-  common="null"
   for region in "${REGIONS[@]}"; do
-    a="$(api GET "/regions/$region/availability" | jq -c '.available_plans')"
-    if [ "$common" = null ]; then common="$a"
-    else common="$(jq -cn --argjson c "$common" --argjson a "$a" \
-      '[$c[] | select($a | index(.))]')"
+    if avail_resp="$(api GET "/regions/$region/availability")"; then
+      avail="$(echo "$avail_resp" | jq -r '.available_plans[]')"
+      p="$(echo "$PLANS_JSON" | jq -r --argjson ids "$(echo "$avail" | jq -R -s 'split("\n")[:-1]')" \
+        '[.plans[] | select(.id as $p2 | $ids | index($p2)) | select(.ram >= 1024)] | sort_by(.monthly_cost) | .[0].id')"
+      if [ -n "$p" ]; then PLAN_MAP+=("$region:$p"); else log "  skip $region: no eligible plan"; fi
+    else
+      log "  skip $region: availability check failed"
     fi
   done
-  PLAN="$(echo "$PLANS_JSON" | jq -r --argjson common "$common" \
-    '[.plans[] | select($common | index(.id))] | sort_by(.monthly_cost) | .[0].id // empty')"
-  if [ -n "$PLAN" ]; then
-    log "  common plan: $PLAN"
-    for region in "${REGIONS[@]}"; do PLAN_MAP+=("$region:$PLAN"); done
-  else
-    log "  no plan common to all regions; using cheapest per region"
-    for region in "${REGIONS[@]}"; do
-      avail="$(api GET "/regions/$region/availability" | jq -r '.available_plans[]')"
-      p="$(echo "$PLANS_JSON" | jq -r --argjson ids "$(echo "$avail" | jq -R -s 'split("\n")[:-1]')" \
-        '[.plans[] | select($ids | index(.id))] | sort_by(.monthly_cost) | .[0].id')"
-      if [ -n "$p" ]; then PLAN_MAP+=("$region:$p"); else log "  skip $region: no eligible plan"; fi
-    done
-  fi
 
   # ensure SSH key registered; reuse if matching public key already exists
   SSH_KEY_ID="$(api GET /ssh-keys | jq -r --arg k "$(tr -d '\n' < "$SSH_KEY_PUB")" \
@@ -143,7 +144,7 @@ preflight() {
 provision() {
   local region plan body resp id
   log "provisioning ${#PLAN_MAP[@]} instances..."
-  for pair in "${PLAN_MAP[@]}"; do
+  for pair in "${PLAN_MAP[@]+"${PLAN_MAP[@]}"}"; do
     region="${pair%%:*}"; plan="${pair#*:}"
     body="$(jq -n --arg r "$region" --arg p "$plan" --argjson os "$OS_ID" \
       --arg s "$SSH_KEY_ID" --arg hn "netlat-$region" --arg tag "$TAG" \
@@ -193,7 +194,7 @@ wait_ready() {
       region="${pair%%:*}"; ip="${pair#*:}"
       # skip if already confirmed
       already=0
-      for cp in "${CONFIRMED[@]}"; do [ "$cp" = "$pair" ] && already=1; done
+      for cp in "${CONFIRMED[@]+"${CONFIRMED[@]}"}"; do [ "$cp" = "$pair" ] && already=1; done
       [ $already = 1 ] && continue
       if ssh_run "$ip" "true" >/dev/null 2>&1; then
         CONFIRMED+=("$pair")
@@ -242,7 +243,7 @@ def run(dst):
     p.wait()
     if not times:
         return dst,0,0,0,0,0,100.0,packets,0
-    jitter=statistics.mean(abs(t[i]-t[i-1]) for i in range(1,len(t)))
+    jitter=statistics.mean(abs(times[i]-times[i-1]) for i in range(1,len(times)))
     loss=100.0*(packets-len(times))/packets
     return dst,min(times),statistics.mean(times),max(times),statistics.pstdev(times),jitter,loss,packets,len(times)
 with concurrent.futures.ThreadPoolExecutor(max_workers=16) as ex:
@@ -340,7 +341,7 @@ teardown() {
   resp="$(api GET "/instances?tag=$TAG&per_page=100" 2>/dev/null || true)"
   ids=()
   while IFS= read -r id; do ids+=("$id"); done < <(echo "$resp" | jq -r '.instances[].id' 2>/dev/null || true)
-  for id in "${ids[@]}"; do
+  for id in "${ids[@]+"${ids[@]}"}"; do
     api DELETE "/instances/$id" >/dev/null 2>&1 || log "  WARN: delete $id failed"
   done
   log "teardown complete (${#ids[@]} instances)"
@@ -355,6 +356,5 @@ main() {
   run_measurement
   aggregate
   log "run complete. results in $DATA_DIR/"
-  trap - EXIT
 }
 main "$@"
