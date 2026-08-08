@@ -1,0 +1,335 @@
+{
+  "source": "GeoNames (public domain), merged with Vultr region list",
+  "regions": [
+    {
+      "code": "ams",
+      "name": "Amsterdam",
+      "city": "Amsterdam",
+      "country": "Netherlands",
+      "country_code": "NL",
+      "lat": 52.3676,
+      "lon": 4.9041,
+      "continent": "Europe"
+    },
+    {
+      "code": "atl",
+      "name": "Atlanta",
+      "city": "Atlanta",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 33.749,
+      "lon": -84.388,
+      "continent": "North America"
+    },
+    {
+      "code": "blr",
+      "name": "Bangalore",
+      "city": "Bangalore",
+      "country": "India",
+      "country_code": "IN",
+      "lat": 12.9716,
+      "lon": 77.5946,
+      "continent": "Asia"
+    },
+    {
+      "code": "bom",
+      "name": "Mumbai",
+      "city": "Mumbai",
+      "country": "India",
+      "country_code": "IN",
+      "lat": 19.076,
+      "lon": 72.8777,
+      "continent": "Asia"
+    },
+    {
+      "code": "cdg",
+      "name": "Paris",
+      "city": "Paris",
+      "country": "France",
+      "country_code": "FR",
+      "lat": 48.8566,
+      "lon": 2.3522,
+      "continent": "Europe"
+    },
+    {
+      "code": "del",
+      "name": "Delhi NCR",
+      "city": "Delhi NCR",
+      "country": "India",
+      "country_code": "IN",
+      "lat": 28.7041,
+      "lon": 77.1025,
+      "continent": "Asia"
+    },
+    {
+      "code": "dfw",
+      "name": "Dallas",
+      "city": "Dallas",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 32.7767,
+      "lon": -96.797,
+      "continent": "North America"
+    },
+    {
+      "code": "ewr",
+      "name": "New Jersey",
+      "city": "New Jersey",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 40.7357,
+      "lon": -74.1724,
+      "continent": "North America"
+    },
+    {
+      "code": "fra",
+      "name": "Frankfurt",
+      "city": "Frankfurt",
+      "country": "Germany",
+      "country_code": "DE",
+      "lat": 50.1109,
+      "lon": 8.6821,
+      "continent": "Europe"
+    },
+    {
+      "code": "hnl",
+      "name": "Honolulu",
+      "city": "Honolulu",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 21.3069,
+      "lon": -157.8583,
+      "continent": "North America"
+    },
+    {
+      "code": "icn",
+      "name": "Seoul",
+      "city": "Seoul",
+      "country": "Korea, Republic of",
+      "country_code": "KR",
+      "lat": 37.5665,
+      "lon": 126.978,
+      "continent": "Asia"
+    },
+    {
+      "code": "itm",
+      "name": "Osaka",
+      "city": "Osaka",
+      "country": "Japan",
+      "country_code": "JP",
+      "lat": 34.6937,
+      "lon": 135.5023,
+      "continent": "Asia"
+    },
+    {
+      "code": "jnb",
+      "name": "Johannesburg",
+      "city": "Johannesburg",
+      "country": "South Africa",
+      "country_code": "ZA",
+      "lat": -26.2041,
+      "lon": 28.0473,
+      "continent": "Africa"
+    },
+    {
+      "code": "lax",
+      "name": "Los Angeles",
+      "city": "Los Angeles",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 34.0522,
+      "lon": -118.2437,
+      "continent": "North America"
+    },
+    {
+      "code": "lhr",
+      "name": "London",
+      "city": "London",
+      "country": "United Kingdom",
+      "country_code": "GB",
+      "lat": 51.5074,
+      "lon": -0.1278,
+      "continent": "Europe"
+    },
+    {
+      "code": "mad",
+      "name": "Madrid",
+      "city": "Madrid",
+      "country": "Spain",
+      "country_code": "ES",
+      "lat": 40.4168,
+      "lon": -3.7038,
+      "continent": "Europe"
+    },
+    {
+      "code": "man",
+      "name": "Manchester",
+      "city": "Manchester",
+      "country": "United Kingdom",
+      "country_code": "GB",
+      "lat": 53.4808,
+      "lon": -2.2426,
+      "continent": "Europe"
+    },
+    {
+      "code": "mel",
+      "name": "Melbourne",
+      "city": "Melbourne",
+      "country": "Australia",
+      "country_code": "AU",
+      "lat": -37.8136,
+      "lon": 144.9631,
+      "continent": "Oceania"
+    },
+    {
+      "code": "mex",
+      "name": "Mexico City",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "country_code": "MX",
+      "lat": 19.4326,
+      "lon": -99.1332,
+      "continent": "North America"
+    },
+    {
+      "code": "mia",
+      "name": "Miami",
+      "city": "Miami",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 25.7617,
+      "lon": -80.1918,
+      "continent": "North America"
+    },
+    {
+      "code": "mxp",
+      "name": "Milan",
+      "city": "Milan",
+      "country": "Italy",
+      "country_code": "IT",
+      "lat": 45.4642,
+      "lon": 9.19,
+      "continent": "Europe"
+    },
+    {
+      "code": "nrt",
+      "name": "Tokyo",
+      "city": "Tokyo",
+      "country": "Japan",
+      "country_code": "JP",
+      "lat": 35.6762,
+      "lon": 139.6503,
+      "continent": "Asia"
+    },
+    {
+      "code": "ord",
+      "name": "Chicago",
+      "city": "Chicago",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 41.8781,
+      "lon": -87.6298,
+      "continent": "North America"
+    },
+    {
+      "code": "sao",
+      "name": "São Paulo",
+      "city": "São Paulo",
+      "country": "Brazil",
+      "country_code": "BR",
+      "lat": -23.5505,
+      "lon": -46.6333,
+      "continent": "South America"
+    },
+    {
+      "code": "scl",
+      "name": "Santiago",
+      "city": "Santiago",
+      "country": "Chile",
+      "country_code": "CL",
+      "lat": -33.4489,
+      "lon": -70.6693,
+      "continent": "South America"
+    },
+    {
+      "code": "sea",
+      "name": "Seattle",
+      "city": "Seattle",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 47.6062,
+      "lon": -122.3321,
+      "continent": "North America"
+    },
+    {
+      "code": "sgp",
+      "name": "Singapore",
+      "city": "Singapore",
+      "country": "Singapore",
+      "country_code": "SG",
+      "lat": 1.3521,
+      "lon": 103.8198,
+      "continent": "Asia"
+    },
+    {
+      "code": "sjc",
+      "name": "Silicon Valley",
+      "city": "Silicon Valley",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 37.3541,
+      "lon": -121.9552,
+      "continent": "North America"
+    },
+    {
+      "code": "sto",
+      "name": "Stockholm",
+      "city": "Stockholm",
+      "country": "Sweden",
+      "country_code": "SE",
+      "lat": 59.3293,
+      "lon": 18.0686,
+      "continent": "Europe"
+    },
+    {
+      "code": "syd",
+      "name": "Sydney",
+      "city": "Sydney",
+      "country": "Australia",
+      "country_code": "AU",
+      "lat": -33.8688,
+      "lon": 151.2093,
+      "continent": "Oceania"
+    },
+    {
+      "code": "tlv",
+      "name": "Tel Aviv",
+      "city": "Tel Aviv",
+      "country": "Israel",
+      "country_code": "IL",
+      "lat": 32.0853,
+      "lon": 34.7818,
+      "continent": "Asia"
+    },
+    {
+      "code": "waw",
+      "name": "Warsaw",
+      "city": "Warsaw",
+      "country": "Poland",
+      "country_code": "PL",
+      "lat": 52.2297,
+      "lon": 21.0122,
+      "continent": "Europe"
+    },
+    {
+      "code": "yto",
+      "name": "Toronto",
+      "city": "Toronto",
+      "country": "Canada",
+      "country_code": "CA",
+      "lat": 43.6532,
+      "lon": -79.3832,
+      "continent": "North America"
+    }
+  ]
+}

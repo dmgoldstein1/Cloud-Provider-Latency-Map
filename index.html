@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vultr Latency Map</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Vultr Latency Map</h1>
+      <span class="sub">33 regions · status.vultr.com (synthetic placeholder)</span>
+    </div>
+    <div class="toolbar">
+      <div class="group" id="metric-group">
+        <span class="label">Metric</span>
+        <div class="seg" id="metric-btns">
+          <button class="metric-btn active" data-metric="latency">Latency</button>
+          <button class="metric-btn" data-metric="jitter">Jitter</button>
+        </div>
+      </div>
+      <div class="group">
+        <span class="label">Source</span>
+        <select id="source" title="Source region"></select>
+      </div>
+      <div class="group grow">
+        <span class="label">Max threshold <span id="threshold-label"></span></span>
+        <input type="range" id="threshold" min="0" max="300" step="1" value="250" title="Hide arcs above this value">
+      </div>
+      <div class="group">
+        <span class="label">Data</span>
+        <select id="dataset" title="Data source">
+          <option value="synthetic">Synthetic (status.json)</option>
+          <option value="netlat" title="Loads data/netlat/latest (netlat.sh run output)">netlat.sh run</option>
+        </select>
+      </div>
+      <div class="group" id="continents-group">
+        <span class="label">Regions</span>
+        <div id="continents"></div>
+      </div>
+    </div>
+  </header>
+
+  <div id="stats"></div>
+
+  <main>
+    <section id="map-pane">
+      <div id="map"></div>
+      <div id="legend"></div>
+    </section>
+    <aside id="side-pane">
+      <section class="card" id="heatmap-card">
+        <h2>Pair matrix <span class="hint">row = source · click cell to set source</span></h2>
+        <div id="heatmap"></div>
+      </section>
+      <section class="card" id="bars-card">
+        <h2>From source <span class="hint" id="bars-title"></span></h2>
+        <div id="bars"></div>
+      </section>
+      <section class="card" id="scatter-card">
+        <h2>Metric vs great-circle distance <span class="hint">all pairs; solid = source</span></h2>
+        <div id="scatter"></div>
+      </section>
+    </aside>
+  </main>
+
+  <div id="tooltip"></div>
+
+  <script src="lib/d3.v7.min.js"></script>
+  <script src="lib/topojson-client.min.js"></script>
+  <script src="lib/d3-scale-chromatic.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/normalize.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
