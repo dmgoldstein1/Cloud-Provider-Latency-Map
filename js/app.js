@@ -31,6 +31,12 @@
   };
 
   function unit() { return VML.config.metrics[state.metric].unit; }
+  function decimals() { return VML.config.metrics[state.metric].decimals; }
+  function fmt(v) {
+    if (v == null || isNaN(v)) return '—';
+    var d = decimals();
+    return d === 0 ? v.toFixed(0) : v.toFixed(d);
+  }
   function nameOf(code) { return state.byCode.get(code).name; }
 
   function destSet(state) {
@@ -185,7 +191,7 @@
       thresholdSlider.step = state.metric === 'latency' ? 1 : 0.1;
       thresholdSlider.value = state.threshold;
     }
-    if (thresholdLabel) thresholdLabel.textContent = state.threshold.toFixed(0) + ' ' + unit();
+    if (thresholdLabel) thresholdLabel.textContent = fmt(state.threshold) + ' ' + unit();
   }
 
   function widthScaleFn() {
@@ -334,7 +340,7 @@
 
     thresholdSlider.addEventListener('input', function () {
       state.threshold = +thresholdSlider.value;
-      thresholdLabel.textContent = state.threshold.toFixed(0) + ' ' + unit();
+      thresholdLabel.textContent = fmt(state.threshold) + ' ' + unit();
       VML.events.emit('render');
     });
 
@@ -453,8 +459,8 @@
     statsEl.innerHTML =
       header +
       ' · avg ' + metric + ' across ' + (nSrc ? vals.length / nSrc : 0) +
-      ' targets: <b>' + (avg != null ? avg.toFixed(0) : '—') + '</b> ' + unit() +
-      ' · showing <b>' + shown + '</b> arc' + (shown === 1 ? '' : 's') + ' ≤ <b>' + state.threshold.toFixed(0) + '</b> ' + unit();
+      ' targets: <b>' + (avg != null ? fmt(avg) : '—') + '</b> ' + unit() +
+      ' · showing <b>' + shown + '</b> arc' + (shown === 1 ? '' : 's') + ' ≤ <b>' + fmt(state.threshold) + '</b> ' + unit();
   }
 
   function renderLegend() {
@@ -476,7 +482,7 @@
       '<stop offset="0%" stop-color="' + c0 + '"/><stop offset="100%" stop-color="' + c1 + '"/>' +
       '</linearGradient></defs>' +
       '<rect width="86" height="10" rx="2" fill="url(#' + gid + ')"/></svg>' +
-      ' <b>0</b> – <b>' + state.metricMax.toFixed(0) + '</b> ' + unit() +
+      ' <b>0</b> – <b>' + fmt(state.metricMax) + '</b> ' + unit() +
       '</span>';
     document.getElementById('legend').innerHTML = html;
   }

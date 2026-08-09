@@ -18,6 +18,7 @@
         <div class="seg" id="metric-btns">
           <button class="metric-btn active" data-metric="latency">Latency</button>
           <button class="metric-btn" data-metric="jitter">Jitter</button>
+          <button class="metric-btn" data-metric="loss">Loss</button>
         </div>
       </div>
       <div class="group grow">
@@ -82,7 +83,7 @@
             <h3>What the axes mean</h3>
             <ul>
               <li><b>x — distance:</b> great-circle distance in km, the straight-line path between the two regions across the globe.</li>
-              <li><b>y — metric:</b> the value of the selected metric for that pair — <b>latency</b> (round-trip time, ms) or <b>jitter</b> (variation between probes, ms). Switch it with the Metric buttons in the header.</li>
+              <li><b>y — metric:</b> the value of the selected metric for that pair — <b>latency</b> (round-trip time, ms), <b>jitter</b> (variation between probes, ms), or <b>loss</b> (% of packets lost). Switch it with the Metric buttons in the header.</li>
             </ul>
             <h3>What you're looking at</h3>
             <ul>
@@ -108,6 +109,24 @@
       <button id="side-tab" title="Toggle right panel">▸</button>
     </div>
   </main>
+
+  <footer id="footer">
+    <p class="disclaimer">
+      The latency, jitter, and loss data shown here was collected from virtual machines hosted on Vultr.
+      This is a personal, unofficial project and is not affiliated with, endorsed by, or sponsored by
+      VULTR or The Constant Company, LLC. Product names, logos, and brands are property of their respective owners.
+    </p>
+    <p class="credits">
+      Built with <a href="https://d3js.org">D3.js</a> (BSD-3-Clause, &copy; 2010&ndash;2023 Mike Bostock),
+      <a href="https://github.com/topojson/topojson-client">topojson-client</a>, and
+      <a href="https://github.com/d3/d3-scale-chromatic">d3-scale-chromatic</a> (ISC, &copy; Mike Bostock;
+      color schemes &copy; 2002 Cynthia Brewer, Mark Harrower, and The Pennsylvania State University).
+      World map boundaries from the
+      <a href="https://github.com/topojson/world-atlas">World Atlas</a> project, derived from
+      <a href="https://www.naturalearthdata.com">Natural Earth</a> (public domain);
+      region coordinates from <a href="https://www.geonames.org">GeoNames</a> (public domain).
+    </p>
+  </footer>
 
   <div id="tooltip"></div>
 

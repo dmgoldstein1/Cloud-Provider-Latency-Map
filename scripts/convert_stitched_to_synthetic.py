@@ -4,9 +4,9 @@
 # consumes). Run after stitching a new dataset:
 #   python3 scripts/convert_stitched_to_synthetic.py
 #
-# Reads scripts/runs/stitched/{latency,jitter}_matrix.csv plus data/regions.json
-# for location/country metadata. Skips the src (self) column and blank cells.
-# Values are rounded to 1 decimal.
+# Reads scripts/runs/stitched/{latency,jitter,loss}_matrix.csv plus
+# data/regions.json for location/country metadata. Skips the src (self) column
+# and blank cells. Values are rounded to 1 decimal.
 import argparse
 import csv
 import datetime
@@ -48,9 +48,10 @@ def main():
 
     latency_hdr, latency = read_matrix(os.path.join(args.source, "latency_matrix.csv"))
     jitter_hdr, jitter = read_matrix(os.path.join(args.source, "jitter_matrix.csv"))
+    loss_hdr, loss = read_matrix(os.path.join(args.source, "loss_matrix.csv"))
 
-    if latency_hdr != jitter_hdr:
-        raise SystemExit("latency and jitter matrix headers differ")
+    if not (latency_hdr == jitter_hdr == loss_hdr):
+        raise SystemExit("latency, jitter, and loss matrix headers differ")
 
     regions = {r["code"]: r for r in json.load(open(args.regions))["regions"]}
     missing = [c for c in latency_hdr if c not in regions]
@@ -61,6 +62,7 @@ def main():
     for code in latency_hdr:
         lat = {dst: v for dst, v in latency[code].items() if dst != code}
         jit = {dst: v for dst, v in jitter[code].items() if dst != code}
+        los = {dst: v for dst, v in loss[code].items() if dst != code}
         meta = regions[code]
         out_regions.append({
             "code": code,
@@ -69,6 +71,7 @@ def main():
             "country_name": meta.get("country"),
             "latency": lat,
             "jitter": jit,
+            "loss": los,
         })
 
     payload = {
@@ -85,9 +88,10 @@ def main():
     cells = len(latency_hdr) * (len(latency_hdr) - 1)
     lat_filled = sum(len(v) for v in latency.values())
     jit_filled = sum(len(v) for v in jitter.values())
+    los_filled = sum(len(v) for v in loss.values())
     print("wrote %s" % args.out)
     print("  regions: %d  expected non-self cells: %d" % (len(latency_hdr), cells))
-    print("  latency cells: %d  jitter cells: %d" % (lat_filled, jit_filled))
+    print("  latency cells: %d  jitter cells: %d  loss cells: %d" % (lat_filled, jit_filled, los_filled))
 
 
 if __name__ == "__main__":

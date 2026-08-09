@@ -110,8 +110,10 @@
   function heatTip(state, src, dst) {
     var lat = state.data.matrices.latency.values[state.idx.get(src)][state.idx.get(dst)];
     var jit = state.data.matrices.jitter.values[state.idx.get(src)][state.idx.get(dst)];
+    var loss = state.data.matrices.loss.values[state.idx.get(src)][state.idx.get(dst)];
     return '<b>' + nameOf(state, src) + ' → ' + nameOf(state, dst) + '</b> (' + src + ' → ' + dst + ')<br>' +
-      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms<br><i>click to toggle source</i>';
+      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms · loss <b>' + loss + '</b> %<br>' +
+      '<i>click to toggle source</i>';
   }
 
   function renderBars() {
@@ -202,12 +204,17 @@
   }
 
   function barTip(state, d) {
+    var unit = VML.config.metrics[state.metric].unit;
+    var fmt = function (v) {
+      var dec = VML.config.metrics[state.metric].decimals;
+      return dec === 0 ? v.toFixed(0) : v.toFixed(dec);
+    };
     var lines = state.data.matrices[state.metric].order
       .filter(function (s) { return state.sources.has(s) && s !== d.dst; })
       .map(function (s) {
-        return nameOf(state, s) + ' → ' + nameOf(state, d.dst) + ': <b>' + valueAt(state, s, d.dst) + '</b> ms';
+        return nameOf(state, s) + ' → ' + nameOf(state, d.dst) + ': <b>' + fmt(valueAt(state, s, d.dst)) + '</b> ' + unit;
       });
-    return '<b>' + nameOf(state, d.dst) + '</b> — mean ' + d.v.toFixed(0) + ' ms<br>' +
+    return '<b>' + nameOf(state, d.dst) + '</b> — mean ' + fmt(d.v) + ' ' + unit + '<br>' +
       lines.join('<br>') + '<br><i>click to toggle source</i>';
   }
 
@@ -362,11 +369,19 @@
 
     var xLabel = scatterSvg.selectAll('text.x-label').data([1]);
     xLabel.join('text')
-      .attr('class', 'axis-label')
+      .attr('class', 'axis-label x-label')
       .attr('x', padL + innerW / 2)
       .attr('y', h - 6)
       .attr('text-anchor', 'middle')
       .text('great-circle distance (km)');
+
+    var mlabel = VML.config.metrics[state.metric];
+    var yLabel = scatterSvg.selectAll('text.y-label').data([1]);
+    yLabel.join('text')
+      .attr('class', 'axis-label y-label')
+      .attr('transform', 'translate(12,' + (padT + innerH / 2) + ') rotate(-90)')
+      .attr('text-anchor', 'middle')
+      .text(mlabel.label.toLowerCase() + ' (' + mlabel.unit + ')');
 
     renderPairGrid(scatterSvg, scatterLayout, scatterPairPos);
   }
@@ -461,7 +476,7 @@
 
     var xLabel = jitterSvg.selectAll('text.x-label').data([1]);
     xLabel.join('text')
-      .attr('class', 'axis-label')
+      .attr('class', 'axis-label x-label')
       .attr('x', padL + innerW / 2)
       .attr('y', h - 6)
       .attr('text-anchor', 'middle')
@@ -469,7 +484,7 @@
 
     var yLabel = jitterSvg.selectAll('text.y-label').data([1]);
     yLabel.join('text')
-      .attr('class', 'axis-label')
+      .attr('class', 'axis-label y-label')
       .attr('transform', 'translate(12,' + (padT + innerH / 2) + ') rotate(-90)')
       .attr('text-anchor', 'middle')
       .text('latency (ms)');

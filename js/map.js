@@ -128,8 +128,9 @@
     var state = m.state;
     var lat = state.data.matrices.latency.values[state.idx.get(d.src)][state.idx.get(d.dst)];
     var jit = state.data.matrices.jitter.values[state.idx.get(d.src)][state.idx.get(d.dst)];
+    var loss = state.data.matrices.loss.values[state.idx.get(d.src)][state.idx.get(d.dst)];
     return '<b>' + nameOf(d.src) + ' → ' + nameOf(d.dst) + '</b> (' + d.src + ' → ' + d.dst + ')<br>' +
-      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms<br>' +
+      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms · loss <b>' + loss + '</b> %<br>' +
       d.distance.toFixed(0) + ' km';
   }
 

@@ -17,7 +17,7 @@
     }
     return {
       meta: { source: raw.source, retrieved_at: raw.retrieved_at, format: 'vultr-status' },
-      matrices: { latency: build('latency'), jitter: build('jitter') }
+      matrices: { latency: build('latency'), jitter: build('jitter'), loss: build('loss') }
     };
   }
 

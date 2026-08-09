@@ -2,8 +2,9 @@
   var VML = window.VML = window.VML || {};
   VML.config = {
     metrics: {
-      latency: { label: 'Latency', unit: 'ms', short: 'latency' },
-      jitter: { label: 'Jitter', unit: 'ms', short: 'jitter' }
+      latency: { label: 'Latency', unit: 'ms', short: 'latency', decimals: 0 },
+      jitter: { label: 'Jitter', unit: 'ms', short: 'jitter', decimals: 1 },
+      loss: { label: 'Loss', unit: '%', short: 'loss', decimals: 1 }
     },
     continents: ['Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'],
     continentColors: {

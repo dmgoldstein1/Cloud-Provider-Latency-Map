@@ -126,19 +126,20 @@ python3 scripts/build_data_js.py
       "country": "NL",
       "country_name": "Netherlands",
       "latency": { "atl": 113, "blr": 113, "ord": 112, "...": 0 },
-      "jitter":   { "atl": 1.7, "blr": 6.3, "ord": 2.2, "...": 0 }
+      "jitter":   { "atl": 1.7, "blr": 6.3, "ord": 2.2, "...": 0 },
+      "loss":     { "atl": 0.0, "blr": 0.3, "ord": 0.0, "...": 0 }
     }
   ]
 }
 ```
 - Exactly one object per region; `code` must match keys in `regions.json`.
-- `latency`/`jitter` are maps of **dst-region-code → value**. Values are rounded
-  to 1 decimal in the current file but any float works.
-- Every region key must appear in every region's `latency`/`jitter` map, or the
-  matrix gets `0` for the missing cell (see `normalize.js` `build()`).
-- **No `loss` field today.** The dashboard only knows `latency` and `jitter`
-  (see `js/config.js` `metrics`). To surface loss you must also edit
-  `config.js`, `normalize.js`, and the metric button group in `index.html`.
+- `latency`/`jitter`/`loss` are maps of **dst-region-code → value**. Values are
+  rounded to 1 decimal in the current file but any float works.
+- Every region key must appear in every region's `latency`/`jitter`/`loss` map,
+  or the matrix gets `0` for the missing cell (see `normalize.js` `build()`).
+- All three metrics are wired through the dashboard: `js/config.js` `metrics`
+  defines them, `normalize.js` builds a matrix per metric, and `index.html` has
+  one Metric button per entry. Loss is in %; latency/jitter in ms.
 
 ### `normalize.js` behavior (read before converting)
 `fromVultrStatus(raw)` builds square matrices:
@@ -147,9 +148,10 @@ python3 scripts/build_data_js.py
 - `loadDataset()` calls it on `window.VML_DATA.synthetic`.
 
 So the conversion from CSVs to `synthetic` is: for each src region, read its row
-of `latency_matrix.csv` and emit `{code, location, country, country_name,
-latency: {dst: avg}, jitter: {dst: jitter}}`, skipping the `src` column and blank
-cells.
+of `latency_matrix.csv` (plus `jitter_matrix.csv` and `loss_matrix.csv`) and emit
+`{code, location, country, country_name, latency: {dst: avg}, jitter: {dst:
+jitter}, loss: {dst: loss_pct}}`, skipping the `src` column and blank cells.
+`scripts/convert_stitched_to_synthetic.py` does exactly this.
 
 ---
 
@@ -157,13 +159,15 @@ cells.
 
 1. **Locate the data.** Fresh full matrix: `scripts/runs/stitched/`. A single
    run's own matrix also works if you only want that subset.
-2. **Convert matrices → `data/locations_synthetic.json`.** Write a small script
-   (or inline python) that reads `scripts/runs/stitched/{latency,jitter}_matrix.csv`
-   plus `scripts/regions.json`/`data/regions.json` for `location`/`country` and
-   emits the schema above. There is **no existing converter** — you must write it
-   (it belongs in `scripts/`, e.g. `scripts/convert_stitched_to_synthetic.py`).
-   Round values to 1 decimal to match existing style. Fill every cell (33 regions
-   × 33 destinations per metric).
+2. **Convert matrices → `data/locations_synthetic.json`.** Run the existing
+   converter (reads `scripts/runs/stitched/{latency,jitter,loss}_matrix.csv`
+   plus `data/regions.json`):
+   ```
+   python3 scripts/convert_stitched_to_synthetic.py
+   ```
+   It emits the schema above — `latency`/`jitter`/`loss` maps for every region,
+   rounded to 1 decimal, self-cells skipped. Then sync the placeholder copy:
+   `cp data/locations_synthetic.json scripts/locations_synthetic.json`.
 3. **Set provenance.** Update `"source"` (e.g. `"measured via netlat.sh"`) and
    `"retrieved_at"` (today's date) in `locations_synthetic.json`.
 4. **Rebuild the bundle:** `python3 scripts/build_data_js.py`
@@ -174,9 +178,9 @@ cells.
 6. **(Optional) point `data/netlat/latest` at the run:** `./scripts/import_run.sh`
    creates `data/netlat/latest -> scripts/runs/run-<id>`. Useful as a stable
    pointer for follow-up automation.
-7. **(Optional) surface loss:** add `loss` to `js/config.js` `metrics`, teach
-   `normalize.js` to build it, add a `data-loss` metric button in `index.html`.
-   The CSV already has the data; only the dashboard layer is missing it.
+7. **Loss is already wired.** The dashboard has a Loss metric button; the
+   converter reads `loss_matrix.csv` and `normalize.js` builds the matrix. No
+   further edits needed when new loss data arrives.
 
 ### Coordinate/name matching caveat
 `regions.json` is the authoritative list of the 33 regions with lat/lon/continent.
