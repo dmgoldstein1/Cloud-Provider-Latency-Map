@@ -33,6 +33,86 @@
   function unit() { return VML.config.metrics[state.metric].unit; }
   function nameOf(code) { return state.byCode.get(code).name; }
 
+  function destSet(state) {
+    if (state.destMode === 'checked') {
+      var s = new Set();
+      state.data.matrices.latency.order.forEach(function (c) {
+        if (state.sources.has(c)) s.add(c);
+      });
+      return s;
+    }
+    return new Set(state.data.matrices.latency.order);
+  }
+
+  function activeArcs(state) {
+    var dsts = destSet(state);
+    return state.arcs.filter(function (d) {
+      return state.sources.has(d.src) && dsts.has(d.dst);
+    });
+  }
+
+  VML.util = { destSet: destSet, activeArcs: activeArcs };
+
+  var STORE_KEY = 'vml_state';
+
+  function writeStore(obj) {
+    var json = JSON.stringify(obj);
+    try {
+      document.cookie = STORE_KEY + '=' + encodeURIComponent(json) + ';max-age=31536000;path=/';
+      if (new RegExp('(?:^|;\\s*)' + STORE_KEY + '=').test(document.cookie)) return;
+    } catch (e) {}
+    try { localStorage.setItem(STORE_KEY, json); } catch (e) {}
+  }
+
+  function readStore() {
+    try {
+      var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + STORE_KEY + '=([^;]*)'));
+      if (m && m[1]) return JSON.parse(decodeURIComponent(m[1]));
+    } catch (e) {}
+    try {
+      var v = localStorage.getItem(STORE_KEY);
+      if (v != null) return JSON.parse(v);
+    } catch (e) {}
+    return null;
+  }
+
+  function persist() {
+    writeStore({
+      sources: Array.from(state.sources),
+      metric: state.metric,
+      threshold: state.threshold,
+      destMode: state.destMode,
+      panelHidden: document.body.classList.contains('panel-hidden'),
+      srcHidden: document.body.classList.contains('src-hidden'),
+      zoom: VML.map && VML.map.transform
+        ? { k: VML.map.transform.k, x: VML.map.transform.x, y: VML.map.transform.y }
+        : null
+    });
+  }
+
+  function restoreState(saved) {
+    if (!saved) return;
+    var order = state.data.matrices.latency.order;
+    if (saved.destMode === 'all' || saved.destMode === 'checked') state.destMode = saved.destMode;
+    if (Array.isArray(saved.sources)) {
+      state.sources = new Set(saved.sources.filter(function (c) { return order.indexOf(c) !== -1; }));
+    }
+    if (saved.metric && VML.config.metrics[saved.metric]) state.metric = saved.metric;
+    if (typeof saved.threshold === 'number') state.threshold = saved.threshold;
+    if (saved.panelHidden) document.body.classList.add('panel-hidden');
+    if (saved.srcHidden) document.body.classList.add('src-hidden');
+    state.savedZoom = saved.zoom || null;
+  }
+
+  function applyRestoredUI() {
+    metricButtons.forEach(function (x) { x.classList.toggle('active', x.dataset.metric === state.metric); });
+    document.querySelectorAll('.dest-btn').forEach(function (x) { x.classList.toggle('active', x.dataset.dest === state.destMode); });
+    var sideTab = document.getElementById('side-tab');
+    if (sideTab) sideTab.textContent = document.body.classList.contains('panel-hidden') ? '◂' : '▸';
+    var srcTab = document.getElementById('src-tab');
+    if (srcTab) srcTab.textContent = document.body.classList.contains('src-hidden') ? '▴' : '▾';
+  }
+
   function buildState(regionsRaw, dataset) {
     var order = dataset.matrices.latency.order;
     state = {
@@ -41,6 +121,7 @@
       byCode: new Map(regionsRaw.regions.map(function (r) { return [r.code, r]; })),
       idx: new Map(order.map(function (c, i) { return [c, i]; })),
       metric: VML.config.defaults.metric,
+      destMode: 'all',
       sources: new Set(order),
       threshold: null,
       pair: null,
@@ -82,7 +163,7 @@
     state.metricMax = Math.round(raw * 10) / 10;
     state.colorScale.domain([0, state.metricMax]);
 
-    var arcs = state.arcs.filter(function (d) { return state.sources.has(d.src); });
+    var arcs = activeArcs(state);
     var n = arcs.length;
     var mx = d3.mean(arcs, function (d) { return d.distance; });
     var my = d3.mean(arcs, function (d) {
@@ -242,6 +323,15 @@
       });
     });
 
+    document.querySelectorAll('.dest-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (state.destMode === b.dataset.dest) return;
+        state.destMode = b.dataset.dest;
+        document.querySelectorAll('.dest-btn').forEach(function (x) { x.classList.toggle('active', x === b); });
+        emitRender();
+      });
+    });
+
     thresholdSlider.addEventListener('input', function () {
       state.threshold = +thresholdSlider.value;
       thresholdLabel.textContent = state.threshold.toFixed(0) + ' ' + unit();
@@ -267,6 +357,76 @@
     }
 
     window.addEventListener('resize', onResize);
+    wireChartHelp();
+    wireMapControls();
+    wireLegendWrap();
+  }
+
+  function wireMapControls() {
+    var ids = {
+      'map-zoom-in': 'zoomIn',
+      'map-zoom-out': 'zoomOut',
+      'map-fit-world': 'fitWorld',
+      'map-fit-selected': 'fitToSelected'
+    };
+    Object.keys(ids).forEach(function (id) {
+      var btn = document.getElementById(id);
+      if (btn) btn.addEventListener('click', function () { VML.map[ids[id]](); });
+    });
+  }
+
+  function setControlsWidth() {
+    var ctrl = document.getElementById('map-controls');
+    if (!ctrl) return;
+    var rows = ctrl.querySelectorAll('.ctrl-row');
+    if (!rows.length) return;
+    var w = 0;
+    rows.forEach(function (r) { w += r.getBoundingClientRect().width; });
+    w += (rows.length - 1) * 6;
+    var target = Math.ceil(w) + 'px';
+    if (ctrl.style.width !== target) ctrl.style.width = target;
+  }
+
+  function syncLegendWrap() {
+    var legend = document.getElementById('legend');
+    var footer = document.getElementById('map-footer');
+    if (!legend || !footer) return;
+    setControlsWidth();
+    var tops = {};
+    legend.querySelectorAll('.lg').forEach(function (el) {
+      tops[Math.round(el.getBoundingClientRect().top)] = true;
+    });
+    footer.classList.toggle('legend-wrapped', Object.keys(tops).length > 1);
+  }
+
+  function wireLegendWrap() {
+    var footer = document.getElementById('map-footer');
+    if (!footer) return;
+    var ro = new ResizeObserver(function () { syncLegendWrap(); });
+    ro.observe(footer);
+    syncLegendWrap();
+  }
+
+  function wireChartHelp() {
+    var btn = document.getElementById('scatter-help-btn');
+    var pop = document.getElementById('scatter-help-pop');
+    var close = document.getElementById('scatter-help-close');
+    if (!btn || !pop) return;
+    function setOpen(open) {
+      pop.classList.toggle('open', open);
+      pop.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setOpen(!pop.classList.contains('open'));
+    });
+    if (close) close.addEventListener('click', function (e) { e.stopPropagation(); setOpen(false); });
+    document.addEventListener('click', function (e) {
+      if (pop.classList.contains('open') && !pop.contains(e.target) && !btn.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setOpen(false);
+    });
   }
 
   var resizeTimeout = null;
@@ -280,7 +440,7 @@
 
   function renderStats() {
     var metric = state.metric;
-    var vals = state.arcs.filter(function (d) { return state.sources.has(d.src); })
+    var vals = activeArcs(state)
       .map(function (d) { return state.data.matrices[metric].values[state.idx.get(d.src)][state.idx.get(d.dst)]; });
     var shown = vals.filter(function (v) { return state.threshold >= v; }).length;
     var avg = d3.mean(vals);
@@ -334,9 +494,12 @@
       return f.properties.name !== 'Antarctica' && f.properties.name !== 'Fr. S. Antarctic Lands';
     });
     buildState(D.regions, VML.normalize.loadDataset());
+    restoreState(readStore());
     buildControls();
+    applyRestoredUI();
     renderLegend();
     VML.map.init(document.getElementById('map'), state);
+    if (state.savedZoom) VML.map.setTransform(state.savedZoom);
     VML.charts.init();
     VML.events.on(function (name) {
       if (name === 'render') {
@@ -344,10 +507,14 @@
         VML.charts.render();
         renderStats();
         renderLegend();
+        syncLegendWrap();
       } else if (name === 'pair') {
         VML.map.pair();
         VML.charts.pair();
       }
+    });
+    VML.events.on(function (name) {
+      if (name === 'render' || name === 'zoom') persist();
     });
     emitRender();
     requestAnimationFrame(function () {

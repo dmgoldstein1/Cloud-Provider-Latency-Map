@@ -34,6 +34,8 @@
       m.transform = e.transform;
       m.worldG.attr('transform', e.transform);
       positionOverlay();
+    }).on('end', function () {
+      VML.events.emit('zoom');
     });
     m.svg.call(m.zoom);
 
@@ -52,6 +54,17 @@
     var yBot = m.projection([0, -60])[1];
     m.clipRect.attr('x', 0).attr('y', yTop).attr('width', w).attr('height', Math.max(0, yBot - yTop));
     render();
+    applyPendingTransform();
+  }
+
+  function applyPendingTransform() {
+    if (!m.pendingTransform) return;
+    m.transform = d3.zoomIdentity
+      .translate(m.pendingTransform.x || 0, m.pendingTransform.y || 0)
+      .scale(m.pendingTransform.k);
+    m.worldG.attr('transform', m.transform);
+    m.svg.call(m.zoom.transform, m.transform);
+    m.pendingTransform = null;
   }
 
   function render() {
@@ -83,8 +96,10 @@
 
   function drawArcs() {
     var state = m.state;
+    var dsts = VML.util.destSet(state);
     var arcs = state.arcs.filter(function (d) {
       return state.sources.has(d.src) &&
+        dsts.has(d.dst) &&
         state.metricMax >= valueOf(d) &&
         state.threshold >= valueOf(d);
     });
@@ -189,6 +204,24 @@
   function emitRender() { VML.events.emit('render'); }
   function emitPair() { VML.events.emit('pair'); }
 
+  function fitTransform() {
+    var codes = m.state.data.matrices.latency.order.filter(function (c) { return m.state.sources.has(c); });
+    if (!codes.length) return null;
+    var pts = codes.map(function (c) {
+      var r = m.state.byCode.get(c);
+      return m.projection([r.lon, r.lat]);
+    });
+    var xs = pts.map(function (p) { return p[0]; });
+    var ys = pts.map(function (p) { return p[1]; });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    var w = m.width, h = m.height;
+    var bw = Math.max(x1 - x0, w * 0.2), bh = Math.max(y1 - y0, h * 0.2);
+    var k = Math.max(1, Math.min(w / bw, h / bh, 12) * 0.75);
+    var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    return d3.zoomIdentity.translate(w / 2 - k * cx, h / 2 - k * cy).scale(k);
+  }
+
   function showTip(html, e) {
     VML.tooltip.show(html, e.clientX, e.clientY);
   }
@@ -197,6 +230,24 @@
 
   m.render = render;
   m.renderLayout = renderLayout;
+  m.setTransform = function (t) {
+    if (!t || typeof t.k !== 'number') return;
+    m.pendingTransform = t;
+    if (m.width) applyPendingTransform();
+  };
+  m.zoomIn = function () {
+    if (m.svg) m.svg.transition().duration(300).call(m.zoom.scaleBy, 1.5);
+  };
+  m.zoomOut = function () {
+    if (m.svg) m.svg.transition().duration(300).call(m.zoom.scaleBy, 1 / 1.5);
+  };
+  m.fitWorld = function () {
+    if (m.svg) m.svg.transition().duration(500).call(m.zoom.transform, d3.zoomIdentity);
+  };
+  m.fitToSelected = function () {
+    var t = fitTransform();
+    if (m.svg && t) m.svg.transition().duration(500).call(m.zoom.transform, t);
+  };
   m.pair = function () { drawArcs(); drawMarkers(); positionOverlay(); };
   m.init = init;
 

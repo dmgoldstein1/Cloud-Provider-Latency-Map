@@ -10,7 +10,7 @@
   <header>
     <div class="brand">
       <h1>Vultr Latency Map</h1>
-      <span class="sub">33 regions · status.vultr.com (synthetic placeholder)</span>
+      <span class="sub">33 regions · measured via netlat.sh</span>
     </div>
     <div class="toolbar">
       <div class="group" id="metric-group">
@@ -33,14 +33,32 @@
     <section id="left-col">
       <div id="src-wrap">
         <section class="card" id="sources-card">
-          <h2 id="sources-label">Sources <span class="hint">check regions to show their outgoing arcs</span></h2>
+          <div class="src-card-head">
+            <h2 id="sources-label">Sources <span class="hint">check regions to show their outgoing arcs</span></h2>
+            <div class="seg" id="dest-btns">
+              <button type="button" class="dest-btn active" data-dest="all">Use all locations as destinations</button>
+              <button type="button" class="dest-btn" data-dest="checked">Use only checked locations as destinations</button>
+            </div>
+          </div>
           <div id="source-list"></div>
         </section>
         <button id="src-tab" title="Toggle sources panel">▾</button>
       </div>
       <section id="map-pane">
         <div id="map"></div>
-        <div id="legend"></div>
+        <div id="map-footer">
+          <div id="legend"></div>
+          <div id="map-controls">
+            <div class="ctrl-row">
+              <button type="button" class="zoom-btn" id="map-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+              <button type="button" class="zoom-btn" id="map-zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+            </div>
+            <div class="ctrl-row">
+              <button type="button" class="fit-btn" id="map-fit-world" title="Zoom out and center so the whole map fits in the viewport">Zoom Out</button>
+              <button type="button" class="fit-btn" id="map-fit-selected" title="Zoom in on all checked locations">Zoom to selected locations</button>
+            </div>
+          </div>
+        </div>
       </section>
     </section>
     <div id="side-wrap">
@@ -54,8 +72,37 @@
           <div id="bars"></div>
         </section>
         <section class="card" id="scatter-card">
-          <h2>Metric vs great-circle distance <span class="hint">from checked sources</span></h2>
+          <h2>Metric vs great-circle distance <span class="hint">from checked sources</span>
+            <button type="button" class="chart-help" id="scatter-help-btn" aria-label="About this chart">?</button>
+          </h2>
           <div id="scatter"></div>
+          <div id="scatter-help-pop" role="tooltip" aria-hidden="true">
+            <button type="button" class="chart-help-close" id="scatter-help-close" aria-label="Close">✕</button>
+            <p><b>Metric vs. great-circle distance</b> — how each network link compares to the physical distance between its two regions.</p>
+            <h3>What the axes mean</h3>
+            <ul>
+              <li><b>x — distance:</b> great-circle distance in km, the straight-line path between the two regions across the globe.</li>
+              <li><b>y — metric:</b> the value of the selected metric for that pair — <b>latency</b> (round-trip time, ms) or <b>jitter</b> (variation between probes, ms). Switch it with the Metric buttons in the header.</li>
+            </ul>
+            <h3>What you're looking at</h3>
+            <ul>
+              <li>Each <b>dot</b> is one measured <i>source → destination</i> pair. Dots from checked sources have a white ring.</li>
+              <li><b>Dot color</b> = the metric value, on the same scale as the map and pair matrix.</li>
+              <li><b>Gridlines</b> mark intervals; hovering a dot draws a dashed <b>crosshair</b> and highlights that pair in the map, matrix, and bars chart.</li>
+              <li>The dashed white <b>fit line</b> is the least-squares trend through all currently shown dots.</li>
+            </ul>
+            <h3>How to interpret it</h3>
+            <ul>
+              <li>Check or uncheck sources to add/remove their outgoing pairs; the axes rescale to the values shown at that moment.</li>
+              <li>A <b>steep fit line</b> means the metric grows strongly with distance (typical for latency). A <b>flat line</b> means distance barely matters (common for jitter).</li>
+              <li>Dots <b>above</b> the line are worse than the distance would suggest; dots <b>below</b> it are better than average.</li>
+              <li>Click a dot to toggle that source, or hover one to read its exact values.</li>
+            </ul>
+          </div>
+        </section>
+        <section class="card" id="jitter-card">
+          <h2>Latency vs jitter <span class="hint">from checked sources</span></h2>
+          <div id="jitter"></div>
         </section>
       </aside>
       <button id="side-tab" title="Toggle right panel">▸</button>
