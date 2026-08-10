@@ -18,9 +18,9 @@ scripts/runs/run-<RUN_ID>/            per-run outputs (CSV matrices + raw pings)
       v
 scripts/runs/stitched/                combined 33x33 matrices
       |
-      |  conversion (see §5) -> data/locations_synthetic.json
+      |  conversion (see §5) -> data/locations_measured.json
       v
-data/data.js                          generated bundle (VML_DATA.synthetic)
+data/data.js                          generated bundle (VML_DATA.measured)
       |
       v
 index.html -> js/normalize.js -> js/app.js (dashboard renders it)
@@ -65,11 +65,13 @@ Diagonal (self) cells are ~0.05ms (the VM pinging itself), not 0.
 
 ---
 
-## 3. Stitching chunked runs: `scripts/stitch.py`
+## 3. Stitching run matrices: `scripts/stitch.py`
 
-The Vultr account is capped at **30 active instances**, but there are 33 regions.
-A single run therefore always misses a few regions. We run overlapping chunks and
-merge them:
+The Vultr account is capped at **30 active instances**, so `netlat.sh` runs a
+phased all-pairs schedule: regions are split into groups A/B/C and measured as
+phases (A+B), (A+C), (B+C) — 22 VMs at a time, every pair measured exactly once.
+`stitch.py` merges any set of run matrices (useful if a run is split or you want
+to combine runs over time):
 
 ```
 python3 scripts/stitch.py scripts/runs/stitched \
@@ -95,7 +97,7 @@ Currently the merged full dataset is `scripts/runs/stitched/` (1089/1089 cells).
 lib/d3.v7.min.js, lib/topojson-client.min.js, lib/d3-scale-chromatic.min.js
 data/data.js                    <- ALL data lives here (globals, no fetch)
 js/config.js                    <- metric definitions + defaults
-js/normalize.js                 <- converts VML_DATA.synthetic -> matrices
+js/normalize.js                 <- converts VML_DATA.measured -> matrices
 js/map.js, js/charts.js, js/app.js
 ```
 
@@ -104,7 +106,7 @@ JSON files into `window.VML_DATA`:
 
 | data.js property | Source file | Contents |
 |---|---|---|
-| `VML_DATA.synthetic` | `data/locations_synthetic.json` | **the measured/synthetic metric data** |
+| `VML_DATA.measured` | `data/locations_measured.json` | **the measured metric data** |
 | `VML_DATA.regions` | `data/regions.json` | region metadata: code, name, lat/lon, continent |
 | `VML_DATA.world` | `data/countries-110m.json` | world topojson for the map |
 
@@ -114,7 +116,7 @@ Rebuild after touching any of them:
 python3 scripts/build_data_js.py
 ```
 
-### `locations_synthetic.json` schema (this is what the dashboard consumes)
+### `locations_measured.json` schema (this is what the dashboard consumes)
 ```json
 {
   "source": "https://status.vultr.com/status.json",
@@ -145,13 +147,13 @@ python3 scripts/build_data_js.py
 `fromVultrStatus(raw)` builds square matrices:
 - `order` = region codes in file order.
 - `values[i][j]` = `region[i].latency[order[j]]` (or jitter), `0` if absent.
-- `loadDataset()` calls it on `window.VML_DATA.synthetic`.
+- `loadDataset()` calls it on `window.VML_DATA.measured`.
 
-So the conversion from CSVs to `synthetic` is: for each src region, read its row
+So the conversion from CSVs to `measured` is: for each src region, read its row
 of `latency_matrix.csv` (plus `jitter_matrix.csv` and `loss_matrix.csv`) and emit
 `{code, location, country, country_name, latency: {dst: avg}, jitter: {dst:
 jitter}, loss: {dst: loss_pct}}`, skipping the `src` column and blank cells.
-`scripts/convert_stitched_to_synthetic.py` does exactly this.
+`scripts/convert_stitched_to_measured.py` does exactly this.
 
 ---
 
@@ -159,22 +161,22 @@ jitter}, loss: {dst: loss_pct}}`, skipping the `src` column and blank cells.
 
 1. **Locate the data.** Fresh full matrix: `scripts/runs/stitched/`. A single
    run's own matrix also works if you only want that subset.
-2. **Convert matrices → `data/locations_synthetic.json`.** Run the existing
+2. **Convert matrices → `data/locations_measured.json`.** Run the existing
    converter (reads `scripts/runs/stitched/{latency,jitter,loss}_matrix.csv`
    plus `data/regions.json`):
    ```
-   python3 scripts/convert_stitched_to_synthetic.py
+   python3 scripts/convert_stitched_to_measured.py
    ```
    It emits the schema above — `latency`/`jitter`/`loss` maps for every region,
    rounded to 1 decimal, self-cells skipped. Then sync the placeholder copy:
-   `cp data/locations_synthetic.json scripts/locations_synthetic.json`.
+   `cp data/locations_measured.json scripts/locations_measured.json`.
 3. **Set provenance.** Update `"source"` (e.g. `"measured via netlat.sh"`) and
-   `"retrieved_at"` (today's date) in `locations_synthetic.json`.
+   `"retrieved_at"` (today's date) in `locations_measured.json`.
 4. **Rebuild the bundle:** `python3 scripts/build_data_js.py`
 5. **Verify:** open `index.html` (double-click works; it's `file://`-safe).
    - Header should still say `33 regions`.
    - Confirm the matrix is populated and values match the CSVs (spot-check a few
-     pairs, e.g. the tooltip on an arc, or the heatmap cell).
+     pairs, e.g. the tooltip on an arc, or a dot in the metric-vs-metric chart).
 6. **(Optional) point `data/netlat/latest` at the run:** `./scripts/import_run.sh`
    creates `data/netlat/latest -> scripts/runs/run-<id>`. Useful as a stable
    pointer for follow-up automation.
@@ -191,8 +193,9 @@ NOT from the CSV (CSVs only carry region codes).
 
 ## 6. Gotchas & operational notes
 
-- **30-instance cap:** never expect a single `netlat.sh` run to cover all 33
-  regions. Use `--regions <csv>` for chunked runs and `stitch.py` to merge.
+- **30-instance cap:** `netlat.sh` uses the phased all-pairs schedule (groups
+  A/B/C, phases A+B → A+C → B+C) so every pair is measured while never exceeding
+  22 concurrent VMs. `stitch.py` exists for merging multiple runs.
 - **atl/ewr plan bug (fixed):** plan selection must require `ram >= 1024`
   (`select(.ram >= 1024)`) or Ubuntu 26.04 rejects 0.5GB plans. Don't "fix" the
   jq filter back.
@@ -201,7 +204,7 @@ NOT from the CSV (CSVs only carry region codes).
   missing to `0`; consider guarding against that when converting CSVs.
 - **data.js inlines JSON verbatim.** Keep the `(function(){...})()` wrapper that
   `build_data_js.py` writes; don't hand-edit `data/data.js`.
-- Two copies of `locations_synthetic.json` exist (`data/` and `scripts/`) and are
+- Two copies of `locations_measured.json` exist (`data/` and `scripts/`) and are
   currently identical. `build_data_js.py` reads the one in **`data/`**. The
   `scripts/` copy is the placeholder the dashboard was seeded with. Keep them in
   sync or move the canonical one into `data/` and update any references.

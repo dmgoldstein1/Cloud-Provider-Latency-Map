@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-# convert_stitched_to_synthetic.py - turn stitched measurement CSVs into
-# data/locations_synthetic.json (the VML_DATA.synthetic schema the dashboard
+# convert_stitched_to_measured.py - turn stitched measurement CSVs into
+# data/locations_measured.json (the VML_DATA.measured schema the dashboard
 # consumes). Run after stitching a new dataset:
-#   python3 scripts/convert_stitched_to_synthetic.py
+#   python3 scripts/convert_stitched_to_measured.py
 #
 # Reads scripts/runs/stitched/{latency,jitter,loss}_matrix.csv plus
 # data/regions.json for location/country metadata. Skips the src (self) column
@@ -20,7 +20,7 @@ def parse_args():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--source", default=os.path.join(ROOT, "scripts/runs/stitched"))
     ap.add_argument("--regions", default=os.path.join(ROOT, "data/regions.json"))
-    ap.add_argument("--out", default=os.path.join(ROOT, "data/locations_synthetic.json"))
+    ap.add_argument("--out", default=os.path.join(ROOT, "data/locations_measured.json"))
     ap.add_argument("--source-label", default="measured via netlat.sh (stitched chunked runs)")
     return ap.parse_args()
 

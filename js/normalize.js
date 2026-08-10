@@ -22,7 +22,7 @@
   }
 
   function loadDataset() {
-    return fromVultrStatus(window.VML_DATA.synthetic);
+    return fromVultrStatus(window.VML_DATA.measured);
   }
 
   VML.normalize = {

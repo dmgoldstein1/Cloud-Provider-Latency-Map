@@ -10,7 +10,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 
 FILES = [
-    ("synthetic", "locations_synthetic.json"),
+    ("measured", "locations_measured.json"),
     ("regions", "regions.json"),
     ("world", "countries-110m.json"),
 ]

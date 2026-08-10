@@ -6,7 +6,7 @@ import statistics
 
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 else "data"
-    raw = json.load(open(f"{root}/locations_synthetic.json"))
+    raw = json.load(open(f"{root}/locations_measured.json"))
     regions = {r["code"]: r for r in json.load(open(f"{root}/regions.json"))["regions"]}
     meta = json.load(open(f"{root}/regions.json"))["meta"] if False else {}
 

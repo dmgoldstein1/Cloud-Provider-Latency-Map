@@ -9,6 +9,29 @@
       'L' + p1[0].toFixed(1) + ',' + p1[1].toFixed(1);
   }
 
+  function clampAxis(v, mapSize, viewSize) {
+    var lo, hi;
+    if (mapSize <= viewSize * 1.5) {
+      lo = -mapSize / 3;
+      hi = viewSize - (2 / 3) * mapSize;
+    } else {
+      lo = viewSize - mapSize;
+      hi = 0;
+    }
+    return Math.max(lo, Math.min(hi, v));
+  }
+
+  function clampTransform(t) {
+    var w = m.width, h = m.height;
+    if (!w || !h || m.yTop === undefined || m.yBot === undefined) return t;
+    var k = t.k;
+    var mw = k * w;
+    var mh = k * (m.yBot - m.yTop);
+    var x = clampAxis(t.x, mw, w);
+    var ty = clampAxis(t.y + k * m.yTop, mh, h);
+    return d3.zoomIdentity.translate(x, ty - k * m.yTop).scale(k);
+  }
+
   function init(container, state) {
     m.state = state;
     m.transform = d3.zoomIdentity;
@@ -36,7 +59,7 @@
       positionOverlay();
     }).on('end', function () {
       VML.events.emit('zoom');
-    });
+    }).constrain(clampTransform);
     m.svg.call(m.zoom);
 
     m.resizeObserver = new ResizeObserver(function () { renderLayout(); });
@@ -52,6 +75,7 @@
     m.projection.fitSize([w, h], { type: 'Sphere' });
     var yTop = m.projection([0, 84])[1];
     var yBot = m.projection([0, -60])[1];
+    m.yTop = yTop; m.yBot = yBot;
     m.clipRect.attr('x', 0).attr('y', yTop).attr('width', w).attr('height', Math.max(0, yBot - yTop));
     render();
     applyPendingTransform();
@@ -59,9 +83,9 @@
 
   function applyPendingTransform() {
     if (!m.pendingTransform) return;
-    m.transform = d3.zoomIdentity
+    m.transform = clampTransform(d3.zoomIdentity
       .translate(m.pendingTransform.x || 0, m.pendingTransform.y || 0)
-      .scale(m.pendingTransform.k);
+      .scale(m.pendingTransform.k));
     m.worldG.attr('transform', m.transform);
     m.svg.call(m.zoom.transform, m.transform);
     m.pendingTransform = null;
@@ -100,7 +124,8 @@
     var arcs = state.arcs.filter(function (d) {
       return state.sources.has(d.src) &&
         dsts.has(d.dst) &&
-        state.metricMax >= valueOf(d) &&
+        state.thresholdMin <= valueOf(d) &&
+        state.metricTrueMax >= valueOf(d) &&
         state.threshold >= valueOf(d);
     });
     var s = state.colorScale;
@@ -130,8 +155,7 @@
     var jit = state.data.matrices.jitter.values[state.idx.get(d.src)][state.idx.get(d.dst)];
     var loss = state.data.matrices.loss.values[state.idx.get(d.src)][state.idx.get(d.dst)];
     return '<b>' + nameOf(d.src) + ' → ' + nameOf(d.dst) + '</b> (' + d.src + ' → ' + d.dst + ')<br>' +
-      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms · loss <b>' + loss + '</b> %<br>' +
-      d.distance.toFixed(0) + ' km';
+      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms · loss <b>' + loss + '</b> %';
   }
 
   function markerRadius(meanLat, extent) {
@@ -205,8 +229,7 @@
   function emitRender() { VML.events.emit('render'); }
   function emitPair() { VML.events.emit('pair'); }
 
-  function fitTransform() {
-    var codes = m.state.data.matrices.latency.order.filter(function (c) { return m.state.sources.has(c); });
+  function fitTransformFor(codes) {
     if (!codes.length) return null;
     var pts = codes.map(function (c) {
       var r = m.state.byCode.get(c);
@@ -221,6 +244,33 @@
     var k = Math.max(1, Math.min(w / bw, h / bh, 12) * 0.75);
     var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
     return d3.zoomIdentity.translate(w / 2 - k * cx, h / 2 - k * cy).scale(k);
+  }
+
+  function fitTransform() {
+    var codes = m.state.data.matrices.latency.order.filter(function (c) { return m.state.sources.has(c); });
+    return fitTransformFor(codes);
+  }
+
+  function zoomTo(t) {
+    if (!m.svg) return;
+    var cur = m.transform || d3.zoomIdentity;
+    var c0 = cur.invert([m.width / 2, m.height / 2]);
+    var c1 = t.invert([m.width / 2, m.height / 2]);
+    var k0 = cur.k, k1 = t.k;
+    var dx = c1[0] - c0[0], dy = c1[1] - c0[1];
+    m.svg.transition().duration(500).tween('zoom', function () {
+      return function (time) {
+        var k = k0 * Math.pow(k1 / k0, time);
+        var x = m.width / 2 - k * (c0[0] + dx * time);
+        var y = m.height / 2 - k * (c0[1] + dy * time);
+        var tr = d3.zoomIdentity.translate(x, y).scale(k);
+        m.transform = tr;
+        m.worldG.attr('transform', tr);
+        positionOverlay();
+      };
+    }).on('end', function () {
+      VML.events.emit('zoom');
+    });
   }
 
   function showTip(html, e) {
@@ -247,7 +297,25 @@
   };
   m.fitToSelected = function () {
     var t = fitTransform();
-    if (m.svg && t) m.svg.transition().duration(500).call(m.zoom.transform, t);
+    if (t) zoomTo(t);
+  };
+  m.fitToContinent = function (continent) {
+    if (!m.state || !m.svg) return;
+    var codes = m.state.regions
+      .filter(function (r) { return r.continent === continent; })
+      .map(function (r) { return r.code; });
+    if (!codes.length) return;
+    var fit = fitTransformFor(codes);
+    if (!fit) return;
+    var k = Math.max(1, Math.min(fit.k, 4));
+    var pts = codes.map(function (c) {
+      var r = m.state.byCode.get(c);
+      return m.projection([r.lon, r.lat]);
+    });
+    var cx = d3.mean(pts, function (p) { return p[0]; });
+    var cy = d3.mean(pts, function (p) { return p[1]; });
+    var t = d3.zoomIdentity.translate(m.width / 2 - k * cx, m.height / 2 - k * cy).scale(k);
+    zoomTo(t);
   };
   m.pair = function () { drawArcs(); drawMarkers(); positionOverlay(); };
   m.init = init;

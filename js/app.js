@@ -8,7 +8,7 @@
   };
 
   var state;
-  var sourceListEl, metricButtons, thresholdSlider, thresholdLabel, statsEl;
+  var sourceListEl, metricButtons, thresholdSlider, thresholdMinSlider, thresholdLabel, knobLabelMin, knobLabelMax, statsEl;
   var sourceCheckboxes = {};
   var groupCountEls = {};
   var continentCodes = {};
@@ -86,10 +86,17 @@
     writeStore({
       sources: Array.from(state.sources),
       metric: state.metric,
+      graphX: state.graphX,
+      graphY: state.graphY,
       threshold: state.threshold,
+      thresholdMin: state.thresholdMin,
+      thresholds: state.thresholds,
       destMode: state.destMode,
+      boxSort: state.boxSort,
+      boxSortDir: state.boxSortDir,
       panelHidden: document.body.classList.contains('panel-hidden'),
       srcHidden: document.body.classList.contains('src-hidden'),
+      footerHidden: document.body.classList.contains('footer-hidden'),
       zoom: VML.map && VML.map.transform
         ? { k: VML.map.transform.k, x: VML.map.transform.x, y: VML.map.transform.y }
         : null
@@ -100,13 +107,34 @@
     if (!saved) return;
     var order = state.data.matrices.latency.order;
     if (saved.destMode === 'all' || saved.destMode === 'checked') state.destMode = saved.destMode;
+    if (saved.boxSort && ['min', 'q1', 'med', 'mean', 'q3', 'max', 'range', 'geo', 'alpha'].indexOf(saved.boxSort) !== -1) state.boxSort = saved.boxSort;
+    if (saved.boxSortDir === 'asc' || saved.boxSortDir === 'desc') state.boxSortDir = saved.boxSortDir;
     if (Array.isArray(saved.sources)) {
       state.sources = new Set(saved.sources.filter(function (c) { return order.indexOf(c) !== -1; }));
     }
     if (saved.metric && VML.config.metrics[saved.metric]) state.metric = saved.metric;
-    if (typeof saved.threshold === 'number') state.threshold = saved.threshold;
+    if (saved.graphX && VML.config.metrics[saved.graphX]) state.graphX = saved.graphX;
+    if (saved.graphY && VML.config.metrics[saved.graphY]) state.graphY = saved.graphY;
+    if (saved.thresholds && typeof saved.thresholds === 'object') {
+      Object.keys(state.thresholds).forEach(function (m) {
+        var t = saved.thresholds[m];
+        if (t && typeof t.min === 'number' && typeof t.max === 'number') {
+          state.thresholds[m] = { min: t.min, max: t.max };
+        }
+      });
+      var cur = state.thresholds[state.metric];
+      if (cur) {
+        state.threshold = cur.max;
+        state.thresholdMin = cur.min;
+      }
+    } else if (typeof saved.threshold === 'number' || typeof saved.thresholdMin === 'number') {
+      if (typeof saved.threshold === 'number') state.threshold = saved.threshold;
+      if (typeof saved.thresholdMin === 'number') state.thresholdMin = saved.thresholdMin;
+      state.thresholds[state.metric] = { min: state.thresholdMin, max: state.threshold };
+    }
     if (saved.panelHidden) document.body.classList.add('panel-hidden');
     if (saved.srcHidden) document.body.classList.add('src-hidden');
+    if (saved.footerHidden) document.body.classList.add('footer-hidden');
     state.savedZoom = saved.zoom || null;
   }
 
@@ -117,6 +145,8 @@
     if (sideTab) sideTab.textContent = document.body.classList.contains('panel-hidden') ? '◂' : '▸';
     var srcTab = document.getElementById('src-tab');
     if (srcTab) srcTab.textContent = document.body.classList.contains('src-hidden') ? '▴' : '▾';
+    var footerTab = document.getElementById('map-footer-tab');
+    if (footerTab) footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▾' : '▴';
   }
 
   function buildState(regionsRaw, dataset) {
@@ -127,9 +157,16 @@
       byCode: new Map(regionsRaw.regions.map(function (r) { return [r.code, r]; })),
       idx: new Map(order.map(function (c, i) { return [c, i]; })),
       metric: VML.config.defaults.metric,
+      graphX: 'latency',
+      graphY: 'jitter',
       destMode: 'all',
+      boxSort: 'med',
+      boxSortDir: 'asc',
+      expanded: null,
       sources: new Set(order),
       threshold: null,
+      thresholdMin: 1,
+      thresholds: { latency: null, jitter: null, loss: null },
       pair: null,
       world: state && state.world ? state.world : null,
       arcs: [],
@@ -137,9 +174,9 @@
       centralityExtent: [0, 1],
       distanceMax: 1,
       metricMax: 1,
+      metricTrueMax: 1,
       colorScale: d3.scaleSequential(d3.interpolateRgbBasis(d3.schemeRdYlGn[11].slice().reverse())),
-      continentColors: VML.config.continentColors,
-      fit: { slope: null, intercept: null }
+      continentColors: VML.config.continentColors
     };
 
     order.forEach(function (src) {
@@ -159,6 +196,12 @@
     state.centralityExtent = d3.extent(order, function (c) { return state.centrality[c]; });
     state.distanceMax = d3.max(state.arcs, function (d) { return d.distance; });
 
+    state.metricTrueMaxes = {};
+    Object.keys(dataset.matrices).forEach(function (metric) {
+      var vals = dataset.matrices[metric].values.flat().filter(function (v) { return v > 0; });
+      state.metricTrueMaxes[metric] = Math.ceil(d3.max(vals) || 1);
+    });
+
     VML.state = state;
   }
 
@@ -167,31 +210,68 @@
     var q = d3.quantile(values, VML.config.defaults.thresholdFactor);
     var raw = q || d3.max(values) || 1;
     state.metricMax = Math.round(raw * 10) / 10;
+    state.metricTrueMax = state.metricTrueMaxes[state.metric];
     state.colorScale.domain([0, state.metricMax]);
 
-    var arcs = activeArcs(state);
-    var n = arcs.length;
-    var mx = d3.mean(arcs, function (d) { return d.distance; });
-    var my = d3.mean(arcs, function (d) {
-      return state.data.matrices[state.metric].values[state.idx.get(d.src)][state.idx.get(d.dst)];
-    });
-    var num = 0, den = 0;
-    arcs.forEach(function (d) {
-      var y = state.data.matrices[state.metric].values[state.idx.get(d.src)][state.idx.get(d.dst)];
-      num += (d.distance - mx) * (y - my);
-      den += (d.distance - mx) * (d.distance - mx);
-    });
-    state.fit = { slope: den ? num / den : null, intercept: my - (den ? num / den : 0) * mx };
+    var step = state.metric === 'latency' ? 1 : 0.1;
 
-    if (state.threshold == null || state.threshold > state.metricMax) {
-      state.threshold = state.metricMax;
+    if (state.threshold == null || state.threshold > state.metricTrueMax) {
+      state.threshold = state.metricTrueMax;
+    }
+    if (state.thresholdMin == null || state.thresholdMin > state.metricTrueMax) {
+      state.thresholdMin = Math.min(1, state.metricTrueMax);
+    }
+    if (state.threshold < state.thresholdMin) {
+      state.threshold = state.thresholdMin;
     }
     if (thresholdSlider) {
-      thresholdSlider.max = state.metricMax;
-      thresholdSlider.step = state.metric === 'latency' ? 1 : 0.1;
+      thresholdSlider.min = 0;
+      thresholdSlider.max = state.metricTrueMax;
+      thresholdSlider.step = step;
       thresholdSlider.value = state.threshold;
     }
-    if (thresholdLabel) thresholdLabel.textContent = fmt(state.threshold) + ' ' + unit();
+    if (thresholdMinSlider) {
+      thresholdMinSlider.min = 0;
+      thresholdMinSlider.max = state.metricTrueMax;
+      thresholdMinSlider.step = step;
+      thresholdMinSlider.value = state.thresholdMin;
+    }
+    syncThresholdLabel();
+  }
+
+  function syncThresholdLabel() {
+    if (thresholdLabel) thresholdLabel.textContent = fmt(state.thresholdMin) + '–' + fmt(state.threshold) + ' ' + unit();
+    if (thresholdSlider) {
+      var m = state.metricTrueMax || 1;
+      thresholdSlider.style.setProperty('--min-pct', (state.thresholdMin / m) * 100 + '%');
+      thresholdSlider.style.setProperty('--max-pct', (state.threshold / m) * 100 + '%');
+    }
+    if (knobLabelMin && knobLabelMax) {
+      var mm = state.metricTrueMax || 1;
+      var dual = thresholdSlider ? thresholdSlider.parentElement : null;
+      var rw = (dual && dual.clientWidth) || 1;
+      // clamp the label's left so it stays fully inside the dual-range: the
+      // label is translateX(-50%)-centered on its knob, so the knob may never
+      // sit closer to an edge than half the label width, or the label pokes
+      // past the viewport and the page scrolls horizontally
+      function clampPct(el, pct) {
+        var half = ((el.offsetWidth || 0) / 2 / rw) * 100;
+        return Math.max(half, Math.min(100 - half, pct));
+      }
+      knobLabelMin.textContent = fmt(state.thresholdMin) + ' ' + unit();
+      knobLabelMax.textContent = fmt(state.threshold) + ' ' + unit();
+      knobLabelMin.style.left = clampPct(knobLabelMin, (state.thresholdMin / mm) * 100) + '%';
+      knobLabelMax.style.left = clampPct(knobLabelMax, (state.threshold / mm) * 100) + '%';
+    }
+  }
+
+  function syncKnobLabelVisibility(show) {
+    if (!knobLabelMin || !knobLabelMax) return;
+    show = !!show;
+    knobLabelMin.classList.toggle('show', show);
+    knobLabelMax.classList.toggle('show', show);
+    var title = document.getElementById('threshold-title');
+    if (title) title.classList.toggle('hidden', show);
   }
 
   function widthScaleFn() {
@@ -315,6 +395,9 @@
     metricButtons = document.querySelectorAll('.metric-btn');
     thresholdSlider = document.getElementById('threshold');
     thresholdLabel = document.getElementById('threshold-label');
+    thresholdMinSlider = document.getElementById('threshold-min');
+    knobLabelMin = document.getElementById('knob-label-min');
+    knobLabelMax = document.getElementById('knob-label-max');
     statsEl = document.getElementById('stats');
 
     buildSourceList();
@@ -322,8 +405,11 @@
     metricButtons.forEach(function (b) {
       b.addEventListener('click', function () {
         if (state.metric === b.dataset.metric) return;
+        state.thresholds[state.metric] = { min: state.thresholdMin, max: state.threshold };
         state.metric = b.dataset.metric;
-        state.threshold = null;
+        var t = state.thresholds[state.metric];
+        state.threshold = t ? t.max : null;
+        state.thresholdMin = t ? t.min : 1;
         metricButtons.forEach(function (x) { x.classList.toggle('active', x === b); });
         emitRender();
       });
@@ -338,11 +424,56 @@
       });
     });
 
+    var selectAll = document.getElementById('src-select-all');
+    if (selectAll) {
+      selectAll.addEventListener('click', function () {
+        state.data.matrices.latency.order.forEach(function (c) { state.sources.add(c); });
+        emitRender();
+      });
+    }
+    var selectNone = document.getElementById('src-select-none');
+    if (selectNone) {
+      selectNone.addEventListener('click', function () {
+        state.sources.clear();
+        emitRender();
+      });
+    }
+
+    function syncThresholdState() {
+      var a = +thresholdSlider.value;
+      var b = thresholdMinSlider ? +thresholdMinSlider.value : a;
+      state.threshold = Math.max(a, b);
+      state.thresholdMin = Math.min(a, b);
+      state.thresholds[state.metric] = { min: state.thresholdMin, max: state.threshold };
+    }
+
     thresholdSlider.addEventListener('input', function () {
-      state.threshold = +thresholdSlider.value;
-      thresholdLabel.textContent = fmt(state.threshold) + ' ' + unit();
+      syncThresholdState();
+      syncThresholdLabel();
       VML.events.emit('render');
     });
+
+    if (thresholdMinSlider) {
+      thresholdMinSlider.addEventListener('input', function () {
+        syncThresholdState();
+        syncThresholdLabel();
+        VML.events.emit('render');
+      });
+    }
+
+    var knobDragging = false;
+    [thresholdSlider, thresholdMinSlider].forEach(function (el) {
+      if (!el) return;
+      el.addEventListener('pointerdown', function () {
+        knobDragging = true;
+        syncKnobLabelVisibility(true);
+      });
+      el.addEventListener('keydown', function () { syncKnobLabelVisibility(true); });
+      el.addEventListener('keyup', function () { syncKnobLabelVisibility(false); });
+      el.addEventListener('blur', function () { if (!knobDragging) syncKnobLabelVisibility(false); });
+    });
+    document.addEventListener('pointerup', function () { knobDragging = false; syncKnobLabelVisibility(false); });
+    document.addEventListener('pointercancel', function () { knobDragging = false; syncKnobLabelVisibility(false); });
 
     var tab = document.getElementById('side-tab');
     if (tab) {
@@ -362,10 +493,140 @@
       });
     }
 
+    var footerTab = document.getElementById('map-footer-tab');
+    if (footerTab) {
+      footerTab.addEventListener('click', function () {
+        document.body.classList.toggle('footer-hidden');
+        footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▾' : '▴';
+        VML.events.emit('render');
+      });
+    }
+
     window.addEventListener('resize', onResize);
     wireChartHelp();
+    wireChartExpand();
     wireMapControls();
-    wireLegendWrap();
+    wireFooterLayout();
+    wireAxisButtons();
+    wireBoxSortButtons();
+    wireBoxSortChecker();
+  }
+
+  function wireBoxSortButtons() {
+    var group = document.getElementById('box-sort-btns');
+    var dirGroup = document.getElementById('box-sort-dir-btns');
+    function sync() {
+      group.querySelectorAll('button').forEach(function (b) {
+        b.classList.toggle('active', state.boxSort === b.dataset.sort);
+      });
+      if (dirGroup) {
+        dirGroup.querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('active', state.boxSortDir === b.dataset.dir);
+        });
+      }
+    }
+    if (dirGroup) {
+      dirGroup.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (state.boxSortDir === b.dataset.dir) return;
+          state.boxSortDir = b.dataset.dir;
+          sync();
+          emitRender();
+        });
+      });
+    }
+    group.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (state.boxSort === b.dataset.sort) return;
+        state.boxSort = b.dataset.sort;
+        sync();
+        emitRender();
+      });
+    });
+    VML.events.on(sync);
+    sync();
+  }
+
+  function wireBoxSortChecker() {
+    var group = document.getElementById('box-sort-btns');
+    if (!group || typeof ResizeObserver === 'undefined') return;
+    var raf = null;
+    function rowCounts() {
+      var rows = [];
+      var prevTop = null, row = -1;
+      group.querySelectorAll('button').forEach(function (b) {
+        var top = b.offsetTop;
+        if (top !== prevTop) { row++; rows.push(0); prevTop = top; }
+        rows[row]++;
+      });
+      return rows;
+    }
+    function apply() {
+      raf = null;
+      var btns = group.querySelectorAll('button');
+      // Rule: never leave a lone button on its own row. Flex line
+      // breaking uses each button's natural width, so at some widths the
+      // last row holds exactly one button. Widen the flex-basis (fewer
+      // buttons per row) until the lone button joins the row above.
+      btns.forEach(function (b) { b.style.flexBasis = ''; });
+      var rows = rowCounts();
+      var n = btns.length, perRow = rows[0], lastRow = rows[rows.length - 1];
+      if (perRow > 2 && lastRow === 1) {
+        var k = perRow - 1;
+        for (; k >= 2 && n % k === 1; k--) {}
+        if (k >= 2) {
+          btns.forEach(function (b) { b.style.flexBasis = 'calc(100% / ' + k + ')'; });
+        }
+      }
+      var prevTop = null, row = -1, col = -1;
+      btns.forEach(function (b) {
+        var top = b.offsetTop;
+        if (top !== prevTop) { row++; col = 0; prevTop = top; } else { col++; }
+        b.classList.toggle('shade', (row + col) % 2 === 1);
+      });
+    }
+    function schedule() {
+      if (raf != null) return;
+      raf = requestAnimationFrame(apply);
+    }
+    new ResizeObserver(schedule).observe(group);
+    schedule();
+  }
+
+  function wireAxisButtons() {
+    var axes = ['x', 'y'];
+    function keyOf(axis) { return 'graph' + axis.toUpperCase(); }
+    function otherOf(axis) { return axis === 'x' ? 'y' : 'x'; }
+    function syncAxisButtons() {
+      axes.forEach(function (axis) {
+        var group = document.getElementById(axis + '-metric-btns');
+        if (!group) return;
+        group.querySelectorAll('.axis-metric-btn').forEach(function (b) {
+          b.classList.toggle('active', state[keyOf(axis)] === b.dataset.metric);
+        });
+      });
+    }
+    axes.forEach(function (axis) {
+      var group = document.getElementById(axis + '-metric-btns');
+      if (!group) return;
+      group.querySelectorAll('.axis-metric-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = keyOf(axis);
+          if (state[key] === b.dataset.metric) return;
+          var other = otherOf(axis);
+          if (state[keyOf(other)] === b.dataset.metric) {
+            state[keyOf(other)] = state[key];
+            state[key] = b.dataset.metric;
+          } else {
+            state[key] = b.dataset.metric;
+          }
+          syncAxisButtons();
+          emitRender();
+        });
+      });
+    });
+    VML.events.on(syncAxisButtons);
+    syncAxisButtons();
   }
 
   function wireMapControls() {
@@ -381,74 +642,206 @@
     });
   }
 
-  function setControlsWidth() {
-    var ctrl = document.getElementById('map-controls');
-    if (!ctrl) return;
-    var rows = ctrl.querySelectorAll('.ctrl-row');
-    if (!rows.length) return;
-    var w = 0;
-    rows.forEach(function (r) { w += r.getBoundingClientRect().width; });
-    w += (rows.length - 1) * 6;
-    var target = Math.ceil(w) + 'px';
-    if (ctrl.style.width !== target) ctrl.style.width = target;
-  }
-
-  function syncLegendWrap() {
-    var legend = document.getElementById('legend');
-    var footer = document.getElementById('map-footer');
-    if (!legend || !footer) return;
-    setControlsWidth();
-    var tops = {};
-    legend.querySelectorAll('.lg').forEach(function (el) {
-      tops[Math.round(el.getBoundingClientRect().top)] = true;
+  // **********************************************************************
+  // NOTE TO FUTURE CODERS AND AGENTS: the map-footer layout must NEVER
+  // flicker. The buttons sit to the right of the two-row legend when the
+  // pane is wide enough, and move below it when it isn't (see
+  // syncFooterLayout). This used to flicker because some measurements
+  // depended on the current layout: toggling the mode changed the inputs,
+  // which re-toggled the mode — an endless visual oscillation (see git
+  // history for the .zoom-btn flex:1 measurement bug). To keep that from
+  // happening again:
+  //   * Measure ONLY intrinsic sizes: nowrap content scrollWidth and fixed
+  //     CSS sizes (the zoom buttons are locked to 30px squares). NEVER
+  //     measure an element whose size a layout mode changes.
+  //   * Keep hysteresis around the width threshold and only toggle classes
+  //     when the decision actually changes.
+  // The legend itself is always exactly two rows and never re-lays out;
+  // only the button placement switches.
+  // **********************************************************************
+  // reference width of the widest legend row at the base font (15.4px)
+  function baseLegendWidth(legend) {
+    var maxRow = 0;
+    legend.querySelectorAll('.legend-row').forEach(function (row) {
+      var items = row.querySelectorAll('.lg');
+      var s = 0;
+      items.forEach(function (el) { s += el.scrollWidth; });
+      if (items.length) s += (items.length - 1) * 12; // .legend-row gap
+      if (s > maxRow) maxRow = s;
     });
-    footer.classList.toggle('legend-wrapped', Object.keys(tops).length > 1);
+    return maxRow;
   }
 
-  function wireLegendWrap() {
-    var footer = document.getElementById('map-footer');
-    if (!footer) return;
-    var ro = new ResizeObserver(function () { syncLegendWrap(); });
-    ro.observe(footer);
-    syncLegendWrap();
+  // reference width of the widest fit button at the base font (includes padding)
+  function baseFitWidth(ctrl) {
+    var maxW = 0;
+    ctrl.querySelectorAll('.fit-btn').forEach(function (b) {
+      var w = b.scrollWidth;
+      if (w > maxW) maxW = w;
+    });
+    return maxW;
+  }
+
+  // scale baseW to fit inside avail, clamped so text never becomes unreadable
+  function fitFont(baseW, avail) {
+    if (!baseW || avail <= 0) return 15.4;
+    return Math.max(8, Math.min(15.4, 15.4 * avail / baseW));
+  }
+
+  function resetFooterFonts() {
+    var legend = document.getElementById('legend');
+    var ctrl = document.getElementById('map-controls');
+    if (legend) legend.style.fontSize = '';
+    if (ctrl) ctrl.querySelectorAll('.fit-btn').forEach(function (b) { b.style.fontSize = ''; });
+  }
+
+  function syncFooterLayout() {
+    var footer = document.getElementById('map-footer-body');
+    var legend = document.getElementById('legend');
+    var ctrl = document.getElementById('map-controls');
+    if (!footer || !legend || !ctrl) return;
+    if (!legend.querySelectorAll('.legend-row').length) return;
+    var avail = footer.clientWidth;
+    if (!avail) return;
+
+    // Always decide layout and font from the base-font reference widths
+    // (measured in renderLegend), never from a measurement that changes with
+    // the current font or layout — otherwise the layout could oscillate.
+    var baseW = state.legendBaseW || baseLegendWidth(legend);
+    var fitBaseW = state.fitBaseW || baseFitWidth(ctrl);
+
+    // width of the 2×2 grid: zoom column (fixed 30px squares) + gap + widest
+    // fit button
+    var controlsNeed = 30 + 6 + fitBaseW;
+
+    var cs = getComputedStyle(legend);
+    var padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) +
+               parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+
+    // 8 = #map-footer-body gap
+    var needed = baseW + padX + 8 + controlsNeed;
+    var prevBelow = footer.classList.contains('controls-below');
+    var M = 6; // hysteresis: only switch once the width clearly crosses
+    var below = prevBelow ? needed > avail - M : needed > avail + M;
+    footer.classList.toggle('controls-below', below);
+
+    // RULE: the legend and button text must NEVER trail off invisibly. When
+    // the buttons are below the legend (stacked), shrink the font so the
+    // legend's two rows and the fit-button labels fit the full footer width
+    // instead of being clipped. Beside the legend, the base font already fits
+    // by construction (that is what beside mode requires), so reset it.
+    var fitButtons = ctrl.querySelectorAll('.fit-btn');
+    if (below) {
+      legend.style.fontSize = fitFont(baseW, avail - padX) + 'px';
+      var btnAvail = Math.max(0, (avail - 6) / 2);
+      var fsb = fitFont(fitBaseW, btnAvail) + 'px';
+      fitButtons.forEach(function (b) { b.style.fontSize = fsb; });
+    } else {
+      legend.style.fontSize = '';
+      fitButtons.forEach(function (b) { b.style.fontSize = ''; });
+    }
+
+    // Collapse/expand must be a physical slide, not a fade. Pin max-height to
+    // the exact content height (scrollHeight reports it even while clipped at
+    // 0), so the 0.35s transition moves the real content instead of idling
+    // while a 300px cap shrinks down to the content edge. The guard skips
+    // no-op writes so a ResizeObserver round-trip can't restart a running
+    // transition or feed a stale measurement back in.
+    var hidden = document.body.classList.contains('footer-hidden');
+    var maxH = hidden ? 0 : Math.min(footer.scrollHeight, 300);
+    var px = maxH + 'px';
+    if (footer.style.maxHeight !== px) footer.style.maxHeight = px;
+  }
+
+  function wireFooterLayout() {
+    var footer = document.getElementById('map-footer-body');
+    if (!footer || typeof ResizeObserver === 'undefined') return;
+    new ResizeObserver(syncFooterLayout).observe(footer);
   }
 
   function wireChartHelp() {
-    var btn = document.getElementById('scatter-help-btn');
-    var pop = document.getElementById('scatter-help-pop');
-    var close = document.getElementById('scatter-help-close');
-    if (!btn || !pop) return;
-    function setOpen(open) {
-      pop.classList.toggle('open', open);
-      pop.setAttribute('aria-hidden', open ? 'false' : 'true');
-    }
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      setOpen(!pop.classList.contains('open'));
+    [['scatter-help-btn', 'scatter-help-pop', 'scatter-help-close'],
+     ['boxes-help-btn', 'boxes-help-pop', 'boxes-help-close']].forEach(function (ids) {
+      var btn = document.getElementById(ids[0]);
+      var pop = document.getElementById(ids[1]);
+      var close = document.getElementById(ids[2]);
+      if (!btn || !pop) return;
+      function setOpen(open) {
+        pop.classList.toggle('open', open);
+        pop.setAttribute('aria-hidden', open ? 'false' : 'true');
+      }
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setOpen(!pop.classList.contains('open'));
+      });
+      if (close) close.addEventListener('click', function (e) { e.stopPropagation(); setOpen(false); });
+      document.addEventListener('click', function (e) {
+        if (pop.classList.contains('open') && !pop.contains(e.target) && !btn.contains(e.target)) setOpen(false);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') setOpen(false);
+      });
     });
-    if (close) close.addEventListener('click', function (e) { e.stopPropagation(); setOpen(false); });
-    document.addEventListener('click', function (e) {
-      if (pop.classList.contains('open') && !pop.contains(e.target) && !btn.contains(e.target)) setOpen(false);
+  }
+
+  function wireChartExpand() {
+    var ids = ['heatmap', 'boxes', 'scatter'];
+    function sync() {
+      var expanded = state.expanded;
+      document.body.classList.toggle('chart-expanded', !!expanded);
+      ids.forEach(function (id) {
+        var card = document.getElementById(id + '-card');
+        var btn = document.getElementById(id + '-expand');
+        if (card) card.classList.toggle('expanded', expanded === id);
+        if (!btn) return;
+        var is = expanded === id;
+        btn.title = is ? 'Exit full page' : 'Expand to full page';
+        btn.setAttribute('aria-label', btn.title);
+        btn.setAttribute('aria-pressed', is ? 'true' : 'false');
+      });
+    }
+    ids.forEach(function (id) {
+      var btn = document.getElementById(id + '-expand');
+      if (!btn) return;
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        state.expanded = state.expanded === id ? null : id;
+        sync();
+        VML.events.emit('render');
+      });
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape' && state && state.expanded) {
+        state.expanded = null;
+        sync();
+        VML.events.emit('render');
+      }
     });
   }
 
   var resizeTimeout = null;
+  var expandResizeTimeout = null;
   function onResize() {
     document.body.classList.add('resizing');
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function () {
       document.body.classList.remove('resizing');
     }, 200);
+    // an expanded chart follows the viewport: once the resize settles,
+    // re-render so the svg picks up the new full-page size
+    if (state && state.expanded) {
+      clearTimeout(expandResizeTimeout);
+      expandResizeTimeout = setTimeout(function () {
+        VML.events.emit('render');
+      }, 150);
+    }
   }
 
   function renderStats() {
     var metric = state.metric;
     var vals = activeArcs(state)
       .map(function (d) { return state.data.matrices[metric].values[state.idx.get(d.src)][state.idx.get(d.dst)]; });
-    var shown = vals.filter(function (v) { return state.threshold >= v; }).length;
+    var shown = vals.filter(function (v) { return v >= state.thresholdMin && state.threshold >= v; }).length;
     var avg = d3.mean(vals);
     var nSrc = state.sources.size;
     var first = state.data.matrices.latency.order.find(function (c) { return state.sources.has(c); });
@@ -460,18 +853,18 @@
       header +
       ' · avg ' + metric + ' across ' + (nSrc ? vals.length / nSrc : 0) +
       ' targets: <b>' + (avg != null ? fmt(avg) : '—') + '</b> ' + unit() +
-      ' · showing <b>' + shown + '</b> arc' + (shown === 1 ? '' : 's') + ' ≤ <b>' + fmt(state.threshold) + '</b> ' + unit();
+      ' · showing <b>' + shown + '</b> arc' + (shown === 1 ? '' : 's') + ' between <b>' + fmt(state.thresholdMin) + '</b>–<b>' + fmt(state.threshold) + '</b> ' + unit();
   }
 
   function renderLegend() {
     var html = '';
     VML.config.continents.forEach(function (c) {
-      html += '<span class="lg"><span class="sw" style="background:' + state.continentColors[c] + '"></span>' + c + '</span>';
+      html += '<button type="button" class="lg continent-btn" data-continent="' + c + '" title="Zoom to ' + c + '">' +
+        '<span class="sw" style="background:' + state.continentColors[c] + '"></span>' + c + '</button>';
     });
     html += '<span class="lg" title="Dot size = a source region\'s average latency to all other selected regions, rescaled to the current selection">' +
-      '<svg width="30" height="10" style="vertical-align:middle">' +
+      '<svg width="10" height="10" style="vertical-align:middle">' +
       '<circle cx="5" cy="5" r="3" fill="' + state.continentColors['Europe'] + '"/>' +
-      '<circle cx="25" cy="5" r="7" fill="' + state.continentColors['Europe'] + '"/>' +
       '</svg>' +
       ' <b>Dot size = avg latency</b> (8–32px diameter)</span>';
     var c0 = state.colorScale(0), c1 = state.colorScale(state.metricMax);
@@ -484,12 +877,49 @@
       '<rect width="86" height="10" rx="2" fill="url(#' + gid + ')"/></svg>' +
       ' <b>0</b> – <b>' + fmt(state.metricMax) + '</b> ' + unit() +
       '</span>';
-    document.getElementById('legend').innerHTML = html;
+    var legend = document.getElementById('legend');
+    var ctrl = document.getElementById('map-controls');
+    legend.innerHTML = html;
+    // clear any responsive font shrink first so the row balancing and the
+    // base-width references below are measured at the base font (15.4px)
+    resetFooterFonts();
+    legend.querySelectorAll('.continent-btn').forEach(function (el) {
+      el.addEventListener('click', function () {
+        if (VML.map && VML.map.fitToContinent) VML.map.fitToContinent(el.dataset.continent);
+      });
+    });
+
+    // lay the legend out as exactly two rows. Items are balanced by intrinsic
+    // width, then each row's items spread across the full width via the
+    // .legend-row CSS (justify-content: space-between). This is a static
+    // layout — the number of rows never changes with viewport width, so the
+    // footer can never flicker between row counts (see note above).
+    var items = Array.prototype.slice.call(legend.querySelectorAll('.lg'));
+    var sums = [0, 0];
+    var rows = [[], []];
+    items.forEach(function (el) {
+      var j = sums[0] <= sums[1] ? 0 : 1;
+      rows[j].push(el);
+      sums[j] += el.scrollWidth;
+    });
+    rows.forEach(function (row) {
+      if (!row.length) return;
+      var div = document.createElement('div');
+      div.className = 'legend-row';
+      row.forEach(function (el) { div.appendChild(el); });
+      legend.appendChild(div);
+    });
+    // remember the content widths at the base font so syncFooterLayout can
+    // decide layout and font scaling from inputs that never change with the
+    // current font or layout (deterministic, no oscillation)
+    state.legendBaseW = baseLegendWidth(legend);
+    state.fitBaseW = baseFitWidth(ctrl);
+    syncFooterLayout();
   }
 
   function main() {
     var D = window.VML_DATA;
-    if (!D || !D.world || !D.regions || !D.synthetic) {
+    if (!D || !D.world || !D.regions || !D.measured) {
       document.getElementById('stats').textContent = 'error: data/data.js missing — re-run python3 scripts/build_data_js.py';
       return;
     }
@@ -513,7 +943,6 @@
         VML.charts.render();
         renderStats();
         renderLegend();
-        syncLegendWrap();
       } else if (name === 'pair') {
         VML.map.pair();
         VML.charts.pair();

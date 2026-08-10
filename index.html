@@ -4,13 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Vultr Latency Map</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="booting">
   <header>
     <div class="brand">
       <h1>Vultr Latency Map</h1>
-      <span class="sub">33 regions · measured via netlat.sh</span>
+      <span class="sub">33 regions</span>
     </div>
     <div class="toolbar">
       <div class="group" id="metric-group">
@@ -22,8 +27,13 @@
         </div>
       </div>
       <div class="group grow">
-        <span class="label">Max threshold <span id="threshold-label"></span></span>
-        <input type="range" id="threshold" min="0" max="300" step="1" value="250" title="Hide arcs above this value">
+        <span class="label" id="threshold-title">Threshold range <span id="threshold-label"></span></span>
+        <div class="dual-range">
+          <span class="knob-label" id="knob-label-min"></span>
+          <span class="knob-label" id="knob-label-max"></span>
+          <input type="range" id="threshold" min="0" max="300" step="1" value="250" title="Hide arcs above this value">
+          <input type="range" id="threshold-min" min="0" max="300" step="1" value="1" title="Hide arcs below this value">
+        </div>
       </div>
     </div>
   </header>
@@ -35,7 +45,13 @@
       <div id="src-wrap">
         <section class="card" id="sources-card">
           <div class="src-card-head">
-            <h2 id="sources-label">Sources <span class="hint">check regions to show their outgoing arcs</span></h2>
+            <div class="src-card-left">
+              <h2 id="sources-label">Sources <span class="hint">check regions to show their outgoing arcs</span></h2>
+              <div class="seg" id="src-all-none">
+                <button type="button" id="src-select-all" title="Select all locations">All</button>
+                <button type="button" id="src-select-none" title="Select no locations">None</button>
+              </div>
+            </div>
             <div class="seg" id="dest-btns">
               <button type="button" class="dest-btn active" data-dest="all">Use all locations as destinations</button>
               <button type="button" class="dest-btn" data-dest="checked">Use only checked locations as destinations</button>
@@ -48,15 +64,21 @@
       <section id="map-pane">
         <div id="map"></div>
         <div id="map-footer">
-          <div id="legend"></div>
-          <div id="map-controls">
-            <div class="ctrl-row">
-              <button type="button" class="zoom-btn" id="map-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
-              <button type="button" class="zoom-btn" id="map-zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+          <button id="map-footer-tab" title="Toggle legend and map controls">▴</button>
+          <div id="map-footer-body">
+            <div id="legend-wrap">
+              <div id="legend-label">Click on continent to zoom</div>
+              <div id="legend"></div>
             </div>
-            <div class="ctrl-row">
-              <button type="button" class="fit-btn" id="map-fit-world" title="Zoom out and center so the whole map fits in the viewport">Zoom Out</button>
-              <button type="button" class="fit-btn" id="map-fit-selected" title="Zoom in on all checked locations">Zoom to selected locations</button>
+            <div id="map-controls">
+              <div class="ctrl-row">
+                <button type="button" class="zoom-btn" id="map-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+                <button type="button" class="zoom-btn" id="map-zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+              </div>
+              <div class="ctrl-row">
+                <button type="button" class="fit-btn" id="map-fit-world" title="Zoom out and center so the whole map fits in the viewport">Zoom Out Full</button>
+                <button type="button" class="fit-btn" id="map-fit-selected" title="Zoom in on all checked locations">Zoom to selected locations</button>
+              </div>
             </div>
           </div>
         </div>
@@ -65,45 +87,107 @@
     <div id="side-wrap">
       <aside id="side-pane">
         <section class="card" id="heatmap-card">
-          <h2>Pair matrix <span class="hint">row = source · click cell to set source</span></h2>
+          <h2>
+            <span class="h2-title">Pair matrix <span class="hint">row = source · click cell to set source</span></span>
+            <span class="h2-actions">
+              <button type="button" class="expand-btn" id="heatmap-expand" title="Expand to full page" aria-label="Expand to full page" aria-pressed="false">⛶</button>
+            </span>
+          </h2>
           <div id="heatmap"></div>
         </section>
-        <section class="card" id="bars-card">
-          <h2>Average from checked sources <span class="hint" id="bars-title"></span></h2>
-          <div id="bars"></div>
+        <section class="card" id="boxes-card">
+          <h2>
+            <span class="h2-title">Distribution to each destination <span class="hint" id="boxes-title"></span></span>
+            <span class="h2-actions">
+              <button type="button" class="chart-help" id="boxes-help-btn" aria-label="About this chart">?</button>
+              <button type="button" class="expand-btn" id="boxes-expand" title="Expand to full page" aria-label="Expand to full page" aria-pressed="false">⛶</button>
+            </span>
+          </h2>
+          <div class="box-sort">
+            <span class="box-sort-label">Sort by</span>
+            <div class="src-group-btns" id="box-sort-dir-btns">
+              <button type="button" data-dir="asc">Low to High</button>
+              <button type="button" data-dir="desc">High to Low</button>
+            </div>
+            <div class="src-group-btns" id="box-sort-btns">
+              <button type="button" class="active" data-sort="med">Median</button>
+              <button type="button" data-sort="min">Min</button>
+              <button type="button" data-sort="q1">Q1</button>
+              <button type="button" data-sort="mean">Mean</button>
+              <button type="button" data-sort="q3">Q3</button>
+              <button type="button" data-sort="max">Max</button>
+              <button type="button" data-sort="range">Range</button>
+              <button type="button" data-sort="geo">Geography</button>
+              <button type="button" data-sort="alpha">Alphabetical</button>
+            </div>
+          </div>
+          <div id="boxes"></div>
+          <div id="boxes-help-pop" role="tooltip" aria-hidden="true">
+            <button type="button" class="chart-help-close" id="boxes-help-close" aria-label="Close">✕</button>
+            <p><b>Distribution to each destination</b> — the spread of one metric across all checked sources, for every destination.</p>
+            <h3>What you're looking at</h3>
+            <ul>
+              <li>Each <b>row</b> is one destination. The <b>box</b> spans Q1 to Q3; the <b>line</b> inside it is the median, and the <b>whiskers</b> reach the min and max.</li>
+              <li>The <b>x-axis</b> shows the current metric — <b>latency</b> (ms), <b>jitter</b> (ms), or <b>loss</b> (%) — and the row is sorted by the statistic chosen in the <b>Sort by</b> buttons.</li>
+              <li>Values outside the range set by the map's range controls are excluded from the box.</li>
+            </ul>
+            <h3>How to use it</h3>
+            <ul>
+              <li><b>Hover</b> a row to highlight that destination as the pair in the map and matrix; <b>click</b> to read the full list of source → destination values.</li>
+              <li>Check or uncheck sources to change which links feed each distribution; the stats and sort order update live.</li>
+              <li>Check or uncheck destinations in the list to show or hide their rows.</li>
+            </ul>
+          </div>
         </section>
         <section class="card" id="scatter-card">
-          <h2>Metric vs great-circle distance <span class="hint">from checked sources</span>
-            <button type="button" class="chart-help" id="scatter-help-btn" aria-label="About this chart">?</button>
+          <h2>
+            <span class="h2-title">Metric vs metric <span class="hint" id="scatter-title"></span></span>
+            <span class="h2-actions">
+              <button type="button" class="chart-help" id="scatter-help-btn" aria-label="About this chart">?</button>
+              <button type="button" class="expand-btn" id="scatter-expand" title="Expand to full page" aria-label="Expand to full page" aria-pressed="false">⛶</button>
+            </span>
           </h2>
+          <div class="axis-metrics">
+            <div class="axis-metric-row">
+              <span class="label">X axis</span>
+              <div class="seg" id="x-metric-btns">
+                <button type="button" class="axis-metric-btn" data-metric="latency">Latency</button>
+                <button type="button" class="axis-metric-btn" data-metric="jitter">Jitter</button>
+                <button type="button" class="axis-metric-btn" data-metric="loss">Loss</button>
+              </div>
+            </div>
+            <div class="axis-metric-row">
+              <span class="label">Y axis</span>
+              <div class="seg" id="y-metric-btns">
+                <button type="button" class="axis-metric-btn" data-metric="latency">Latency</button>
+                <button type="button" class="axis-metric-btn" data-metric="jitter">Jitter</button>
+                <button type="button" class="axis-metric-btn" data-metric="loss">Loss</button>
+              </div>
+            </div>
+          </div>
           <div id="scatter"></div>
           <div id="scatter-help-pop" role="tooltip" aria-hidden="true">
             <button type="button" class="chart-help-close" id="scatter-help-close" aria-label="Close">✕</button>
-            <p><b>Metric vs. great-circle distance</b> — how each network link compares to the physical distance between its two regions.</p>
+            <p><b>Metric vs metric</b> — how each measured network link compares on two metrics.</p>
             <h3>What the axes mean</h3>
             <ul>
-              <li><b>x — distance:</b> great-circle distance in km, the straight-line path between the two regions across the globe.</li>
-              <li><b>y — metric:</b> the value of the selected metric for that pair — <b>latency</b> (round-trip time, ms), <b>jitter</b> (variation between probes, ms), or <b>loss</b> (% of packets lost). Switch it with the Metric buttons in the header.</li>
+              <li><b>x and y:</b> the metrics chosen with the two button rows above the chart — <b>latency</b> (round-trip time, ms), <b>jitter</b> (variation between probes, ms), or <b>loss</b> (% of packets lost).</li>
             </ul>
             <h3>What you're looking at</h3>
             <ul>
               <li>Each <b>dot</b> is one measured <i>source → destination</i> pair. Dots from checked sources have a white ring.</li>
-              <li><b>Dot color</b> = the metric value, on the same scale as the map and pair matrix.</li>
-              <li><b>Gridlines</b> mark intervals; hovering a dot draws a dashed <b>crosshair</b> and highlights that pair in the map, matrix, and bars chart.</li>
+              <li><b>Dot color</b> = the value on the y-axis metric.</li>
+              <li><b>Gridlines</b> mark intervals; hovering a dot draws a dashed <b>crosshair</b> and highlights that pair in the map and matrix.</li>
               <li>The dashed white <b>fit line</b> is the least-squares trend through all currently shown dots.</li>
             </ul>
             <h3>How to interpret it</h3>
             <ul>
               <li>Check or uncheck sources to add/remove their outgoing pairs; the axes rescale to the values shown at that moment.</li>
-              <li>A <b>steep fit line</b> means the metric grows strongly with distance (typical for latency). A <b>flat line</b> means distance barely matters (common for jitter).</li>
-              <li>Dots <b>above</b> the line are worse than the distance would suggest; dots <b>below</b> it are better than average.</li>
+              <li>A <b>steep fit line</b> means the two metrics grow together; a <b>flat line</b> means they barely correlate.</li>
+              <li>Dots <b>above</b> the line are worse on the y-axis than the x-axis would suggest; dots <b>below</b> it are better.</li>
               <li>Click a dot to toggle that source, or hover one to read its exact values.</li>
             </ul>
           </div>
-        </section>
-        <section class="card" id="jitter-card">
-          <h2>Latency vs jitter <span class="hint">from checked sources</span></h2>
-          <div id="jitter"></div>
         </section>
       </aside>
       <button id="side-tab" title="Toggle right panel">▸</button>
@@ -113,6 +197,7 @@
   <footer id="footer">
     <p class="disclaimer">
       The latency, jitter, and loss data shown here was collected from virtual machines hosted on Vultr.
+      <a href="data/locations_measured.json" download="vultr-raw-ping-data.json">Click here to download the raw ping data.</a>
       This is a personal, unofficial project and is not affiliated with, endorsed by, or sponsored by
       VULTR or The Constant Company, LLC. Product names, logos, and brands are property of their respective owners.
     </p>
@@ -125,6 +210,8 @@
       <a href="https://github.com/topojson/world-atlas">World Atlas</a> project, derived from
       <a href="https://www.naturalearthdata.com">Natural Earth</a> (public domain);
       region coordinates from <a href="https://www.geonames.org">GeoNames</a> (public domain).
+      Favicon icon by <a href="https://thenounproject.com/creator/fahad493/">Fahad Hashmi</a> from
+      <a href="https://thenounproject.com">The Noun Project</a> (CC BY 3.0).
     </p>
   </footer>
 

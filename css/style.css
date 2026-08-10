@@ -15,7 +15,7 @@ html, body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
-  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font: 18.2px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 body {
@@ -28,13 +28,13 @@ header {
   flex-wrap: wrap;
   gap: 14px;
   align-items: flex-end;
-  padding: 12px 16px;
+  padding: 12px 16px 12px 48px;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
 }
 
-.brand h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: 0.2px; }
-.brand .sub { color: var(--text-dim); font-size: 11.5px; }
+.brand h1 { margin: 0; font-size: 23.8px; font-weight: 700; letter-spacing: 0.2px; color: #ffffff; }
+.brand .sub { color: var(--text-dim); font-size: 16.1px; }
 
 .toolbar {
   display: flex;
@@ -45,25 +45,125 @@ header {
   justify-content: flex-end;
 }
 
-.group { display: flex; flex-direction: column; gap: 4px; }
+.group { display: flex; flex-direction: column; gap: 2px; }
 .group.grow { flex: 1 1 220px; min-width: 180px; }
-.group .label { color: var(--text-dim); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+.group .label { color: var(--text-dim); font-size: 14.7px; text-transform: uppercase; letter-spacing: 0.4px; line-height: 1.15; }
 
 .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .metric-btn {
   background: transparent; color: var(--text-dim);
-  border: 0; padding: 6px 12px; cursor: pointer; font-size: 12px;
+  border: 0; padding: 6px 12px; cursor: pointer; font-size: 16.8px;
 }
 .metric-btn:hover { color: var(--text); background: var(--panel-2); }
 .metric-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .metric-btn.active { background: var(--accent); color: #0b1220; font-weight: 600; }
 
+.axis-metrics { display: flex; flex-direction: column; gap: 5px; margin: 0 0 8px; }
+.axis-metric-row { display: flex; align-items: center; gap: 8px; }
+.axis-metric-row .label { width: 46px; flex: 0 0 auto; }
+.axis-metric-btn {
+  background: transparent; color: var(--text-dim);
+  border: 0; padding: 1px 8px; cursor: pointer; font-size: 14px;
+  line-height: 1.5; text-transform: capitalize; letter-spacing: 0;
+}
+.axis-metric-btn.active { background: var(--accent); color: #0b1220; font-weight: 600; }
+
 select {
   background: var(--panel-2); color: var(--text);
-  border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 12px;
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 16.8px;
 }
 
 input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+.dual-range {
+  position: relative;
+  height: 18px;
+}
+.knob-label {
+  position: absolute;
+  top: -17px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  opacity: 0;
+  white-space: nowrap;
+  z-index: 2;
+}
+.knob-label.show { opacity: 1; }
+#threshold-title.hidden { visibility: hidden; }
+.dual-range input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.dual-range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #0b1220;
+  cursor: grab;
+  margin-top: -5px;
+}
+.dual-range input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #0b1220;
+  cursor: grab;
+}
+.dual-range input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+}
+.dual-range input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+}
+.dual-range input[type="range"]#threshold::-webkit-slider-runnable-track {
+  background: linear-gradient(to right,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.14) var(--min-pct, 0%),
+    var(--accent) var(--min-pct, 0%),
+    var(--accent) var(--max-pct, 100%),
+    rgba(255, 255, 255, 0.14) var(--max-pct, 100%),
+    rgba(255, 255, 255, 0.14) 100%);
+}
+.dual-range input[type="range"]#threshold::-moz-range-track {
+  background: linear-gradient(to right,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.14) var(--min-pct, 0%),
+    var(--accent) var(--min-pct, 0%),
+    var(--accent) var(--max-pct, 100%),
+    rgba(255, 255, 255, 0.14) var(--max-pct, 100%),
+    rgba(255, 255, 255, 0.14) 100%);
+}
+.dual-range input[type="range"]#threshold-min::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.dual-range input[type="range"]#threshold-min::-moz-range-track {
+  background: transparent;
+}
 
 #left-col {
   flex: 1 1 auto;
@@ -94,7 +194,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   border-top: 0;
   border-radius: 0 0 8px 8px;
   color: var(--text-dim);
-  font-size: 11px;
+  font-size: 15.4px;
   cursor: pointer;
 }
 #src-tab:hover { color: var(--text); background: var(--panel); }
@@ -113,10 +213,28 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   gap: 8px;
   flex-wrap: wrap;
 }
+.src-card-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+#src-all-none button {
+  background: none;
+  border: 0;
+  padding: 3px 10px;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14.7px;
+  cursor: pointer;
+}
+#src-all-none button:hover { background: var(--panel-2); color: var(--text); }
+#src-all-none button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+#src-all-none button + button { border-left: 1px solid var(--border); }
 #dest-btns { flex: 0 0 auto; }
 .dest-btn {
   background: transparent; color: var(--text-dim);
-  border: 0; padding: 5px 10px; cursor: pointer; font-size: 11px;
+  border: 0; padding: 5px 10px; cursor: pointer; font-size: 15.4px;
   white-space: nowrap;
 }
 .dest-btn:hover { color: var(--text); background: var(--panel-2); }
@@ -140,9 +258,8 @@ body.src-hidden #sources-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: var(--text-dim);
-  font-size: 10px;
-  text-transform: uppercase;
+  color: #ffffff;
+  font-size: 16.8px;
   letter-spacing: 0.4px;
   margin: 5px 0 1px;
   padding-bottom: 2px;
@@ -159,19 +276,19 @@ body.src-hidden #sources-card {
 }
 .src-group-btns button {
   background: none; border: 0; padding: 1px 8px; margin: 0;
-  color: var(--text-dim); font-size: 10px; text-transform: capitalize; letter-spacing: 0;
+  color: var(--text-dim); font-size: 14px; text-transform: capitalize; letter-spacing: 0;
   line-height: 1.5; cursor: pointer;
 }
 .src-group-btns button + button { border-left: 1px solid var(--border); }
 .src-group-btns button:hover { background: var(--panel-2); color: var(--text); }
 .src-group-btns button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.src-group-head .src-group-count { color: var(--text-dim); font-size: 10px; }
+.src-group-head .src-group-count { color: var(--text-dim); font-size: 14px; }
 .src {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   color: var(--text);
-  font-size: 11.5px;
+  font-size: 16.1px;
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
@@ -184,17 +301,21 @@ body.src-hidden #sources-card {
   color: var(--text);
   background: var(--panel-2);
   border-bottom: 1px solid var(--border);
-  font-size: 12px;
+  font-size: 16.8px;
 }
 #stats b { color: var(--accent); }
 
 body.resizing #side-pane,
-body.resizing #sources-card {
+body.resizing #sources-card,
+body.resizing #map-footer,
+body.resizing #map-footer-body {
   transition: none;
 }
 
 body.booting #side-pane,
-body.booting #sources-card {
+body.booting #sources-card,
+body.booting #map-footer,
+body.booting #map-footer-body {
   transition: none;
 }
 
@@ -225,18 +346,31 @@ main {
   border-right: 0;
   border-radius: 8px 0 0 8px;
   color: var(--text-dim);
-  font-size: 11px;
+  font-size: 15.4px;
   cursor: pointer;
 }
 #side-tab:hover { color: var(--text); background: var(--panel); }
 
+/* RULE: the bottom of the map must always extend fully to the top of the
+   footer (the legend / map controls). #map-pane therefore grows to fill
+   whatever vertical space is available (flex: 1 1 auto) so the map's bottom
+   edge reaches the footer instead of leaving wasted space below the map. The
+   footer overlays the map, so the map filling the pane down to its bottom
+   edge is what guarantees full coverage. Never cap #map-pane's height at a
+   fixed value except as a floor (see the narrow-width rule below). */
 #map-pane {
   position: relative;
   flex: 1 1 auto;
   min-width: 320px;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
-#map { position: absolute; inset: 0; }
+#map {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
 
 #map-footer {
   position: absolute;
@@ -245,21 +379,102 @@ main {
   bottom: 12px;
   z-index: 10;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  transition: bottom 0.35s ease-in-out;
 }
 
-#map-controls {
-  flex: 0 0 auto;
+/* both panes retracted: take a normal row below the map instead of overlaying
+   it, so the map fills the space above the legend/buttons */
+body.src-hidden.panel-hidden #map-footer {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  margin: 0 12px 12px;
+}
+
+/* with both panes retracted the footer is in normal flow below the map: when
+   collapsed, drop its bottom margin too so the tab is flush with the footer */
+body.src-hidden.panel-hidden.footer-hidden #map-footer {
+  margin-bottom: 0;
+}
+
+/* with both panes retracted the map is the only content: let the pane grow
+   past the narrow-layout height cap so the map gets the reclaimed space */
+body.src-hidden.panel-hidden #map-pane {
+  flex: 1 1 auto;
+}
+
+#map-footer-tab {
+  align-self: center;
+  width: 64px;
+  height: 20px;
+  padding: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  color: var(--text-dim);
+  font-size: 15.4px;
+  cursor: pointer;
+}
+#map-footer-tab:hover { color: var(--text); background: var(--panel); }
+
+#map-footer-body {
+  align-self: stretch;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: stretch;
+  gap: 8px;
+  /* fallback cap — syncFooterLayout pins max-height to the exact content
+     height inline, so collapse/expand is a true physical slide, not a fade */
+  max-height: 300px;
+  overflow: hidden;
+  transition: max-height 0.35s ease-in-out;
+}
+/* too narrow to keep the two-row legend beside the button grid: move the
+   buttons below the legend (class toggled by syncFooterLayout) */
+#map-footer-body.controls-below {
+  flex-direction: column;
+}
+
+/* collapsed: no fade. syncFooterLayout sets max-height to 0 (or the exact
+   content height when expanded), so the panel physically slides instead of
+   fading. This rule is only a fallback for the pre-JS frame. */
+body.footer-hidden #map-footer-body {
+  max-height: 0;
+}
+
+/* collapsed: the tab slides down to the very bottom, flush against the page
+   footer. #left-col's 10px bottom padding normally keeps the pane (and its
+   floating footer) 10px above the footer, so drop that padding here: the
+   pane — and with it the map — reclaims the strip and the tab lands
+   touching the footer. */
+body.footer-hidden #left-col {
+  padding-bottom: 0;
+}
+body.footer-hidden #map-footer {
+  bottom: 0;
+}
+
+/* the legend is always exactly two full-width rows. Beside the legend (the
+   default) the buttons form a 2×2 grid on the right: a zoom column and a fit
+   column. When the pane is too narrow for that, syncFooterLayout adds
+   .controls-below and the buttons move below the legend as a full-width row.
+   The layout never flickers — all measurements are intrinsic and
+   mode-independent (see the note in js/app.js). */
+#map-controls {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: auto auto;
   gap: 6px;
 }
-.ctrl-row { display: flex; align-items: center; gap: 6px; }
-#map-footer.legend-wrapped #map-controls {
+#map-controls .ctrl-row {
+  display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
 }
 #map-controls button {
   background: rgba(15, 23, 42, 0.85);
@@ -272,25 +487,59 @@ main {
 }
 #map-controls button:hover { background: var(--panel-2); border-color: var(--accent); }
 #map-controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* the + and − zoom buttons must ALWAYS be identical squares: a fixed
+   flex-basis locks their dimensions so nothing can ever stretch or shrink
+   one independently of the other */
 #map-controls .zoom-btn {
+  flex: 0 0 30px;
   width: 30px;
   height: 30px;
-  font-size: 18px;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 25.2px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+/* base font size — syncFooterLayout shrinks these inline when the buttons are
+   stacked below the legend so the labels never trail off (see js/app.js) */
 #map-controls .fit-btn {
-  padding: 6px 10px;
-  font-size: 11px;
+  height: 30px;
+  line-height: 1;
+  padding: 0 10px;
+  font-size: 15.4px;
   white-space: nowrap;
+}
+
+/* buttons moved below the legend: a full-width row, zoom buttons kept at
+   natural size on the left and fit buttons stretching to fill the rest, so
+   the buttons span the full footer width edge to edge */
+#map-footer-body.controls-below #map-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+#map-footer-body.controls-below #map-controls .ctrl-row {
+  flex-direction: row;
+}
+#map-footer-body.controls-below #map-controls .ctrl-row:first-child { flex: 0 0 auto; }
+#map-footer-body.controls-below #map-controls .ctrl-row:last-child { flex: 1 1 auto; }
+#map-footer-body.controls-below #map-controls .fit-btn {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #side-pane {
   width: 560px;
   flex: 0 0 auto;
   max-width: 46vw;
+  max-height: 100%;
+  align-self: flex-start;
   overflow-x: hidden;
   overflow-y: auto;
   border-left: 1px solid var(--border);
@@ -317,12 +566,23 @@ body.panel-hidden #side-pane {
   padding: 10px 12px;
 }
 .card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0 0 8px;
-  font-size: 12.5px;
+  font-size: 17.5px;
   font-weight: 600;
   color: var(--text);
 }
-.card .hint { color: var(--text-dim); font-weight: 400; font-size: 11px; }
+.h2-title { min-width: 0; }
+.h2-actions {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.card .hint { color: var(--text-dim); font-weight: 400; font-size: 15.4px; }
 .card svg { display: block; max-width: 100%; height: auto; }
 
 .chart-help {
@@ -333,8 +593,7 @@ body.panel-hidden #side-pane {
   width: 18px;
   height: 18px;
   padding: 0;
-  margin-left: 6px;
-  font-size: 11px;
+  font-size: 15.4px;
   line-height: 1;
   cursor: pointer;
   vertical-align: middle;
@@ -342,7 +601,40 @@ body.panel-hidden #side-pane {
 .chart-help:hover { color: var(--text); border-color: var(--accent); }
 .chart-help:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-#scatter-help-pop {
+.expand-btn {
+  background: var(--panel-2);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 16.1px;
+  line-height: 1;
+  cursor: pointer;
+}
+.expand-btn:hover { color: var(--text); border-color: var(--accent); }
+.expand-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* a chart expanded to the full page: the card becomes a fixed overlay that
+   covers the whole viewport and scrolls on its own */
+body.chart-expanded { overflow: hidden; }
+.card.expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  overflow: auto;
+  padding: 16px 22px 20px;
+}
+.card.expanded svg { margin: 0 auto; }
+.card.expanded .expand-btn { color: var(--accent); border-color: var(--accent); }
+
+#scatter-help-pop, #boxes-help-pop {
+  display: none;
   position: absolute;
   top: 30px;
   right: 12px;
@@ -354,7 +646,7 @@ body.panel-hidden #side-pane {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
-  font-size: 11.5px;
+  font-size: 16.1px;
   line-height: 1.45;
   color: var(--text);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
@@ -363,19 +655,24 @@ body.panel-hidden #side-pane {
   transform: translateY(-4px);
   transition: opacity 120ms, visibility 120ms, transform 120ms;
 }
-#scatter-help-pop.open { opacity: 1; visibility: visible; transform: translateY(0); }
-#scatter-help-pop p { margin: 0 0 7px; }
-#scatter-help-pop h3 {
+#scatter-help-pop.open, #boxes-help-pop.open {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+#scatter-help-pop, #boxes-help-pop p { margin: 0 0 7px; }
+#scatter-help-pop, #boxes-help-pop h3 {
   margin: 9px 0 3px;
-  font-size: 10.5px;
+  font-size: 14.7px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   color: var(--text-dim);
 }
-#scatter-help-pop ul { margin: 0 0 4px; padding-left: 16px; }
-#scatter-help-pop li { margin-bottom: 3px; }
-#scatter-help-pop b { color: #f8fafc; }
-#scatter-help-pop i { color: var(--text-dim); }
+#scatter-help-pop, #boxes-help-pop ul { margin: 0 0 4px; padding-left: 16px; }
+#scatter-help-pop, #boxes-help-pop li { margin-bottom: 3px; }
+#scatter-help-pop, #boxes-help-pop b { color: #f8fafc; }
+#scatter-help-pop, #boxes-help-pop i { color: var(--text-dim); }
 .chart-help-close {
   position: absolute;
   top: 6px;
@@ -384,7 +681,7 @@ body.panel-hidden #side-pane {
   border: 0;
   padding: 2px;
   color: var(--text-dim);
-  font-size: 13px;
+  font-size: 18.2px;
   line-height: 1;
   cursor: pointer;
 }
@@ -398,13 +695,15 @@ body.panel-hidden #side-pane {
 .arc.pair { opacity: 1; stroke-width: 2.6; }
 .region { stroke: #f8fafc; stroke-width: 1.2; cursor: pointer; }
 .region.unchecked { opacity: 0.35; }
-.label { fill: #f8fafc; font-size: 11px; font-weight: 600; paint-order: stroke; stroke: #0b1526; stroke-width: 3px; pointer-events: none; }
+.label { fill: #f8fafc; font-size: 15.4px; font-weight: 600; paint-order: stroke; stroke: #0b1526; stroke-width: 3px; pointer-events: none; }
 
 /* heatmap */
-.axis-label { fill: var(--text-dim); font-size: 9px; }
+.axis-label { fill: var(--text-dim); font-size: 12.6px; }
+.axis-label.col, .axis-label.row { fill: #f8fafc; }
 .cell { stroke: #0f172a; stroke-width: 0.5; cursor: pointer; }
 .cell.diag { stroke: none; }
 .cell.off { opacity: 0.4; }
+.cell.cut { opacity: 0.12; }
 .pair-hl {
   fill: none;
   stroke: #f8fafc;
@@ -413,12 +712,83 @@ body.panel-hidden #side-pane {
 }
 .axis-label.off { opacity: 0.4; }
 
-/* bars */
-.bar-code { fill: var(--text-dim); font-size: 9.5px; }
-.bar-val { fill: var(--text); font-size: 10px; }
-.bar.pair .bar-code { fill: var(--accent); font-weight: 700; }
-.bar.pair rect { stroke: #f8fafc; stroke-width: 1.2; }
-.empty { fill: var(--text-dim); font-size: 11.5px; }
+/* box-and-whisker */
+.box-hit { fill: none; pointer-events: all; }
+.box-sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+}
+.box-sort-label {
+  color: var(--text-dim);
+  font-size: 14.7px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+#box-sort-btns {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: 0;
+}
+#box-sort-btns button {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: var(--panel);
+  color: var(--text-dim);
+}
+#box-sort-btns button.shade { background: var(--panel-2); }
+#box-sort-btns button:hover { background: var(--panel-2); color: var(--text); }
+#box-sort-btns button.active {
+  background: var(--accent);
+  color: #0b1220;
+  font-weight: 600;
+}
+#box-sort-dir-btns {
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin-left: 0;
+}
+#box-sort-dir-btns button {
+  flex: 1 1 auto;
+  border: 0;
+  background: var(--panel);
+  color: var(--text-dim);
+  text-transform: none;
+  white-space: nowrap;
+}
+#box-sort-dir-btns button:hover { background: var(--panel-2); color: var(--text); }
+#box-sort-dir-btns button.active {
+  background: var(--accent);
+  color: #0b1220;
+  font-weight: 600;
+}
+.box-code { fill: #ffffff; font-size: 13.3px; }
+.box-grid.major { stroke: var(--border); stroke-width: 0.8; opacity: 0.75; pointer-events: none; }
+.box-grid.minor { stroke: var(--border); stroke-width: 0.5; opacity: 0.35; pointer-events: none; }
+.box-whisker { stroke: #f8fafc; stroke-width: 1.5; }
+.box-cap { stroke: #f8fafc; stroke-width: 1.8; }
+.box-rect { stroke: var(--text); stroke-width: 1; }
+.box-med { stroke: #0b1220; stroke-width: 1.6; }
+.box-mean { fill: #0b1220; }
+.box-lab { opacity: 0; pointer-events: none; transition: opacity 0.12s; }
+.box-lab rect { fill: var(--panel); }
+.box-lab.alt rect { fill: var(--panel-2); }
+.box-lab text { fill: #ffffff; font-size: 13px; font-weight: 500; }
+.box-lab.alt text { fill: var(--text-dim); }
+.box:hover .box-lab { opacity: 1; }
+#boxes g.box:has(~ g.box:hover), #boxes g.box:hover ~ g.box { opacity: 0.5; transition: opacity 0.15s; }
+#boxes g.box { transition: opacity 0.15s; }
+.box.pair .box-code { fill: var(--accent); }
+.box.pair .box-rect { stroke: var(--accent); stroke-width: 1.6; }
+.box.pair .box-whisker, .box.pair .box-cap { stroke: var(--accent); }
+.box:hover .box-whisker, .box:hover .box-cap { stroke: var(--accent); }
+.box:hover .box-code { fill: var(--accent); }
+.box:hover .box-rect { stroke: var(--accent); }
 
 /* scatter */
 .grid { pointer-events: none; }
@@ -431,22 +801,66 @@ body.panel-hidden #side-pane {
 .fit { stroke: #f8fafc; stroke-width: 1.4; stroke-dasharray: 5 4; }
 .axis { color: var(--text-dim); }
 .axis path, .axis line { stroke: var(--border); }
-.axis text { fill: var(--text-dim); font-size: 10px; }
+.axis text { fill: var(--text-dim); font-size: 14px; }
+.break { fill: none; stroke: var(--text-dim); stroke-width: 1.3; stroke-linejoin: round; }
 
-#legend {
-  flex: 1 1 auto;
+#legend-wrap {
+  flex: 1 1 0;
   min-width: 0;
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+#legend-label {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  font-size: 15.4px;
+  color: #ffffff;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+#legend {
+  flex: 0 0 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
   background: rgba(15, 23, 42, 0.82);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 10px;
-  font-size: 11px;
+  /* base font size — syncFooterLayout shrinks this inline when the buttons
+     are stacked below the legend so the text never trails off (see js/app.js) */
+  font-size: 15.4px;
   color: var(--text);
-  flex-wrap: wrap;
+  overflow: hidden;
 }
-.lg { display: inline-flex; align-items: center; gap: 5px; }
+/* exactly two rows, laid out by renderLegend; each row's items spread out to
+   occupy the full width so the legend never collapses to a single line */
+.legend-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.lg { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.continent-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.continent-btn:hover { color: #f8fafc; text-decoration: underline; }
 .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
 #footer {
@@ -454,14 +868,54 @@ body.panel-hidden #side-pane {
   padding: 10px 16px 14px;
   background: var(--panel);
   border-top: 1px solid var(--border);
-  font-size: 11px;
+  font-size: 15.4px;
   line-height: 1.5;
   color: var(--text-dim);
 }
 #footer p { margin: 0; }
-#footer .credits { margin-top: 4px; font-size: 10.5px; }
+#footer .credits { margin-top: 4px; font-size: 14.7px; }
 #footer a { color: var(--accent); text-decoration: none; }
 #footer a:hover { text-decoration: underline; }
+
+@media (max-width: 1000px) {
+  #left-col {
+    /* allow the column to shrink below 320px so it never pushes the side
+       pane past the viewport edge (which would scroll the page sideways) */
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  /* RULE: the bottom of the map must always extend fully to the top of the
+     footer. This block used to cap #map-pane at a fixed 220px (flex: 0 0
+     220px), which wasted every pixel of vertical space beyond that whenever
+     the window was taller. Instead the pane GROWS to fill the available
+     space (flex: 1 1 auto), keeping only a 220px floor so a tall sources
+     panel can't starve the map. Never reintroduce a fixed height cap here. */
+  #map-pane {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 220px;
+  }
+  /* let the destination buttons wrap their text: at narrow widths the
+     nowrap "Use all locations as destinations" label is ~600px wide and
+     forces the page to scroll sideways */
+  .dest-btn { white-space: normal; }
+  /* reclaim vertical space: the credits paragraph wraps into many lines at
+     narrow widths and starves the map; attribution stays on wider screens */
+  #footer .credits { display: none; }
+  #footer { padding: 8px 12px 10px; }
+}
+
+/* below ~480px the brand stacks above the toolbar: pull the toolbar up over
+   the brand block so the Metric group shares the "33 regions" line instead of
+   adding a third header row. The metric label sits beside its buttons (not
+   above) so the group fits between the page title and that line without
+   covering the "Vultr Latency Map" heading. */
+@media (max-width: 480px) {
+  header { padding-left: 16px; }
+  .toolbar { margin-top: -40px; }
+  #metric-group { flex-direction: row; align-items: center; gap: 8px; }
+}
 
 #tooltip {
   position: fixed;
@@ -471,7 +925,7 @@ body.panel-hidden #side-pane {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 7px 9px;
-  font-size: 11.5px;
+  font-size: 16.1px;
   color: var(--text);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
   opacity: 0;
