@@ -616,18 +616,63 @@ body.panel-hidden #side-pane {
 .expand-btn:hover { color: var(--text); border-color: var(--accent); }
 .expand-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* a chart expanded to the full page: the card becomes a fixed overlay that
-   covers the whole viewport and scrolls on its own */
-body.chart-expanded { overflow: hidden; }
-.card.expanded {
-  position: fixed;
-  inset: 0;
-  z-index: 45;
+/* a chart expanded to full page: header, stats, sources, chart, and footer
+   flow as one statically-positioned page — the window is the single scroll
+   container, so the footer sits at the very bottom of the page instead of
+   being pinned to the viewport. main never scrolls on its own and never
+   shrinks (overflow-y: auto on a scroll container is what stops the flex
+   items from shrinking and leaking a second scrollbar). */
+body.chart-expanded {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+body.chart-expanded #map-pane { display: none; }
+body.chart-expanded main {
+  flex-direction: column;
+  flex: 1 0 auto;
+  overflow: visible;
+}
+body.chart-expanded #left-col {
+  flex: 0 0 auto;
   width: auto;
-  height: auto;
+  padding: 0;
+  overflow: visible;
+}
+body.chart-expanded #src-tab { display: none; }
+body.chart-expanded #sources-card {
+  max-height: none;
+  overflow: visible;
+  transition: none;
+}
+/* sources collapsed while a chart is expanded: the chart takes the full width */
+body.chart-expanded.src-hidden #left-col { display: none; }
+body.chart-expanded #side-wrap {
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+body.chart-expanded #side-tab { display: none; }
+body.chart-expanded #side-pane {
+  flex: 1 1 auto;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  align-self: stretch;
+  overflow: visible;
+  padding: 0;
+  gap: 0;
+  /* no width/padding animation: charts measure the card right after the
+     class toggle, so an animating pane would give them a stale size */
+  transition: none;
+}
+body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
+.card.expanded {
+  flex: 0 0 auto;
+  min-height: 0;
   border: 0;
   border-radius: 0;
-  overflow: auto;
+  overflow: visible;
   padding: 16px 22px 20px;
 }
 .card.expanded svg { margin: 0 auto; }
@@ -802,6 +847,7 @@ body.chart-expanded { overflow: hidden; }
 .axis { color: var(--text-dim); }
 .axis path, .axis line { stroke: var(--border); }
 .axis text { fill: var(--text-dim); font-size: 14px; }
+.axis .tick-minor text { opacity: 0.65; font-size: 12.6px; }
 .break { fill: none; stroke: var(--text-dim); stroke-width: 1.3; stroke-linejoin: round; }
 
 #legend-wrap {

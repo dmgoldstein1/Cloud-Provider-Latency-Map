@@ -77,13 +77,15 @@
     var padT = Math.max(76, maxPx * 1.2 + 22);
     var cell = 17;
     var padR = Math.max(40, maxPx * 0.71 + 20);
-    // full-page mode: grow the cells so the matrix spreads across the whole
-    // viewport width, capped by what fits vertically without scrolling
+    // full-page mode: grow the cells so the matrix is only slightly smaller
+    // than the viewport's smallest dimension; the sources panel flows above
+    // it as part of the same page, so the matrix size no longer depends on
+    // the card's leftover height
     if (state.expanded === 'heatmap' && nCols > 0) {
-      var paneW = heatSvg.node().parentElement.clientWidth || 0;
-      var fillW = paneW > 0 ? Math.floor((paneW - padL - padR) / nCols) : 30;
-      var fillH = Math.floor((window.innerHeight - padT - 90) / Math.max(1, n));
-      cell = Math.max(17, Math.min(30, fillW, fillH));
+      var target = Math.floor(Math.min(window.innerWidth, window.innerHeight)) - 40;
+      var fillW = Math.floor((target - padL - padR) / nCols);
+      var fillH = Math.floor((target - padT) / Math.max(1, n));
+      cell = Math.max(10, Math.min(40, fillW, fillH));
     }
     var w = padL + nCols * cell + padR, h = padT + n * cell;
     heatLayout = {
@@ -100,15 +102,10 @@
     xLabels.join('text')
       .attr('class', 'axis-label col')
       .attr('transform', function (d, i) {
-        return 'translate(' + (padL + i * cell + cell / 2) + ',' + (padT - 8) + ') rotate(-90)';
+        return 'translate(' + (padL + i * cell + cell / 2) + ',' + (padT - 6) + ') rotate(-45)';
       })
       .attr('text-anchor', 'start')
-      .text(function (d) { return nameOf(state, d); })
-      .each(function (d, i) {
-        var b = this.getBBox();
-        var off = b.y + b.height / 2;
-        this.setAttribute('transform', 'translate(' + (padL + i * cell + cell / 2 - off) + ',' + (padT - 8) + ') rotate(-90)');
-      });
+      .text(function (d) { return nameOf(state, d); });
 
     var yLabels = heatSvg.selectAll('text.row').data(srcRows, function (d) { return d; });
     yLabels.join('text')
@@ -249,7 +246,6 @@
       ? '· distribution across ' + srcs.length + ' checked source' + (srcs.length === 1 ? '' : 's')
       : '';
 
-    var expanded = state.expanded === 'boxes';
     var rowH = 30, gap = 2;
     var maxPx = maxNameLen(state) * 5.5;
     var padL = Math.max(40, maxPx + 14), padR = 52, padT = 0, padB = 52;
@@ -264,21 +260,11 @@
       xDomain = [state.thresholdMin, Math.max(state.threshold, state.thresholdMin + 0.0001)];
     }
 
-    // Full-page mode: split the destinations into columns so the boxes spread
-    // across the whole viewport width. Every column shares the same x domain
-    // and draws its own grid, axis, and destination labels.
+    // a single column of rows spanning the whole chart width; expanding the
+    // chart simply widens it to the viewport, keeping the one-column layout
     var colGap = 0;
     var nCols = 1;
     var colW = w - padL - padR;
-    if (expanded && items.length) {
-      colGap = maxPx + 30;
-      var avail = w - padL - padR;
-      nCols = Math.max(1, Math.min(items.length, Math.floor((avail + colGap) / (460 + colGap))));
-      var maxRows = Math.max(3, Math.floor((window.innerHeight - padB - 130) / (rowH + gap)));
-      nCols = Math.max(nCols, Math.ceil(items.length / maxRows));
-      nCols = Math.min(nCols, items.length);
-      colW = (avail - colGap * (nCols - 1)) / nCols;
-    }
     var colX0 = function (i) { return padL + i * (colW + colGap); };
     var colScale = function (i) {
       return d3.scaleLinear().domain(xDomain).range([colX0(i), colX0(i) + colW]);
@@ -614,13 +600,37 @@
       '<i>click to toggle source</i>';
   }
 
+  // builds the axis generator for the scatter chart. When expanded, a tick is
+  // placed on every minor grid line too (not just the majors), with minor
+  // ticks dimmed so the hierarchy stays readable; the values are taken from
+  // the same gridTicks call that draws the grid so labels and lines always
+  // align.
+  function buildAxis(axis, scale, n, metric) {
+    var fmt = metricTickFormat(metric);
+    return function (sel) {
+      if (VML.state && VML.state.expanded === 'scatter') {
+        var g = gridTicks(scale, n, 4);
+        var minor = new Set(g.minor);
+        sel.call(axis.tickValues(g.major.concat(g.minor)).tickFormat(fmt));
+        sel.selectAll('g.tick').classed('tick-minor', function (d) { return minor.has(d); });
+      } else {
+        sel.call(axis.ticks(n).tickFormat(fmt));
+      }
+    };
+  }
+
   function renderScatter() {
     var state = VML.state;
     var xMetric = state.graphX;
     var yMetric = state.graphY;
     var w = Math.max(300, (scatterSvg.node().parentElement.clientWidth || 360));
-    // full-page mode: grow the plot to fill the viewport height
-    var h = state.expanded === 'scatter' ? Math.max(260, window.innerHeight - 230) : 260;
+    // full-page mode: size the plot to the viewport's smallest dimension like
+    // the other expanded charts (the sources panel flows above it as part of
+    // the same page, so the plot no longer fills leftover card space)
+    var h = 260;
+    if (state.expanded === 'scatter') {
+      h = Math.max(260, Math.min(window.innerWidth, window.innerHeight) - 40);
+    }
     var padL = 44, padR = 14, padT = 10, padB = 52;
     var innerW = w - padL - padR, innerH = h - padT - padB;
     var arcs = VML.util.activeArcs(state).filter(function (d) {
@@ -688,13 +698,13 @@
     xAxis.join('g')
       .attr('class', 'axis x-axis')
       .attr('transform', 'translate(0,' + (padT + innerH) + ')')
-      .call(d3.axisBottom(x).ticks(6).tickFormat(metricTickFormat(xMetric)));
+      .call(buildAxis(d3.axisBottom(x), x, 6, xMetric));
 
     var yAxis = scatterSvg.selectAll('g.y-axis').data([1]);
     yAxis.join('g')
       .attr('class', 'axis y-axis')
       .attr('transform', 'translate(' + padL + ',0)')
-      .call(d3.axisLeft(y).ticks(5).tickFormat(metricTickFormat(yMetric)));
+      .call(buildAxis(d3.axisLeft(y), y, 5, yMetric));
 
     var axY = padT + innerH;
     var xBreak = scatterSvg.selectAll('path.x-break').data(x.domain()[0] > 0 ? [1] : []);
