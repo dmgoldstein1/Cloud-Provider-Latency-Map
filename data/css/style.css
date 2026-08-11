@@ -415,6 +415,7 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: bottom 0.35s ease-in-out;
 }
 
 /* both panes retracted: take a normal row below the map instead of overlaying
@@ -467,6 +468,22 @@ body.src-hidden.panel-hidden #map-pane {
   transition: max-height 0.35s ease-in-out;
 }
 
+/* the label is always a full-width row above; beneath it the legend and the
+   button grid sit on the same line. Too narrow to keep the two-row legend
+   beside the button grid? syncFooterLayout adds .controls-below and the
+   buttons move below the legend as a full-width row. */
+#footer-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+}
+#map-footer-body.controls-below #footer-main {
+  flex-direction: column;
+  align-items: stretch;
+}
+
 /* collapsed: no fade. syncFooterLayout sets max-height to 0 (or the exact
    content height when expanded), so the panel physically slides instead of
    fading. This rule is only a fallback for the pre-JS frame. */
@@ -484,22 +501,6 @@ body.footer-hidden #left-col {
 }
 body.footer-hidden #map-footer {
   bottom: 0;
-}
-
-/* the label is always a full-width row above; beneath it the legend and the
-   button grid sit on the same line. Too narrow to keep the two-row legend
-   beside the button grid? syncFooterLayout adds .controls-below and the
-   buttons move below the legend as a full-width row. */
-#footer-main {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  min-height: 0;
-}
-#map-footer-body.controls-below #footer-main {
-  flex-direction: column;
-  align-items: stretch;
 }
 
 /* the legend is always exactly two full-width rows. Beside the legend (the
@@ -910,17 +911,12 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   flex: 1 1 0;
   min-width: 0;
 }
-/* the hint is an in-flow row at the top of the footer body, above the legend
-   and controls, left-justified to the legend's left edge. Being in flow it is
-   measured by syncFooterLayout, so it collapses/expands with the box instead
-   of popping in and out. pointer-events: none lets clicks pass through. */
 #legend-label {
   font-size: 15.4px;
   color: #ffffff;
   font-weight: 700;
   white-space: nowrap;
   pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
 #legend {
   flex: 0 0 auto;
