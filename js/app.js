@@ -95,7 +95,6 @@
       boxSortDir: state.boxSortDir,
       panelHidden: document.body.classList.contains('panel-hidden'),
       srcHidden: document.body.classList.contains('src-hidden'),
-      footerHidden: document.body.classList.contains('footer-hidden'),
       zoom: VML.map && VML.map.transform
         ? { k: VML.map.transform.k, x: VML.map.transform.x, y: VML.map.transform.y }
         : null
@@ -133,7 +132,6 @@
     }
     if (saved.panelHidden) document.body.classList.add('panel-hidden');
     if (saved.srcHidden) document.body.classList.add('src-hidden');
-    if (saved.footerHidden) document.body.classList.add('footer-hidden');
     state.savedZoom = saved.zoom || null;
   }
 
@@ -144,8 +142,6 @@
     if (sideTab) sideTab.textContent = document.body.classList.contains('panel-hidden') ? '◂' : '▸';
     var srcTab = document.getElementById('src-tab');
     if (srcTab) srcTab.textContent = document.body.classList.contains('src-hidden') ? '▴' : '▾';
-    var footerTab = document.getElementById('map-footer-tab');
-    if (footerTab) footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▾' : '▴';
   }
 
   function buildState(regionsRaw, dataset) {
@@ -478,15 +474,6 @@
       });
     }
 
-    var footerTab = document.getElementById('map-footer-tab');
-    if (footerTab) {
-      footerTab.addEventListener('click', function () {
-        document.body.classList.toggle('footer-hidden');
-        footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▾' : '▴';
-        VML.events.emit('render');
-      });
-    }
-
     window.addEventListener('resize', onResize);
     // keep the right-pane tab pinned to the map region (below the sources
     // card) as the card re-wraps, the pane toggles, or the column scrolls.
@@ -761,17 +748,6 @@
       legend.style.fontSize = '';
       fitButtons.forEach(function (b) { b.style.fontSize = ''; });
     }
-
-    // Collapse/expand must be a physical slide, not a fade. Pin max-height to
-    // the exact content height (scrollHeight reports it even while clipped at
-    // 0), so the 0.35s transition moves the real content instead of idling
-    // while a 300px cap shrinks down to the content edge. The guard skips
-    // no-op writes so a ResizeObserver round-trip can't restart a running
-    // transition or feed a stale measurement back in.
-    var hidden = document.body.classList.contains('footer-hidden');
-    var maxH = hidden ? 0 : Math.min(footer.scrollHeight, 300);
-    var px = maxH + 'px';
-    if (footer.style.maxHeight !== px) footer.style.maxHeight = px;
   }
 
   function wireFooterLayout() {

@@ -327,16 +327,12 @@ body.src-hidden #sources-card {
 #stats b { color: var(--accent); }
 
 body.resizing #side-pane,
-body.resizing #sources-card,
-body.resizing #map-footer,
-body.resizing #map-footer-body {
+body.resizing #sources-card {
   transition: none;
 }
 
 body.booting #side-pane,
-body.booting #sources-card,
-body.booting #map-footer,
-body.booting #map-footer-body {
+body.booting #sources-card {
   transition: none;
 }
 
@@ -415,7 +411,6 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: bottom 0.35s ease-in-out;
 }
 
 /* both panes retracted: take a normal row below the map instead of overlaying
@@ -428,12 +423,6 @@ body.src-hidden.panel-hidden #map-footer {
   margin: 0 12px 12px;
 }
 
-/* with both panes retracted the footer is in normal flow below the map: when
-   collapsed, drop its bottom margin too so the tab is flush with the footer */
-body.src-hidden.panel-hidden.footer-hidden #map-footer {
-  margin-bottom: 0;
-}
-
 /* with both panes retracted the map is the only content: let the pane grow
    past the narrow-layout height cap so the map gets the reclaimed space */
 body.src-hidden.panel-hidden #map-pane {
@@ -442,6 +431,15 @@ body.src-hidden.panel-hidden #map-pane {
 
 #map-footer-tab {
   align-self: center;
+  /* the lowered tab overlaps #map-footer-body's box (which stays put via its
+     -25.56px margin), so put it on top of the body to keep it clickable */
+  z-index: 1;
+  /* lowered so the tab's bottom edge touches the legend's top border: the
+     25.56px offset is exactly the height of the #legend-label hint row
+     (15.4px font × inherited 1.4 line-height) plus the 4px #map-footer-body
+     gap between it and the legend box. The matching -25.56px margin on
+     #map-footer-body keeps the hint and legend in place. */
+  margin-top: 25.56px;
   width: 64px;
   height: 20px;
   padding: 0;
@@ -461,46 +459,25 @@ body.src-hidden.panel-hidden #map-pane {
   flex-direction: column;
   align-items: stretch;
   gap: 4px;
-  /* fallback cap — syncFooterLayout pins max-height to the exact content
-     height inline, so collapse/expand is a true physical slide, not a fade */
-  max-height: 300px;
-  overflow: hidden;
-  transition: max-height 0.35s ease-in-out;
+  /* cancels the tab's 25.56px offset so the hint label and legend stay put
+     while the tab is lowered onto the legend's border (see #map-footer-tab) */
+  margin-top: -25.56px;
 }
 
-/* the label is always a full-width row above; beneath it the legend and the
-   button grid sit on the same line. Too narrow to keep the two-row legend
-   beside the button grid? syncFooterLayout adds .controls-below and the
-   buttons move below the legend as a full-width row. */
+/* the label sits in its own full-width row above the legend and the button
+   grid, left-justified so it lines up with the legend's left edge. Too narrow
+   to keep the two-row legend beside the button grid? syncFooterLayout adds
+   .controls-below and the buttons move below the legend as a full-width row. */
 #footer-main {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 8px;
-  min-height: 0;
 }
 #map-footer-body.controls-below #footer-main {
   flex-direction: column;
   align-items: stretch;
-}
-
-/* collapsed: no fade. syncFooterLayout sets max-height to 0 (or the exact
-   content height when expanded), so the panel physically slides instead of
-   fading. This rule is only a fallback for the pre-JS frame. */
-body.footer-hidden #map-footer-body {
-  max-height: 0;
-}
-
-/* collapsed: the tab slides down to the very bottom, flush against the page
-   footer. #left-col's 10px bottom padding normally keeps the pane (and its
-   floating footer) 10px above the footer, so drop that padding here: the
-   pane — and with it the map — reclaims the strip and the tab lands
-   touching the footer. */
-body.footer-hidden #left-col {
-  padding-bottom: 0;
-}
-body.footer-hidden #map-footer {
-  bottom: 0;
 }
 
 /* the legend is always exactly two full-width rows. Beside the legend (the
@@ -580,9 +557,11 @@ body.footer-hidden #map-footer {
 }
 
 #side-pane {
+  /* the width is pinned by fitPaneToMatrix (charts.js) to follow the pair
+     matrix grid, so the matrix always fits its frame at 1:1 and the frame
+     never scrolls; 560px is only the fallback before the first render */
   width: 560px;
   flex: 0 0 auto;
-  max-width: 46vw;
   max-height: 100%;
   align-self: flex-start;
   overflow-x: hidden;
@@ -791,6 +770,13 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 .label { fill: #f8fafc; font-size: 15.4px; font-weight: 600; paint-order: stroke; stroke: #0b1526; stroke-width: 3px; pointer-events: none; }
 
 /* heatmap */
+/* RULE: there must NEVER be a vertical or horizontal scroll bar within the
+   pair matrix frame (#heatmap). The pane's width follows the matrix grid
+   (fitPaneToMatrix in charts.js) so the matrix always fits its frame at 1:1;
+   overflow hidden is the hard guarantee that no scroll bar can ever appear
+   here, and margin auto centers the svg when it is narrower than the pane. */
+#heatmap { overflow: hidden; }
+#heatmap svg { max-width: none; margin: 0 auto; }
 .axis-label { fill: var(--text-dim); font-size: 12.6px; }
 .axis-label.col, .axis-label.row { fill: #f8fafc; }
 .cell { stroke: #0f172a; stroke-width: 0.5; cursor: pointer; }
@@ -902,12 +888,17 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   flex: 1 1 0;
   min-width: 0;
 }
+/* the hint is an in-flow row at the top of the footer body, above the legend
+   and controls, left-justified to the legend's left edge. Being in flow it is
+   measured by syncFooterLayout, so it collapses/expands with the box instead
+   of popping in and out. pointer-events: none lets clicks pass through. */
 #legend-label {
   font-size: 15.4px;
   color: #ffffff;
   font-weight: 700;
   white-space: nowrap;
   pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
 #legend {
   flex: 0 0 auto;
@@ -965,7 +956,10 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 #footer a { color: var(--accent); text-decoration: none; }
 #footer a:hover { text-decoration: underline; }
 
-@media (max-width: 1000px) {
+/* the pane follows the pair matrix's width (fitPaneToMatrix) — up to ~860px
+   at 33 columns — so the map column must give way below 1280px (the narrow
+   breakpoint was raised from 1000px) instead of the page scrolling sideways */
+@media (max-width: 1280px) {
   #left-col {
     /* allow the column to shrink below 320px so it never pushes the side
        pane past the viewport edge (which would scroll the page sideways) */

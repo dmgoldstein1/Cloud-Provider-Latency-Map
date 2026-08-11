@@ -32,6 +32,7 @@
   var heatSvg, boxSvg, scatterSvg;
   var heatLayout = null;
   var scatterLayout = null;
+  var lastMatrixW = 0;
 
   function init() {
     heatSvg = d3.select('#heatmap').append('svg');
@@ -39,6 +40,27 @@
     scatterSvg = d3.select('#scatter').append('svg');
     scatterSvg.append('g').attr('class', 'grid');
     boxSvg.append('g').attr('class', 'grid');
+    // the pane's width change is animated (0.35s), so charts rendered at the
+    // moment the pane was re-pinned would measure a mid-transition width:
+    // re-render once the pane settles at its final size
+    var pane = document.getElementById('side-pane');
+    if (pane && typeof ResizeObserver !== 'undefined') {
+      var paneTimer = null;
+      new ResizeObserver(function () {
+        clearTimeout(paneTimer);
+        paneTimer = setTimeout(function () { VML.events.emit('render'); }, 120);
+      }).observe(pane);
+    }
+    // when the viewport crosses the pane's width cap (window resize), the
+    // pane must be re-pinned so the matrix keeps fitting its frame; if the
+    // pin actually changes, the observer above turns it into a re-render
+    window.addEventListener('resize', function () {
+      if (lastMatrixW > 0 &&
+          !document.body.classList.contains('chart-expanded') &&
+          !document.body.classList.contains('panel-hidden')) {
+        fitPaneToMatrix(lastMatrixW);
+      }
+    });
     document.addEventListener('click', function () {
       VML.tooltip.hide();
     });
@@ -60,6 +82,48 @@
     }, 0);
   }
 
+  // the pane's content width minus the matrix frame's content width: the
+  // pane's padding/border plus the card's padding/border. It is constant, so
+  // it can be measured at any pane width.
+  function paneChrome() {
+    var pane = document.getElementById('side-pane');
+    var heat = document.getElementById('heatmap');
+    return pane && heat ? pane.clientWidth - heat.clientWidth : 0;
+  }
+
+  // RULE: there must NEVER be a vertical or horizontal scroll bar within the
+  // pair matrix frame (#heatmap). The right pane's width follows the matrix
+  // grid: this pins #side-pane to the matrix's intrinsic width (at the
+  // label-safe cell pitch) plus the pane/card chrome, so the matrix always
+  // fits its frame at 1:1. The pin is capped at the viewport — on narrower
+  // screens the cells shrink (renderHeatmap) instead; the frame itself never
+  // scrolls, and the page never scrolls sideways.
+  function fitPaneToMatrix(w) {
+    lastMatrixW = w;
+    var pane = document.getElementById('side-pane');
+    if (!pane) return;
+    if (document.body.classList.contains('chart-expanded')) return;
+    if (document.body.classList.contains('panel-hidden')) {
+      // collapsed: drop the inline width so the CSS width:0 rule can apply
+      pane.style.width = '';
+      return;
+    }
+    var target = Math.min(w + paneChrome(), window.innerWidth - 24);
+    var px = Math.max(0, Math.round(target)) + 'px';
+    if (pane.style.width !== px) pane.style.width = px;
+  }
+
+  // the matrix frame's available width: the pane's pinned (or current) width
+  // minus the pane/card chrome
+  function paneContentWidth() {
+    var pane = document.getElementById('side-pane');
+    var heat = document.getElementById('heatmap');
+    if (!pane || !heat) return 0;
+    var inline = parseFloat(pane.style.width);
+    var paneW = inline > 0 ? inline : pane.clientWidth;
+    return paneW - paneChrome();
+  }
+
   function renderHeatmap() {
     var state = VML.state;
     var order = state.data.matrices[state.metric].order;
@@ -73,19 +137,40 @@
     var n = srcRows.length;
     var nCols = dsts.length;
     var maxPx = maxNameLen(state) * 5.5;
-    var padL = Math.max(60, maxPx + 22);
-    var padT = Math.max(76, maxPx * 1.2 + 22);
-    var cell = 17;
-    var padR = Math.max(40, maxPx * 0.71 + 20);
-    // full-page mode: grow the cells so the matrix is only slightly smaller
-    // than the viewport's smallest dimension; the sources panel flows above
-    // it as part of the same page, so the matrix size no longer depends on
-    // the card's leftover height
-    if (state.expanded === 'heatmap' && nCols > 0) {
-      var target = Math.floor(Math.min(window.innerWidth, window.innerHeight)) - 40;
-      var fillW = Math.floor((target - padL - padR) / nCols);
-      var fillH = Math.floor((target - padT) / Math.max(1, n));
-      cell = Math.max(10, Math.min(40, fillW, fillH));
+    // round every layout coordinate to a whole pixel: the cell strokes are
+    // 0.5px wide, so any fractional position (padT comes out to e.g. 114.4 at
+    // maxPx = 77) rasterizes with uneven anti-aliasing — some grid lines
+    // render a pixel thick, others two, and the cells look misaligned
+    var padL = Math.round(Math.max(60, maxPx + 22));
+    var padT = Math.round(Math.max(76, maxPx * 1.2 + 22));
+    var padR = Math.round(Math.max(40, maxPx * 0.71 + 20));
+    // the cell pitch must keep the axis labels apart: the row labels are
+    // 12.6px text on that same pitch, and the rotated column labels sit on a
+    // perpendicular pitch of cell * sin(45deg), so cells smaller than ~20px
+    // make the horizontal and vertical labels cover each other. In card mode
+    // the pane's width follows the matrix (fitPaneToMatrix), so the matrix
+    // renders 1:1 at this pitch and the frame never scrolls; in full-page
+    // mode the cells grow/shrink to fit the viewport instead, like the
+    // other charts
+    var minCell = state.expanded === 'heatmap' ? 10 : 20;
+    var cell = minCell;
+    if (nCols > 0) {
+      if (state.expanded !== 'heatmap') {
+        fitPaneToMatrix(padL + nCols * minCell + padR);
+      }
+      // fill the space the pane now provides: the pinned pane width minus
+      // the pane/card chrome. When the pane hit the viewport cap the cells
+      // shrink below the label-safe pitch rather than the frame scrolling
+      // (the frame must NEVER scroll — see fitPaneToMatrix)
+      var target = paneContentWidth();
+      if (target > 0) {
+        var fillW = Math.floor((target - padL - padR) / nCols);
+        var fillH = state.expanded === 'heatmap'
+          ? Math.floor((target - padT) / Math.max(1, n))
+          : Infinity;
+        cell = Math.max(state.expanded === 'heatmap' ? minCell : 1,
+          Math.min(state.expanded === 'heatmap' ? 40 : minCell, fillW, fillH));
+      }
     }
     var w = padL + nCols * cell + padR, h = padT + n * cell;
     heatLayout = {
