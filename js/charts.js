@@ -82,13 +82,27 @@
     }, 0);
   }
 
+  var lastChrome = 0;
+
   // the pane's content width minus the matrix frame's content width: the
   // pane's padding/border plus the card's padding/border. It is constant, so
-  // it can be measured at any pane width.
+  // it can be measured at any pane width — EXCEPT when the pane is collapsed:
+  // at width 0 both clientWidths read 0 and the difference is unusable.
+  // RULE: remember the last meaningful measurement and fall back to it while
+  // the pane is closed. If the open-click render pinned from a 0 chrome, the
+  // target would under-count by the chrome (~46px); the pane would animate
+  // to that short width, then the debounced re-render (120ms after the
+  // transition settles) would measure the chrome correctly and re-pin a
+  // wider target — restarting the width transition, so the open visibly
+  // stops, then crawls the rest of the way. Reusing the stored chrome makes
+  // the first pin final: one continuous 0.35s ease-in-out slide, like the
+  // close animation.
   function paneChrome() {
     var pane = document.getElementById('side-pane');
     var heat = document.getElementById('heatmap');
-    return pane && heat ? pane.clientWidth - heat.clientWidth : 0;
+    var chrome = pane && heat ? pane.clientWidth - heat.clientWidth : 0;
+    if (chrome > 0) lastChrome = chrome;
+    return chrome > 0 ? chrome : lastChrome;
   }
 
   // RULE: there must NEVER be a vertical or horizontal scroll bar within the

@@ -11,6 +11,8 @@
   var sourceListEl, metricButtons, thresholdSlider, thresholdMinSlider, thresholdLabel, knobLabelMin, knobLabelMax, statsEl;
   var sourceCheckboxes = {};
   var continentCodes = {};
+  var _footerAnimating = false;
+  var _footerAnimTimer = null;
 
   VML.tooltip = {
     el: document.getElementById('tooltip'),
@@ -481,8 +483,25 @@
     var footerTab = document.getElementById('map-footer-tab');
     if (footerTab) {
       footerTab.addEventListener('click', function () {
+        var footer = document.getElementById('map-footer-body');
         document.body.classList.toggle('footer-hidden');
         footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▾' : '▴';
+        // Set max-height directly so the CSS transition starts from the exact
+        // content edge. Only this click animates the slide: .animating is what
+        // enables the max-height transition (see css/style.css) and raising
+        // the flag stops the ResizeObserver-driven syncFooterLayout from
+        // re-setting max-height mid-transition (which would restart the
+        // animation). The timer clears both in case the transition never runs
+        // (body.resizing / body.booting force transition: none, which swallows
+        // transitionend) so a later live resize can't start animating.
+        if (footer) {
+          var hidden = document.body.classList.contains('footer-hidden');
+          footer.style.maxHeight = (hidden ? 0 : Math.min(footer.scrollHeight, 300)) + 'px';
+          footer.classList.add('animating');
+          _footerAnimating = true;
+          clearTimeout(_footerAnimTimer);
+          _footerAnimTimer = setTimeout(footerAnimDone, 450);
+        }
         VML.events.emit('render');
       });
     }
@@ -765,19 +784,38 @@
     // Collapse/expand must be a physical slide, not a fade. Pin max-height to
     // the exact content height (scrollHeight reports it even while clipped at
     // 0), so the 0.35s transition moves the real content instead of idling
-    // while a 300px cap shrinks down to the content edge. The guard skips
-    // no-op writes so a ResizeObserver round-trip can't restart a running
-    // transition or feed a stale measurement back in.
-    var hidden = document.body.classList.contains('footer-hidden');
-    var maxH = hidden ? 0 : Math.min(footer.scrollHeight, 300);
-    var px = maxH + 'px';
-    if (footer.style.maxHeight !== px) footer.style.maxHeight = px;
+    // while a 300px cap shrinks down to the content edge. Skip while a
+    // transition is running (_footerAnimating) — the click handler already set
+    // the target value and re-setting it here would restart the animation.
+    if (!_footerAnimating) {
+      var hidden = document.body.classList.contains('footer-hidden');
+      var maxH = hidden ? 0 : Math.min(footer.scrollHeight, 300);
+      var px = maxH + 'px';
+      if (footer.style.maxHeight !== px) footer.style.maxHeight = px;
+    }
+  }
+
+  // End of a tab-click slide: the transition finished (or never ran because
+  // body.resizing / body.booting forced transition: none). Re-enable live
+  // pinning by syncFooterLayout and drop .animating so subsequent max-height
+  // changes — window resizes, right-pane open/close — snap instantly.
+  function footerAnimDone() {
+    _footerAnimating = false;
+    clearTimeout(_footerAnimTimer);
+    var footer = document.getElementById('map-footer-body');
+    if (footer) footer.classList.remove('animating');
+    syncFooterLayout();
   }
 
   function wireFooterLayout() {
     var footer = document.getElementById('map-footer-body');
     if (!footer || typeof ResizeObserver === 'undefined') return;
     new ResizeObserver(syncFooterLayout).observe(footer);
+    // Clear the animation guard when the transition finishes so
+    // syncFooterLayout can resume pinning max-height on resize.
+    footer.addEventListener('transitionend', function (e) {
+      if (e.propertyName === 'max-height') footerAnimDone();
+    });
   }
 
   function wireChartHelp() {

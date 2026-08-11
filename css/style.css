@@ -415,6 +415,14 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* RULE: the footer box must never shrink below the tab's outer height
+     (25.56px top margin + 20px tab). While the body is collapsed or still
+     animating it is shorter than that, and without this floor the tab's box
+     pokes below the footer — past the pane's bottom edge, which pushes a
+     vertical scroll bar into the map and Sources frame both at the end of a
+     collapse and at the start of an expand. Keep this in sync with the
+     tab's margin-top. */
+  min-height: 45.56px;
 }
 
 /* both panes retracted: take a normal row below the map instead of overlaying
@@ -441,6 +449,15 @@ body.src-hidden.panel-hidden #map-pane {
 
 #map-footer-tab {
   align-self: center;
+  /* the lowered tab overlaps #map-footer-body's box (which stays put via its
+     -25.56px margin), so put it on top of the body to keep it clickable */
+  z-index: 1;
+  /* lowered so the tab's bottom edge touches the legend's top border: the
+     25.56px offset is exactly the height of the #legend-label hint row
+     (15.4px font × inherited 1.4 line-height) plus the 4px #map-footer-body
+     gap between it and the legend box. The matching -25.56px margin on
+     #map-footer-body keeps the hint and legend in place. */
+  margin-top: 25.56px;
   width: 64px;
   height: 20px;
   padding: 0;
@@ -460,10 +477,26 @@ body.src-hidden.panel-hidden #map-pane {
   flex-direction: column;
   align-items: stretch;
   gap: 4px;
+  /* cancels the tab's 25.56px offset so the hint label and legend stay put
+     while the tab is lowered onto the legend's border (see #map-footer-tab) */
+  margin-top: -25.56px;
   /* fallback cap — syncFooterLayout pins max-height to the exact content
      height inline, so collapse/expand is a true physical slide, not a fade */
   max-height: 300px;
   overflow: hidden;
+}
+
+/* RULE: ONLY the legend tab click may animate the footer slide. The
+   max-height transition lives on this .animating class — added by the tab's
+   click handler in js/app.js and removed when the transition ends — so every
+   other max-height change snaps instantly. Live layout changes must never
+   ease: when the right pane opens or closes (or the window resizes) the
+   footer width changes, syncFooterLayout may flip the controls-below mode,
+   and the content height jumps to a new value; if that change animated, the
+   footer would look like it is opening, and while the pane is still moving
+   the re-pinned max-height keeps restarting the transition — flickering
+   lines. With the transition absent, the layout change lands in one frame. */
+#map-footer-body.animating {
   transition: max-height 0.35s ease-in-out;
 }
 
@@ -495,7 +528,17 @@ body.footer-hidden #map-footer {
   flex-direction: row;
   align-items: center;
   gap: 8px;
-  min-height: 0;
+  /* RULE: #footer-main must NEVER shrink below its content. While the body
+     is collapsed (max-height 0) it is squeezed by flex-shrink, and when the
+     legend sits BESIDE the controls (#footer-main is a row) that squeeze
+     makes the body's scrollHeight under-report the true content height.
+     syncFooterLayout and the collapse/expand click handler both pin
+     max-height from scrollHeight, so an under-report targets a too-small
+     max-height and the transitionend re-measures a taller value and restarts
+     the slide — the legend then opens in slow, stuttering steps. min-height:
+     auto (the default) keeps the row at its natural height, so scrollHeight
+     is truthful at every width and the slide completes in one transition. */
+  min-height: auto;
 }
 #map-footer-body.controls-below #footer-main {
   flex-direction: column;
