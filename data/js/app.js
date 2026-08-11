@@ -137,6 +137,22 @@
     state.savedZoom = saved.zoom || null;
   }
 
+  // Pin both destination buttons to one equal width: the widest label's
+  // natural (nowrap) width, so the active highlight fills the same box on
+  // both buttons. .active switches font-weight 600, so re-measure after
+  // every active toggle. The buttons stay nowrap; when the card is too
+  // narrow for both, the flex-wrap group drops the second button onto its
+  // own line instead of cutting it off.
+  function fitDestButtons() {
+    var btns = document.querySelectorAll('.dest-btn');
+    var max = 0;
+    btns.forEach(function (b) {
+      b.style.width = '';
+      if (b.scrollWidth > max) max = b.scrollWidth;
+    });
+    btns.forEach(function (b) { b.style.width = max + 'px'; });
+  }
+
   function applyRestoredUI() {
     metricButtons.forEach(function (x) { x.classList.toggle('active', x.dataset.metric === state.metric); });
     document.querySelectorAll('.dest-btn').forEach(function (x) { x.classList.toggle('active', x.dataset.dest === state.destMode); });
@@ -405,6 +421,7 @@
         if (state.destMode === b.dataset.dest) return;
         state.destMode = b.dataset.dest;
         document.querySelectorAll('.dest-btn').forEach(function (x) { x.classList.toggle('active', x === b); });
+        fitDestButtons();
         emitRender();
       });
     });
@@ -1037,6 +1054,7 @@
     restoreState(readStore());
     buildControls();
     applyRestoredUI();
+    fitDestButtons();
     renderLegend();
     VML.map.init(document.getElementById('map'), state);
     if (state.savedZoom) VML.map.setTransform(state.savedZoom);

@@ -29,13 +29,21 @@
     };
   }
 
-  var heatSvg, boxSvg, scatterSvg;
+  var heatSvg, heatLabelProbe, boxSvg, scatterSvg;
   var heatLayout = null;
   var scatterLayout = null;
   var lastMatrixW = 0;
 
   function init() {
     heatSvg = d3.select('#heatmap').append('svg');
+    // hidden probe for measuring axis-label text in the label font: the
+    // rotated column labels rise above their anchor by roughly
+    // (width + ascent) * sin(45°), so padT is sized from the real rendered
+    // width — an estimate would either over-reserve (dead band under the
+    // card title) or clip the tallest label
+    heatLabelProbe = heatSvg.append('text')
+      .attr('class', 'axis-label')
+      .style('visibility', 'hidden');
     boxSvg = d3.select('#boxes').append('svg');
     scatterSvg = d3.select('#scatter').append('svg');
     scatterSvg.append('g').attr('class', 'grid');
@@ -156,7 +164,17 @@
     // maxPx = 77) rasterizes with uneven anti-aliasing — some grid lines
     // render a pixel thick, others two, and the cells look misaligned
     var padL = Math.round(Math.max(60, maxPx + 22));
-    var padT = Math.round(Math.max(76, maxPx * 1.2 + 22));
+    // top padding sized from the widest column label as actually rendered:
+    // the label sits at padT - 6 and, rotated -45°, its box rises above the
+    // anchor by (width + ascent) * sin(45°); reserve exactly that plus a
+    // small air gap so the slanted titles sit close to the card title above
+    // without ever clipping
+    var padT = 46;
+    order.forEach(function (code) {
+      heatLabelProbe.text(nameOf(state, code));
+      var b = heatLabelProbe.node().getBBox();
+      padT = Math.max(padT, Math.round(6 + 0.7071067811865476 * (b.width - b.y) + 8));
+    });
     var padR = Math.round(Math.max(40, maxPx * 0.71 + 20));
     // the cell pitch must keep the axis labels apart: the row labels are
     // 12.6px text on that same pitch, and the rotated column labels sit on a

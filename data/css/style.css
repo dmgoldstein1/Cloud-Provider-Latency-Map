@@ -246,7 +246,15 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 #src-all-none button:hover { background: var(--panel-2); color: var(--text); }
 #src-all-none button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 #src-all-none button + button { border-left: 1px solid var(--border); }
-#dest-btns { flex: 0 0 auto; }
+#dest-btns {
+  /* when the viewport is too narrow for both buttons side by side, the
+     second button wraps onto its own line (button text stays nowrap) */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
 .dest-btn {
   background: transparent; color: var(--text-dim);
   border: 0; padding: 5px 10px; cursor: pointer; font-size: 15.4px;
@@ -996,10 +1004,9 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
     min-width: 0;
     min-height: 220px;
   }
-  /* let the destination buttons wrap their text: at narrow widths the
-     nowrap "Use all locations as destinations" label is ~600px wide and
-     forces the page to scroll sideways */
-  .dest-btn { white-space: normal; }
+  /* at narrow widths the destination buttons drop to separate lines as a
+     group (#dest-btns flex-wrap) instead of wrapping their text; their
+     nowrap labels never force the page to scroll sideways */
   /* reclaim vertical space: the credits paragraph wraps into many lines at
      narrow widths and starves the map; attribution stays on wider screens */
   #footer .credits { display: none; }
