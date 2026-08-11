@@ -56,6 +56,7 @@ header {
 }
 .metric-btn:hover { color: var(--text); background: var(--panel-2); }
 .metric-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.metric-btn.shade { background: var(--panel-2); }
 .metric-btn.active { background: var(--accent); color: #0b1220; font-weight: 600; }
 
 .axis-metrics { display: flex; flex-direction: column; gap: 5px; margin: 0 0 8px; }
@@ -66,6 +67,7 @@ header {
   border: 0; padding: 1px 8px; cursor: pointer; font-size: 14px;
   line-height: 1.5; text-transform: capitalize; letter-spacing: 0;
 }
+.axis-metric-btn.shade { background: var(--panel-2); }
 .axis-metric-btn.active { background: var(--accent); color: #0b1220; font-weight: 600; }
 
 select {
@@ -177,7 +179,12 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 
 #src-wrap {
   position: relative;
-  flex: 0 0 auto;
+  /* the sources card may shrink below its natural height (flex: 0 1 auto)
+     so it can never starve the map: see #sources-card and #map-pane below */
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 #src-tab {
@@ -200,8 +207,16 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 #src-tab:hover { color: var(--text); background: var(--panel); }
 
 #sources-card {
-  flex: 0 0 auto;
-  overflow: hidden;
+  /* RULE: the sources card must never be able to squeeze the map (and with
+     it the right-pane tab) out of the column. The card is flex: 1 1 auto and
+     shrinks with the wrap (flex: 0 1 auto), so when it doesn't fit beside the
+     map's 220px floor it scrolls internally instead of pushing the map out of
+     view. At natural size it is just as tall as its content, exactly as
+     before. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
   max-height: 1200px;
   transition: max-height 0.35s ease-in-out, padding 0.35s ease-in-out, border-width 0.35s ease-in-out;
 }
@@ -254,16 +269,23 @@ body.src-hidden #sources-card {
   gap: 2px;
   padding-right: 4px;
 }
+.src-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 3px;
+  padding: 4px 0 5px;
+  border-bottom: 1px solid var(--border);
+}
+.src-group:last-child { border-bottom: 0; }
 .src-group-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   color: #ffffff;
   font-size: 16.8px;
   letter-spacing: 0.4px;
-  margin: 5px 0 1px;
-  padding-bottom: 2px;
-  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 .src-group-head .sw { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
 .src-group-btns {
@@ -282,7 +304,6 @@ body.src-hidden #sources-card {
 .src-group-btns button + button { border-left: 1px solid var(--border); }
 .src-group-btns button:hover { background: var(--panel-2); color: var(--text); }
 .src-group-btns button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.src-group-head .src-group-count { color: var(--text-dim); font-size: 14px; }
 .src {
   display: inline-flex;
   align-items: center;
@@ -332,6 +353,16 @@ main {
   display: flex;
 }
 
+/* RULE: the right-pane tab must NEVER sit on top of the Sources pane, no
+   matter how wide (or narrow) the viewport is. The tab hangs 20px over the
+   left column so it reads as intruding into the map, but its vertical
+   position is pinned below the sources card by syncSideTabPosition() in
+   js/app.js: the tab is absolutely positioned at the left edge of the side
+   wrap, and the JS centers it on the map region (the space between the bottom
+   of the sources card and the top of the footer), clamping it so it always
+   stays off the card and inside the main column. Without that pinning, the
+   tab at the old hard-coded top:50% lay on top of the sources list on most
+   common window sizes. */
 #side-tab {
   position: absolute;
   left: 0;
@@ -357,12 +388,15 @@ main {
    edge reaches the footer instead of leaving wasted space below the map. The
    footer overlays the map, so the map filling the pane down to its bottom
    edge is what guarantees full coverage. Never cap #map-pane's height at a
-   fixed value except as a floor (see the narrow-width rule below). */
+   fixed value except as a floor. The 220px floor works at every width (not
+   just narrow): #sources-card shrinks with internal scroll instead, so the
+   sources list can never crush the map — which is what guarantees the
+   right-pane tab always has a strip of map to intrude into. */
 #map-pane {
   position: relative;
   flex: 1 1 auto;
   min-width: 320px;
-  min-height: 0;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
 }
@@ -424,19 +458,30 @@ body.src-hidden.panel-hidden #map-pane {
 #map-footer-body {
   align-self: stretch;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
-  gap: 8px;
+  gap: 4px;
   /* fallback cap — syncFooterLayout pins max-height to the exact content
      height inline, so collapse/expand is a true physical slide, not a fade */
   max-height: 300px;
   overflow: hidden;
   transition: max-height 0.35s ease-in-out;
 }
-/* too narrow to keep the two-row legend beside the button grid: move the
-   buttons below the legend (class toggled by syncFooterLayout) */
-#map-footer-body.controls-below {
+
+/* the label is always a full-width row above; beneath it the legend and the
+   button grid sit on the same line. Too narrow to keep the two-row legend
+   beside the button grid? syncFooterLayout adds .controls-below and the
+   buttons move below the legend as a full-width row. */
+#footer-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+}
+#map-footer-body.controls-below #footer-main {
   flex-direction: column;
+  align-items: stretch;
 }
 
 /* collapsed: no fade. syncFooterLayout sets max-height to 0 (or the exact
@@ -640,6 +685,8 @@ body.chart-expanded #left-col {
 }
 body.chart-expanded #src-tab { display: none; }
 body.chart-expanded #sources-card {
+  flex: 0 0 auto;
+  min-height: 0;
   max-height: none;
   overflow: visible;
   border-radius: 0;
@@ -854,15 +901,8 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 #legend-wrap {
   flex: 1 1 0;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
 }
 #legend-label {
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 0;
   font-size: 15.4px;
   color: #ffffff;
   font-weight: 700;
@@ -915,13 +955,13 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   padding: 10px 16px 14px;
   background: var(--panel);
   border-top: 1px solid var(--border);
-  font-size: 15.4px;
+  font-size: 14.4px;
   line-height: 1.5;
   color: var(--text-dim);
 }
 #footer p { margin: 0; }
-#footer .disclaimer { font-size: 14.7px; }
-#footer .credits { margin-top: 4px; font-size: 14.7px; }
+#footer .disclaimer { font-size: 13.7px; }
+#footer .credits { margin-top: 4px; font-size: 13.7px; }
 #footer a { color: var(--accent); text-decoration: none; }
 #footer a:hover { text-decoration: underline; }
 

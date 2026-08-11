@@ -10,7 +10,6 @@
   var state;
   var sourceListEl, metricButtons, thresholdSlider, thresholdMinSlider, thresholdLabel, knobLabelMin, knobLabelMax, statsEl;
   var sourceCheckboxes = {};
-  var groupCountEls = {};
   var continentCodes = {};
 
   VML.tooltip = {
@@ -294,7 +293,6 @@
   function buildSourceList() {
     sourceListEl.innerHTML = '';
     sourceCheckboxes = {};
-    groupCountEls = {};
     continentCodes = {};
 
     var order = state.data.matrices.latency.order;
@@ -346,12 +344,8 @@
       seg.appendChild(allBtn);
       seg.appendChild(noneBtn);
       title.appendChild(seg);
-      var count = document.createElement('span');
-      count.className = 'src-group-count';
       head.appendChild(title);
-      head.appendChild(count);
       group.appendChild(head);
-      groupCountEls[cont] = count;
 
       codes.forEach(function (code) {
         var label = document.createElement('label');
@@ -370,14 +364,6 @@
 
       sourceListEl.appendChild(group);
     });
-    syncGroupCounts();
-  }
-
-  function syncGroupCounts() {
-    Object.keys(groupCountEls).forEach(function (cont) {
-      var n = continentCodes[cont].filter(function (c) { return state.sources.has(c); }).length;
-      groupCountEls[cont].textContent = n + '/' + continentCodes[cont].length;
-    });
   }
 
   function syncSourceList() {
@@ -385,7 +371,6 @@
       var cb = sourceCheckboxes[code];
       if (cb) cb.checked = state.sources.has(code);
     });
-    syncGroupCounts();
     var label = document.getElementById('sources-label');
     if (label) label.textContent = 'Sources (' + state.sources.size + ' checked)';
   }
@@ -503,6 +488,22 @@
     }
 
     window.addEventListener('resize', onResize);
+    // keep the right-pane tab pinned to the map region (below the sources
+    // card) as the card re-wraps, the pane toggles, or the column scrolls.
+    // Observe BOTH the sources wrap (card height / width changes) and the
+    // side wrap (main-column height changes as the header and footer re-flow
+    // on font load and resize), plus re-sync once after all resources load.
+    var srcWrapEl = document.getElementById('src-wrap');
+    if (srcWrapEl && typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(syncSideTabPosition).observe(srcWrapEl);
+    }
+    var sideWrapEl = document.getElementById('side-wrap');
+    if (sideWrapEl && typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(syncSideTabPosition).observe(sideWrapEl);
+    }
+    window.addEventListener('load', syncSideTabPosition);
+    var leftCol = document.getElementById('left-col');
+    if (leftCol) leftCol.addEventListener('scroll', syncSideTabPosition);
     wireChartHelp();
     wireChartExpand();
     wireMapControls();
@@ -510,6 +511,7 @@
     wireAxisButtons();
     wireBoxSortButtons();
     wireBoxSortChecker();
+    wireSegShade();
   }
 
   function wireBoxSortButtons() {
@@ -547,6 +549,30 @@
     sync();
   }
 
+  // RULE: alternating background colors. The Distribution chart shades every
+  // other button so consecutive controls alternate between --panel and
+  // --panel-2. The same shading applies to the Metric buttons and the X/Y
+  // axis buttons: a button is shaded when (row + col) is odd, so each row
+  // reads as a light/dark checkerboard that stays correct if the buttons
+  // ever reflow into multiple rows.
+  function shadeButtons(group) {
+    if (!group) return;
+    var prevTop = null, row = -1, col = -1;
+    group.querySelectorAll('button').forEach(function (b) {
+      var top = b.offsetTop;
+      if (top !== prevTop) { row++; col = 0; prevTop = top; } else { col++; }
+      b.classList.toggle('shade', (row + col) % 2 === 1);
+    });
+  }
+
+  function wireSegShade() {
+    ['metric-btns', 'x-metric-btns', 'y-metric-btns'].forEach(function (id) {
+      var group = document.getElementById(id);
+      if (!group || typeof ResizeObserver === 'undefined') return;
+      new ResizeObserver(function () { shadeButtons(group); }).observe(group);
+    });
+  }
+
   function wireBoxSortChecker() {
     var group = document.getElementById('box-sort-btns');
     if (!group || typeof ResizeObserver === 'undefined') return;
@@ -578,12 +604,7 @@
           btns.forEach(function (b) { b.style.flexBasis = 'calc(100% / ' + k + ')'; });
         }
       }
-      var prevTop = null, row = -1, col = -1;
-      btns.forEach(function (b) {
-        var top = b.offsetTop;
-        if (top !== prevTop) { row++; col = 0; prevTop = top; } else { col++; }
-        b.classList.toggle('shade', (row + col) % 2 === 1);
-      });
+      shadeButtons(group);
     }
     function schedule() {
       if (raf != null) return;
@@ -718,7 +739,7 @@
     var padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) +
                parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
 
-    // 8 = #map-footer-body gap
+    // 8 = #footer-main gap (legend ↔ controls)
     var needed = baseW + padX + 8 + controlsNeed;
     var prevBelow = footer.classList.contains('controls-below');
     var M = 6; // hysteresis: only switch once the width clearly crosses
@@ -784,6 +805,11 @@
     });
   }
 
+  function chartFromURL() {
+    var c = new URLSearchParams(location.search).get('chart');
+    return (c === 'heatmap' || c === 'boxes' || c === 'scatter') ? c : null;
+  }
+
   function wireChartExpand() {
     var ids = ['heatmap', 'boxes', 'scatter'];
     function sync() {
@@ -800,28 +826,105 @@
         btn.setAttribute('aria-pressed', is ? 'true' : 'false');
       });
     }
+    function exitFullPage() {
+      // the button in the full view acts as the browser's back button
+      if (history.state && history.state.chart) {
+        history.back();
+      } else {
+        // opened directly at the full-page URL: drop the ?chart param in place
+        history.pushState(null, '', location.pathname + location.hash);
+        state.expanded = null;
+        sync();
+        VML.events.emit('render');
+      }
+    }
     ids.forEach(function (id) {
       var btn = document.getElementById(id + '-expand');
       if (!btn) return;
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        state.expanded = state.expanded === id ? null : id;
+        if (state.expanded === id) {
+          exitFullPage();
+          return;
+        }
+        state.expanded = id;
+        history.pushState({ chart: id }, '', '?chart=' + id);
         sync();
         VML.events.emit('render');
       });
     });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && state && state.expanded) {
-        state.expanded = null;
-        sync();
-        VML.events.emit('render');
-      }
+    window.addEventListener('popstate', function () {
+      state.expanded = chartFromURL();
+      sync();
+      VML.events.emit('render');
     });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && state && state.expanded) exitFullPage();
+    });
+    sync();
+  }
+
+  // The right-pane tab hangs 20px over the left column so it reads as
+  // intruding into the map, but it must NEVER sit on top of the sources card.
+  // Its vertical position is therefore pinned to the map region — the space
+  // between the bottom of the sources card and the bottom of the main column —
+  // and re-measured whenever the card, the column, or the viewport resizes or
+  // scrolls (ResizeObserver on #src-wrap, scroll on #left-col, window resize,
+  // and once after boot). With the old hard-coded top:50% the tab lay over the
+  // sources list whenever the card reached the vertical center, which happens
+  // on most common window sizes.
+  var lastSideTabTop = null;
+  function syncSideTabPosition() {
+    var sideWrap = document.getElementById('side-wrap');
+    var srcWrap = document.getElementById('src-wrap');
+    var tab = document.getElementById('side-tab');
+    if (!sideWrap || !srcWrap || !tab) return;
+    // while a chart is expanded the tab is display:none; nothing to pin
+    if (document.body.classList.contains('chart-expanded')) return;
+
+    var wrapTop = sideWrap.getBoundingClientRect().top;
+    var wrapBottom = sideWrap.getBoundingClientRect().bottom;
+    var cardBottom = srcWrap.getBoundingClientRect().bottom;
+    var tabH = 64; // fixed in CSS
+    var GAP = 8;
+
+    // the map region: below the sources card, above the bottom of the main
+    // column (the footer sits just below it). The tab's center is placed in
+    // this region; the CSS translate(-50%) centers the 64px box on that point,
+    // so only the CENTER offset is computed here.
+    var regionTop = Math.max(wrapTop, cardBottom + GAP);
+    var regionH = wrapBottom - regionTop;
+    var center;
+    if (regionH >= tabH) {
+      // plenty of map below the card: center the tab on the map region
+      center = regionTop + regionH / 2;
+    } else if (regionH > 0) {
+      // thin sliver of map: tuck the tab right below the card
+      center = regionTop + tabH / 2;
+    } else {
+      // the card fills (or exceeds) the column: keep the tab reachable at
+      // the very bottom of the main column
+      center = wrapBottom - tabH / 2;
+    }
+
+    // the tab must stay fully inside the main column. top is the CENTER
+    // offset (the CSS translate(-50%) pulls the box up by half its height),
+    // so the box spans [top - tabH/2, top + tabH/2] and the clamp must keep
+    // that range within [0, wrapH].
+    var minTop = tabH / 2;
+    var maxTop = Math.max(minTop, wrapBottom - wrapTop - tabH / 2);
+    var top = Math.max(minTop, Math.min(center - wrapTop, maxTop));
+
+    if (top !== lastSideTabTop) {
+      lastSideTabTop = top;
+      tab.style.top = top + 'px';
+    }
   }
 
   var resizeTimeout = null;
   var expandResizeTimeout = null;
   function onResize() {
+    syncSideTabPosition();
     document.body.classList.add('resizing');
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function () {
@@ -930,6 +1033,7 @@
       return f.properties.name !== 'Antarctica' && f.properties.name !== 'Fr. S. Antarctic Lands';
     });
     buildState(D.regions, VML.normalize.loadDataset());
+    state.expanded = chartFromURL();
     restoreState(readStore());
     buildControls();
     applyRestoredUI();
@@ -954,6 +1058,7 @@
     emitRender();
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
+        syncSideTabPosition();
         document.body.classList.remove('booting');
       });
     });
