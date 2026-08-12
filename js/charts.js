@@ -54,13 +54,6 @@
   var heatLayout = null;
   var scatterLayout = null;
   var lastMatrixW = 0;
-  // Excel-style frozen matrix labels: the top column labels pin to the scroll
-  // container's visible top while the cells scroll under them (and, if the
-  // matrix ever scrolls horizontally, the left row labels pin to the left).
-  var heatFrozen = { compY: 0, compX: 0 };
-  // how far the pinned anchor sits below the visible top: the rotated column
-  // labels rise padT - 14 above their anchor (padT is sized from the measured
-  // label width), plus a small margin, so the text stays fully on screen
 
   // on phones the chart frames are much narrower, so the label gutters (padL/
   // padR below) and the pane cap shrink to give the plots the available width
@@ -79,105 +72,32 @@
     return document.documentElement;
   }
 
-  // Geometry that only changes when the matrix is re-rendered or the layout
-  // shifts — measured once per render. The scroll handler MUST NOT force
-  // layout (getBoundingClientRect / getComputedStyle): doing so on every
-  // scroll event makes the pane scroll itself stutter, which reads as the
-  // labels shuddering.
-  var heatGeo = { container: null, isRoot: false, svgTopInC: 0, svgLeftInC: 0 };
+  // Native CSS sticky positioning replaces all JS scroll sync
+  var heatHeaderDiv = null, heatHeaderSvg = null;
 
-  function heatFrozenMeasure() {
-    if (!heatLayout || !heatSvg.node()) return;
-    var container = heatScrollContainer();
-    // expanded mode scrolls inside body (body.chart-expanded { overflow-y:auto })
-    var isRoot = container === document.documentElement || container === document.body;
-    var svgRect = heatSvg.node().getBoundingClientRect();
-    var conRect = container.getBoundingClientRect();
-    heatGeo.container = container;
-    heatGeo.isRoot = isRoot;
-    heatGeo.svgTopInC = svgRect.top - (isRoot ? 0 : conRect.top) + (isRoot ? window.pageYOffset : container.scrollTop);
-    heatGeo.svgLeftInC = svgRect.left - (isRoot ? 0 : conRect.left) + (isRoot ? window.pageXOffset : container.scrollLeft);
-    // cache the strip color now (layout-safe); the scroll-path applyHeatFrozen
-    // reuses the cached value so it never forces a style recalc
-    heatFrozenBgColor = heatFrozenStripColor();
-    updateHeatFrozen();
-  }
-
-  function scheduleHeatFrozen() {
-    // execute synchronously: using rAF introduces a 1-frame lag behind the
-    // browser's native scroll compositor, causing the headers to bounce. Since
-    // we don't force layout, synchronous is safe and prevents tearing.
-    updateHeatFrozen();
-  }
-
-  function updateHeatFrozen() {
-    if (!heatLayout || !heatSvg.node() || !heatGeo.container) return;
-    var scrollTop = heatGeo.isRoot ? window.pageYOffset : heatGeo.container.scrollTop;
-    var scrollLeft = heatGeo.isRoot ? window.pageXOffset : heatGeo.container.scrollLeft;
-    // pin the anchors so their natural position has scrolled past the visible
-    // top/left edge; capped so the strips never extend past the matrix bottom
-    var pinOffsetY = heatLayout.padT - 14;
-    var pinOffsetX = heatLayout.padL - 14;
-    var anchorContentY = heatGeo.svgTopInC + heatLayout.padT - 6;
-    heatFrozen.compY = Math.max(0, Math.min(
-      scrollTop - anchorContentY + pinOffsetY,
-      heatLayout.n * heatLayout.cell + 6 - pinOffsetY
-    ));
-    var anchorContentX = heatGeo.svgLeftInC + heatLayout.padL - 6;
-    heatFrozen.compX = Math.max(0, Math.min(
-      scrollLeft - anchorContentX + pinOffsetX,
-      heatLayout.nCols * heatLayout.cell + 6 - pinOffsetX
-    ));
-    applyHeatFrozen();
-  }
-
-  var heatFrozenBgColor = null;
-  // the strip must match the frame around the matrix, not the page: on the
-  // desktop the heatmap card paints the lighter --panel shade, on phones the
-  // card is transparent and the page's --bg shows through behind the pane
   function heatFrozenStripColor() {
     var card = document.getElementById('heatmap-card');
     var bg = card ? getComputedStyle(card).backgroundColor : '';
     if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') return bg;
     return getComputedStyle(document.body).backgroundColor;
   }
-  function applyHeatFrozen() {
-    if (!heatLayout) return;
-    var compY = heatFrozen.compY, compX = heatFrozen.compX;
-    // one CSS transform per label group (the labels keep their own base
-    // transforms); will-change lets the browser composite the group so the
-    // transform can be applied in sync with the compositor scroll
-    heatSvg.selectAll('g.heat-col-labels').style('transform', 'translate(0,' + compY + 'px)');
-    heatSvg.selectAll('g.heat-row-labels').style('transform', 'translate(' + compX + 'px,0)');
-    // solid strip behind the pinned column labels so the cells scrolling under
-    // them don't show through; hidden while the labels sit in their natural
-    // gutter (compY 0). The strip covers the FULL SVG width — including the
-    // row-label gutter — so row labels for rows that have scrolled under the
-    // frozen header are hidden. We extend it 1px up and 1px down to prevent
-    // subpixel anti-aliasing gaps.
-    var bg = heatSvg.select('rect.heat-frozen-bg');
-    if (bg.empty()) bg = heatSvg.append('rect').attr('class', 'heat-frozen-bg');
-    // use the cached color (set at render / measure time) so the scroll-path
-    // never calls getComputedStyle — which would force a style recalc and
-    // contribute to the shuddering
-    bg.attr('display', compY > 0 ? null : 'none')
-      .attr('x', 0)
-      .attr('y', 7)
-      .attr('width', +heatSvg.attr('width'))
-      .attr('height', heatLayout.padT - 6)
-      .attr('fill', heatFrozenBgColor || heatFrozenStripColor())
-      .style('transform', 'translate(0,' + compY + 'px)');
-    var firstCol = heatSvg.select('g.heat-col-labels').node();
-    if (firstCol && bg.node() !== firstCol.previousSibling) {
-      heatSvg.node().insertBefore(bg.node(), firstCol);
-    }
-    // we no longer manually set visibility: hidden on row labels. By placing
-    // the frozen bg *after* the row labels in the DOM, it natively obscures
-    // them using the GPU compositor without main-thread DOM mutations!
-  }
 
   function init() {
-    heatSvg = d3.select('#heatmap').append('svg');
+    var hm = d3.select('#heatmap');
+    hm.node().style.overflow = 'visible';
+    hm.node().style.position = 'relative';
+
+    heatHeaderDiv = hm.append('div')
+      .style('position', '-webkit-sticky')
+      .style('position', 'sticky')
+      .style('top', '-10px')
+      .style('z-index', '10')
+      .style('pointer-events', 'none')
+      .style('height', '0px')
+      .style('overflow', 'visible');
+
+    heatHeaderSvg = heatHeaderDiv.append('svg').style('display', 'block');
+    heatSvg = hm.append('svg').style('display', 'block');
     // hidden probe for measuring axis-label text in the label font: the
     // rotated column labels rise above their anchor by roughly
     // (width + ascent) * sin(45°), so padT is sized from the real rendered
@@ -217,10 +137,6 @@
         fitPaneToMatrix(lastMatrixW);
       }
     });
-    // Excel-style frozen matrix labels: keep the pinned strips in sync with
-    // whatever scrolls (the side pane in card mode, the window otherwise)
-    window.addEventListener('scroll', scheduleHeatFrozen, { passive: true });
-    if (pane) pane.addEventListener('scroll', scheduleHeatFrozen, { passive: true });
     document.addEventListener('click', function () {
       VML.tooltip.hide();
     });
@@ -403,9 +319,22 @@
       .attr('height', h)
       .attr('viewBox', '0 0 ' + w + ' ' + h);
 
-    // the column/row labels live in their own groups so the scroll handler can
-    // pin them with a single transform per strip (see applyHeatFrozen)
-    var colG = heatSvg.selectAll('g.heat-col-labels').data([1]);
+    heatHeaderSvg
+      .attr('width', w)
+      .attr('height', padT)
+      .attr('viewBox', '0 0 ' + w + ' ' + padT);
+
+    // sticky background strip
+    var bg = heatHeaderSvg.select('rect.heat-frozen-bg');
+    if (bg.empty()) bg = heatHeaderSvg.append('rect').attr('class', 'heat-frozen-bg');
+    bg.attr('x', 0)
+      .attr('y', 0)
+      .attr('width', w)
+      .attr('height', padT + 1) // 1px overlap to prevent subpixel bleeding
+      .attr('fill', heatFrozenStripColor());
+
+    // column labels move to the sticky header SVG
+    var colG = heatHeaderSvg.selectAll('g.heat-col-labels').data([1]);
     colG.join('g').attr('class', 'heat-col-labels');
     var xLabels = colG.selectAll('text.col').data(dsts, function (d) { return d; });
     xLabels.join('text')
@@ -470,11 +399,7 @@
     // pinned over them; move them to the end, then measure the pinned geometry
     // (layout-forcing, only safe here at render time) and apply the current
     // scroll compensation
-    // ensure labels paint over cells, but row labels paint UNDER the column
-    // labels and frozen bg so they are natively obscured when scrolling up
-    heatSvg.selectAll('g.heat-row-labels').each(function () { heatSvg.node().appendChild(this); });
-    heatSvg.selectAll('g.heat-col-labels').each(function () { heatSvg.node().appendChild(this); });
-    heatFrozenMeasure();
+    // row labels and cells are in the main SVG; no layout measurement needed
   }
 
   function heatTip(state, src, dst) {

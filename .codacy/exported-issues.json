@@ -15,7 +15,7 @@
       "severity": "Error",
       "category": "Security",
       "subCategory": "XSS",
-      "message": "User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities",
+      "message": "User controlled data i1n methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities",
       "resultDataId": 131526230164,
       "resolution": "Fixed: replaced the `innerHTML` sink with DOM construction (createElement/textContent/createTextNode). `VML.tooltip.show` now accepts a DOM node, `renderStats` and `renderLegend` build their content with DOM APIs, and the chart tooltips (`heatTip`/`barTip`/`tip` in charts.js) return DOM nodes. No data is parsed as HTML anymore."
     },
