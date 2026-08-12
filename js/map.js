@@ -118,6 +118,30 @@
 
   function nameOf(code) { return m.state.byCode.get(code).name; }
 
+  // Tooltip content is built as DOM nodes (never innerHTML) so values are
+  // rendered as styled <b>/<i> elements — the tooltip sets textContent for
+  // plain strings, so raw HTML strings would show their tags literally. This
+  // mirrors charts.js's seg/tipNode helpers.
+  function seg(t, b, i) { return { t: String(t), b: !!b, i: !!i }; }
+
+  function tipNode(lines) {
+    var wrap = document.createElement('div');
+    lines.forEach(function (line) {
+      var div = document.createElement('div');
+      line.forEach(function (s) {
+        if (s.b || s.i) {
+          var n = document.createElement(s.i ? 'i' : 'b');
+          n.textContent = s.t;
+          div.appendChild(n);
+        } else {
+          div.appendChild(document.createTextNode(s.t));
+        }
+      });
+      wrap.appendChild(div);
+    });
+    return wrap;
+  }
+
   function drawArcs() {
     var state = m.state;
     var dsts = VML.util.destSet(state);
@@ -154,8 +178,10 @@
     var lat = state.data.matrices.latency.values[state.idx.get(d.src)][state.idx.get(d.dst)];
     var jit = state.data.matrices.jitter.values[state.idx.get(d.src)][state.idx.get(d.dst)];
     var loss = state.data.matrices.loss.values[state.idx.get(d.src)][state.idx.get(d.dst)];
-    return '<b>' + nameOf(d.src) + ' → ' + nameOf(d.dst) + '</b> (' + d.src + ' → ' + d.dst + ')<br>' +
-      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms · loss <b>' + loss + '</b> %';
+    return tipNode([
+      [seg(nameOf(d.src) + ' → ' + nameOf(d.dst), true), seg(' (' + d.src + ' → ' + d.dst + ')')],
+      [seg('latency '), seg(lat, true), seg(' ms · jitter '), seg(jit, true), seg(' ms · loss '), seg(loss, true), seg(' %')]
+    ]);
   }
 
   function markerRadius(meanLat, extent) {
@@ -218,11 +244,13 @@
       out.push(v);
     });
     var avg = out.reduce(function (a, b) { return a + b; }, 0) / out.length;
-    var status = state.sources.has(d.code) ? '<b>checked</b> — outgoing arcs shown' : 'unchecked — click to toggle';
-    return '<b>' + d.name + '</b> (' + d.code + ')<br>' +
-      d.country + ' · ' + d.continent + '<br>' +
-      'avg latency to ' + out.length + ' regions: <b>' + avg.toFixed(0) + '</b> ms<br>' +
-      '<i>' + status + '</i>';
+    var status = state.sources.has(d.code) ? 'checked — outgoing arcs shown' : 'unchecked — click to toggle';
+    return tipNode([
+      [seg(d.name, true), seg(' (' + d.code + ')')],
+      [seg(d.country + ' · ' + d.continent)],
+      [seg('avg latency to ' + out.length + ' regions: '), seg(avg.toFixed(0), true), seg(' ms')],
+      [seg(status, false, true)]
+    ]);
   }
 
   function toggleSource(code, checked) { VML.app.toggleSource(code, checked); }
