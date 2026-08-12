@@ -866,10 +866,11 @@
     if (state.expanded === 'scatter') {
       h = Math.max(260, Math.min(window.innerWidth, window.innerHeight) - 40);
     }
-    // padL reserves room for the rotated y-axis label (~58px) plus the tick
-    // labels (~27px + d3's 9px text offset), so the label never sits on top
-    // of the tick numbers
-    var padL = mobile() ? 76 : 104, padR = 14, padT = 10, padB = 52;
+    // On phones the rotated y-axis label sits at the far left edge and padL
+    // only needs to hold the tick numbers (~27px + d3's 9px text offset), so
+    // the left margin shrinks toward the 14px right one instead of leaving a
+    // wide empty band; desktop keeps the label beside the ticks.
+    var padL = mobile() ? 44 : 104, padR = 14, padT = 10, padB = 52;
     var innerW = w - padL - padR, innerH = h - padT - padB;
     var arcs = VML.util.activeArcs(state).filter(function (d) {
       return inRange(state, valueAt(state, d.src, d.dst));
@@ -974,7 +975,7 @@
     var yLabel = scatterSvg.selectAll('text.y-label').data([1]);
     yLabel.join('text')
       .attr('class', 'axis-label y-label')
-      .attr('transform', 'translate(33,' + (padT + innerH / 2) + ') rotate(-90)')
+      .attr('transform', 'translate(' + (mobile() ? 4 : 33) + ',' + (padT + innerH / 2) + ') rotate(-90)')
       .attr('text-anchor', 'middle')
       .text(ym.label.toLowerCase() + ' (' + ym.unit + ')');
 
