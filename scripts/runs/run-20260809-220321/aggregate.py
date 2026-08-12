@@ -8,20 +8,22 @@ with open(os.path.join(base,"instances.tsv")) as f:
         ip2region[ip]=r
 metric={m:{} for m in ("latency","jitter","loss")}
 meta={}
-for fname in os.listdir(os.path.join(base,"raw")):
-    region=fname[:-4]
-    with open(os.path.join(base,"raw",fname)) as f:
-        for row in csv.DictReader(f):
-            dst=ip2region.get(row["dst"])
-            if not dst: continue
-            metric["latency"].setdefault(region,{})[dst]=float(row["avg"])
-            metric["jitter"].setdefault(region,{})[dst]=float(row["jitter"])
-            metric["loss"].setdefault(region,{})[dst]=float(row["loss_pct"])
-            meta.setdefault((region,dst),row)
+for root, _, files in os.walk(os.path.join(base,"raw")):
+    for fname in files:
+        if not fname.endswith(".csv"): continue
+        region=fname[:-4]
+        with open(os.path.join(root,fname)) as f:
+            for row in csv.DictReader(f):
+                dst=ip2region.get(row["dst"])
+                if not dst: continue
+                metric["latency"].setdefault(region,{})[dst]=float(row["avg"])
+                metric["jitter"].setdefault(region,{})[dst]=float(row["jitter"])
+                metric["loss"].setdefault(region,{})[dst]=float(row["loss_pct"])
+                meta.setdefault((region,dst),row)
 for name,mat in metric.items():
     path=os.path.join(base,f"{name}_matrix.csv")
     with open(path,"w",newline="") as f:
-        w=csv.writer(f)
+        w=csv.writer(f)  # nosemgrep: python.lang.security.use-defusedcsv - writing self-generated data
         w.writerow(["src"]+list(regions))
         for src in regions:
             w.writerow([src]+[mat.get(src,{}).get(dst,"") for dst in regions])

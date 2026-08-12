@@ -4,29 +4,61 @@
 # Cell precedence: later run dirs overwrite earlier ones.
 import csv, json, os, sys
 
+
+def read_matrix(path):
+    with open(path) as f:
+        rows = list(csv.DictReader(f))
+    cells = {}
+    for row in rows:
+        src = row["src"]
+        for dst, v in row.items():
+            if dst != "src" and v != "":
+                cells[(src, dst)] = v
+    return cells
+
+
 def load_run(run):
     metrics = {}
     for name in ("latency", "jitter", "loss"):
         path = os.path.join(run, f"{name}_matrix.csv")
-        if not os.path.exists(path):
-            continue
-        with open(path) as f:
-            rows = list(csv.DictReader(f))
-        cells = {}
-        for row in rows:
-            src = row["src"]
-            for dst, v in row.items():
-                if dst != "src" and v != "":
-                    cells[(src, dst)] = v
-        metrics[name] = cells
+        if os.path.exists(path):
+            metrics[name] = read_matrix(path)
     regions = set()
     meta_path = os.path.join(run, "instances.tsv")
     if os.path.exists(meta_path):
         with open(meta_path) as f:
             for line in f:
-                r = line.rstrip().split("\t")[0]
-                regions.add(r)
+                regions.add(line.rstrip().split("\t")[0])
     return metrics, regions
+
+
+def write_matrix(outdir, name, regions, cells):
+    path = os.path.join(outdir, f"{name}_matrix.csv")
+    filled = 0
+    with open(path, "w", newline="") as f:
+        w = csv.writer(f)  # nosemgrep: python.lang.security.use-defusedcsv
+        w.writerow(["src"] + regions)
+        for src in regions:
+            row = [src]
+            for dst in regions:
+                v = cells.get((src, dst), "")
+                if v != "":
+                    filled += 1
+                row.append(v)
+            w.writerow(row)
+    total = len(regions) * len(regions)
+    print(f"wrote {path} ({filled}/{total} cells)")
+    return {"filled": filled, "total": total}
+
+
+def missing_latency(regions, latency):
+    missing = []
+    for s in regions:
+        for d in regions:
+            if latency.get((s, d)) == "" or (s, d) not in latency:
+                missing.append((s, d))
+    return missing
+
 
 def main():
     if len(sys.argv) < 3:
@@ -48,22 +80,7 @@ def main():
     os.makedirs(outdir, exist_ok=True)
     coverage = {}
     for name, cells in merged.items():
-        path = os.path.join(outdir, f"{name}_matrix.csv")
-        with open(path, "w", newline="") as f:
-            w = csv.writer(f)
-            w.writerow(["src"] + regions)
-            filled = 0
-            for src in regions:
-                row = [src]
-                for dst in regions:
-                    v = cells.get((src, dst), "")
-                    if v != "":
-                        filled += 1
-                    row.append(v)
-                w.writerow(row)
-        total = len(regions) * len(regions)
-        coverage[name] = {"filled": filled, "total": total}
-        print(f"wrote {path} ({filled}/{total} cells)")
+        coverage[name] = write_matrix(outdir, name, regions, cells)
     manifest = {
         "regions": regions,
         "runs": run_meta,
@@ -72,9 +89,9 @@ def main():
     }
     with open(os.path.join(outdir, "manifest.json"), "w") as f:
         json.dump(manifest, f, indent=2)
-    missing = [(s, d) for s in regions for d in regions
-               if merged["latency"].get((s, d)) == "" or (s, d) not in merged["latency"]]
+    missing = missing_latency(regions, merged["latency"])
     print(f"regions: {len(regions)}  missing latency cells: {len(missing)}")
+
 
 if __name__ == "__main__":
     main()

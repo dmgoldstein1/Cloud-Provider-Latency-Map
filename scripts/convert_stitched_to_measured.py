@@ -43,6 +43,25 @@ def read_matrix(path):
     return header, out
 
 
+def build_payload(header, latency, jitter, loss, regions):
+    out_regions = []
+    for code in header:
+        lat = {dst: v for dst, v in latency[code].items() if dst != code}
+        jit = {dst: v for dst, v in jitter[code].items() if dst != code}
+        los = {dst: v for dst, v in loss[code].items() if dst != code}
+        meta = regions[code]
+        out_regions.append({
+            "code": code,
+            "location": meta.get("city") or meta.get("name"),
+            "country": meta.get("country_code"),
+            "country_name": meta.get("country"),
+            "latency": lat,
+            "jitter": jit,
+            "loss": los,
+        })
+    return out_regions
+
+
 def main():
     args = parse_args()
 
@@ -58,26 +77,10 @@ def main():
     if missing:
         raise SystemExit("regions.json missing metadata for: %s" % missing)
 
-    out_regions = []
-    for code in latency_hdr:
-        lat = {dst: v for dst, v in latency[code].items() if dst != code}
-        jit = {dst: v for dst, v in jitter[code].items() if dst != code}
-        los = {dst: v for dst, v in loss[code].items() if dst != code}
-        meta = regions[code]
-        out_regions.append({
-            "code": code,
-            "location": meta.get("city") or meta.get("name"),
-            "country": meta.get("country_code"),
-            "country_name": meta.get("country"),
-            "latency": lat,
-            "jitter": jit,
-            "loss": los,
-        })
-
     payload = {
         "source": args.source_label,
         "retrieved_at": datetime.date.today().isoformat(),
-        "regions": out_regions,
+        "regions": build_payload(latency_hdr, latency, jitter, loss, regions),
     }
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)

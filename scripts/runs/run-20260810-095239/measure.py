@@ -1,18 +1,24 @@
-import subprocess, re, sys, statistics, concurrent.futures, os
+import concurrent.futures, ipaddress, os, re, shutil, statistics, subprocess, sys  # nosec B404 - subprocess needed to run ping
 packets=int(os.environ.get("NETLAT_PACKETS","300")); interval=os.environ.get("NETLAT_INTERVAL","0.2")
+ping_path=shutil.which("ping")
+if not ping_path:
+    sys.exit("ping binary not found")
 peers=[l.strip() for l in open(sys.argv[1]) if l.strip()]
 out=open("results.csv","w"); out.write("dst,min,avg,max,stddev,jitter,loss_pct,sent,received\n")
 def run(dst):
-    p=subprocess.Popen(["ping","-i",interval,"-c",str(packets),"-D",dst],
-                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    ipaddress.ip_address(dst)  # validate input is an IP literal
+    p=subprocess.Popen(  # nosec B603 - dst validated above; list form (no shell)
+        [ping_path,"-i",interval,"-c",str(packets),"-D",dst],
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
     times=[]
+    assert p.stdout is not None
     for line in p.stdout:
         m=re.search(r"time=([0-9.]+)\s*ms", line)
         if m: times.append(float(m.group(1)))
     p.wait()
     if not times:
         return dst,0,0,0,0,0,100.0,packets,0
-    jitter=statistics.mean(abs(times[i]-times[i-1]) for i in range(1,len(times)))
+    jitter=0.0 if len(times) < 2 else statistics.mean(abs(times[i]-times[i-1]) for i in range(1,len(times)))
     loss=100.0*(packets-len(times))/packets
     return dst,min(times),statistics.mean(times),max(times),statistics.pstdev(times),jitter,loss,packets,len(times)
 with concurrent.futures.ThreadPoolExecutor(max_workers=16) as ex:

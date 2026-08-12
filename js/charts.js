@@ -12,6 +12,26 @@
     return v != null && !isNaN(v) && v >= state.thresholdMin && v <= state.threshold;
   }
 
+  function seg(t, b, i) { return { t: String(t), b: !!b, i: !!i }; }
+
+  function tipNode(lines) {
+    var wrap = document.createElement('div');
+    lines.forEach(function (line) {
+      var div = document.createElement('div');
+      line.forEach(function (s) {
+        if (s.b || s.i) {
+          var n = document.createElement(s.i ? 'i' : 'b');
+          n.textContent = s.t;
+          div.appendChild(n);
+        } else {
+          div.appendChild(document.createTextNode(s.t));
+        }
+      });
+      wrap.appendChild(div);
+    });
+    return wrap;
+  }
+
   function matrixLive(state, srcRows, dsts) {
     var liveRows = new Set();
     var liveDsts = new Set();
@@ -299,9 +319,11 @@
     var lat = state.data.matrices.latency.values[state.idx.get(src)][state.idx.get(dst)];
     var jit = state.data.matrices.jitter.values[state.idx.get(src)][state.idx.get(dst)];
     var loss = state.data.matrices.loss.values[state.idx.get(src)][state.idx.get(dst)];
-    return '<b>' + nameOf(state, src) + ' → ' + nameOf(state, dst) + '</b> (' + src + ' → ' + dst + ')<br>' +
-      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms · loss <b>' + loss + '</b> %<br>' +
-      '<i>click to toggle source</i>';
+    return tipNode([
+      [seg(nameOf(state, src) + ' → ' + nameOf(state, dst), true), seg(' (' + src + ' → ' + dst + ')')],
+      [seg('latency '), seg(lat, true), seg(' ms · jitter '), seg(jit, true), seg(' ms · loss '), seg(loss, true), seg(' %')],
+      [seg('click to toggle source', false, true)]
+    ]);
   }
 
   function barTip(state, d, footer) {
@@ -319,11 +341,14 @@
       })
       .sort(function (a, b) { return a.v - b.v; })
       .map(function (p) {
-        return p.text + ': <b>' + fmt(p.v) + '</b> ' + unit;
+        return [seg(p.text + ': '), seg(fmt(p.v), true), seg(' ' + unit)];
       });
-    return '<b>' + nameOf(state, d.dst) + '</b> — mean ' + fmt(d.v) + ' ' + unit + '<br>' +
-      'min <b>' + fmt(d.min) + '</b> · max <b>' + fmt(d.max) + '</b> · range <b>' + fmt(d.range) + '</b> ' + unit + '<br>' +
-      lines.join('<br>') + '<br><i>' + (footer || 'click to toggle source') + '</i>';
+    var head = [
+      [seg(nameOf(state, d.dst), true), seg(' — mean '), seg(fmt(d.v), true), seg(' ' + unit)],
+      [seg('min '), seg(fmt(d.min), true), seg(' · max '), seg(fmt(d.max), true), seg(' · range '), seg(fmt(d.range), true), seg(' ' + unit)]
+    ];
+    var tail = [[seg(footer || 'click to toggle source', false, true)]];
+    return tipNode(head.concat(lines, tail));
   }
 
   function geoRankMap(state) {
@@ -443,7 +468,7 @@
       var hi = d3.max(items, function (d) { return Math.max(d.max, d.mean); });
       xDomain = paddedDomain(lo, hi);
     } else {
-      xDomain = [state.thresholdMin, Math.max(state.threshold, state.thresholdMin + 0.0001)];
+      xDomain = [state.thresholdMin, Math.max(state.threshold, state.thresholdMin + 1 / 10000)];
     }
 
     // a single column of rows spanning the whole chart width; expanding the
@@ -778,12 +803,13 @@
     var lat = valueAt(state, d.src, d.dst, 'latency');
     var jit = valueAt(state, d.src, d.dst, 'jitter');
     var loss = valueAt(state, d.src, d.dst, 'loss');
-    return '<b>' + nameOf(state, d.src) + ' → ' + nameOf(state, d.dst) + '</b> (' + d.src + ' → ' + d.dst + ')<br>' +
-      xMetric + ' <b>' + valueAt(state, d.src, d.dst, xMetric) + '</b> · ' +
-      yMetric + ' <b>' + valueAt(state, d.src, d.dst, yMetric) + '</b><br>' +
-      'latency <b>' + lat + '</b> ms · jitter <b>' + jit + '</b> ms · loss <b>' + loss + '</b> %<br>' +
-      '<i>latency = round-trip time · jitter = variation in latency · loss = % packets lost</i><br>' +
-      '<i>click to toggle source</i>';
+    return tipNode([
+      [seg(nameOf(state, d.src) + ' → ' + nameOf(state, d.dst), true), seg(' (' + d.src + ' → ' + d.dst + ')')],
+      [seg(xMetric + ' '), seg(valueAt(state, d.src, d.dst, xMetric), true), seg(' · ' + yMetric + ' '), seg(valueAt(state, d.src, d.dst, yMetric), true)],
+      [seg('latency '), seg(lat, true), seg(' ms · jitter '), seg(jit, true), seg(' ms · loss '), seg(loss, true), seg(' %')],
+      [seg('latency = round-trip time · jitter = variation in latency · loss = % packets lost', false, true)],
+      [seg('click to toggle source', false, true)]
+    ]);
   }
 
   // builds the axis generator for the scatter chart. When expanded, a tick is

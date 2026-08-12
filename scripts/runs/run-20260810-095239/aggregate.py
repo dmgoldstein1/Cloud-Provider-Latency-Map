@@ -23,7 +23,7 @@ for root, _, files in os.walk(os.path.join(base,"raw")):
 for name,mat in metric.items():
     path=os.path.join(base,f"{name}_matrix.csv")
     with open(path,"w",newline="") as f:
-        w=csv.writer(f)
+        w=csv.writer(f)  # nosemgrep: python.lang.security.use-defusedcsv - writing self-generated data
         w.writerow(["src"]+list(regions))
         for src in regions:
             w.writerow([src]+[mat.get(src,{}).get(dst,"") for dst in regions])

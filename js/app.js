@@ -16,9 +16,15 @@
 
   VML.tooltip = {
     el: document.getElementById('tooltip'),
-    show: function (html, x, y) {
-      this.el.innerHTML = html;
-      this.el.style.opacity = 1;
+    show: function (content, x, y) {
+      var el = this.el;
+      el.textContent = '';
+      if (content && content.nodeType === 1) {
+        el.appendChild(content);
+      } else if (content != null) {
+        el.textContent = content;
+      }
+      el.style.opacity = 1;
       this.move(x, y);
     },
     move: function (x, y) {
@@ -1037,41 +1043,98 @@
     var avg = d3.mean(vals);
     var nSrc = state.sources.size;
     var first = state.data.matrices.latency.order.find(function (c) { return state.sources.has(c); });
-    var header = first != null
-      ? 'from <b>' + nSrc + '</b> checked source' + (nSrc === 1 ? '' : 's') +
-        ' (e.g. ' + nameOf(first) + ')'
-      : 'no sources checked';
-    statsEl.innerHTML =
-      header +
-      ' · avg ' + metric + ' across ' + (nSrc ? vals.length / nSrc : 0) +
-      ' targets: <b>' + (avg != null ? fmt(avg) : '—') + '</b> ' + unit() +
-      ' · showing <b>' + shown + '</b> arc' + (shown === 1 ? '' : 's') + ' between <b>' + fmt(state.thresholdMin) + '</b>–<b>' + fmt(state.threshold) + '</b> ' + unit();
+    statsEl.textContent = '';
+    function text(s) { statsEl.appendChild(document.createTextNode(s)); }
+    function bold(s) {
+      var b = document.createElement('b');
+      b.textContent = s;
+      statsEl.appendChild(b);
+    }
+    if (first != null) {
+      text('from ');
+      bold(String(nSrc));
+      text(' checked source' + (nSrc === 1 ? '' : 's') + ' (e.g. ' + nameOf(first) + ')');
+    } else {
+      text('no sources checked');
+    }
+    text(' · avg ' + metric + ' across ' + (nSrc ? vals.length / nSrc : 0) + ' targets: ');
+    bold(avg != null ? fmt(avg) : '—');
+    text(' ' + unit() + ' · showing ');
+    bold(String(shown));
+    text(' arc' + (shown === 1 ? '' : 's') + ' between ');
+    bold(fmt(state.thresholdMin));
+    text('–');
+    bold(fmt(state.threshold));
+    text(' ' + unit());
+  }
+
+  function svgEl(tag, attrs) {
+    var n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    return n;
   }
 
   function renderLegend() {
-    var html = '';
-    VML.config.continents.forEach(function (c) {
-      html += '<button type="button" class="lg continent-btn" data-continent="' + c + '" title="Zoom to ' + c + '">' +
-        '<span class="sw" style="background:' + state.continentColors[c] + '"></span>' + c + '</button>';
-    });
-    html += '<span class="lg" title="Dot size = a source region\'s average latency to all other selected regions, rescaled to the current selection">' +
-      '<svg width="10" height="10" style="vertical-align:middle">' +
-      '<circle cx="5" cy="5" r="3" fill="' + state.continentColors['Europe'] + '"/>' +
-      '</svg>' +
-      ' <b>Dot size = avg latency</b> (8–32px diameter)</span>';
-    var c0 = state.colorScale(0), c1 = state.colorScale(state.metricMax);
-    var gid = 'mcolor';
-    html += '<span class="lg" title="' + VML.config.metrics[state.metric].label + ' scale">' +
-      '<svg width="86" height="10" style="vertical-align:middle">' +
-      '<defs><linearGradient id="' + gid + '" x1="0" x2="1">' +
-      '<stop offset="0%" stop-color="' + c0 + '"/><stop offset="100%" stop-color="' + c1 + '"/>' +
-      '</linearGradient></defs>' +
-      '<rect width="86" height="10" rx="2" fill="url(#' + gid + ')"/></svg>' +
-      ' <b>0</b> – <b>' + fmt(state.metricMax) + '</b> ' + unit() +
-      '</span>';
     var legend = document.getElementById('legend');
     var ctrl = document.getElementById('map-controls');
-    legend.innerHTML = html;
+    var frag = document.createDocumentFragment();
+
+    VML.config.continents.forEach(function (c) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'lg continent-btn';
+      btn.dataset.continent = c;
+      btn.title = 'Zoom to ' + c;
+      var sw = document.createElement('span');
+      sw.className = 'sw';
+      sw.style.background = state.continentColors[c];
+      btn.appendChild(sw);
+      btn.appendChild(document.createTextNode(c));
+      frag.appendChild(btn);
+    });
+
+    var dotSpan = document.createElement('span');
+    dotSpan.className = 'lg';
+    dotSpan.title = "Dot size = a source region's average latency to all other selected regions, rescaled to the current selection";
+    var dotSvg = svgEl('svg', { width: 10, height: 10 });
+    dotSvg.style.verticalAlign = 'middle';
+    dotSvg.appendChild(svgEl('circle', { cx: 5, cy: 5, r: 3, fill: state.continentColors['Europe'] }));
+    dotSpan.appendChild(dotSvg);
+    dotSpan.appendChild(document.createTextNode(' '));
+    var dotB = document.createElement('b');
+    dotB.textContent = 'Dot size = avg latency';
+    dotSpan.appendChild(dotB);
+    dotSpan.appendChild(document.createTextNode(' (8–32px diameter)'));
+    frag.appendChild(dotSpan);
+
+    var c0 = state.colorScale(0), c1 = state.colorScale(state.metricMax);
+    var gid = 'mcolor';
+    var scaleSpan = document.createElement('span');
+    scaleSpan.className = 'lg';
+    scaleSpan.title = VML.config.metrics[state.metric].label + ' scale';
+    var scaleSvg = svgEl('svg', { width: 86, height: 10 });
+    scaleSvg.style.verticalAlign = 'middle';
+    var defs = svgEl('defs', {});
+    var grad = svgEl('linearGradient', { id: gid, x1: 0, x2: 1 });
+    grad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': c0 }));
+    grad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': c1 }));
+    defs.appendChild(grad);
+    scaleSvg.appendChild(defs);
+    scaleSvg.appendChild(svgEl('rect', { width: 86, height: 10, rx: 2, fill: 'url(#' + gid + ')' }));
+    scaleSpan.appendChild(scaleSvg);
+    scaleSpan.appendChild(document.createTextNode(' '));
+    var zero = document.createElement('b');
+    zero.textContent = '0';
+    var mx = document.createElement('b');
+    mx.textContent = fmt(state.metricMax);
+    scaleSpan.appendChild(zero);
+    scaleSpan.appendChild(document.createTextNode(' – '));
+    scaleSpan.appendChild(mx);
+    scaleSpan.appendChild(document.createTextNode(' ' + unit()));
+    frag.appendChild(scaleSpan);
+
+    legend.textContent = '';
+    legend.appendChild(frag);
     // clear any responsive font shrink first so the row balancing and the
     // base-width references below are measured at the base font (15.4px)
     resetFooterFonts();
