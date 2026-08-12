@@ -54,10 +54,101 @@
   var heatLayout = null;
   var scatterLayout = null;
   var lastMatrixW = 0;
+  // Excel-style frozen matrix labels: the top column labels pin to the scroll
+  // container's visible top while the cells scroll under them (and, if the
+  // matrix ever scrolls horizontally, the left row labels pin to the left).
+  var heatFrozen = { compY: 0, compX: 0 };
+  var heatScrollRAF = null;
+  // how far the pinned anchor sits below the visible top: the rotated column
+  // labels rise padT - 14 above their anchor (padT is sized from the measured
+  // label width), plus a small margin, so the text stays fully on screen
 
   // on phones the chart frames are much narrower, so the label gutters (padL/
   // padR below) and the pane cap shrink to give the plots the available width
   function mobile() { return window.innerWidth <= 768; }
+
+  // the element the matrix actually scrolls inside: the side pane when it
+  // overflows (desktop card mode), otherwise the document (phones / expanded)
+  function heatScrollContainer() {
+    var el = document.getElementById('heatmap');
+    while (el && el.parentElement) {
+      el = el.parentElement;
+      var cs = getComputedStyle(el);
+      if (el.scrollHeight > el.clientHeight + 1 &&
+          (cs.overflowY === 'auto' || cs.overflowY === 'scroll')) return el;
+    }
+    return document.documentElement;
+  }
+
+  function scheduleHeatFrozen() {
+    if (heatScrollRAF != null) return;
+    heatScrollRAF = requestAnimationFrame(function () {
+      heatScrollRAF = null;
+      updateHeatFrozen();
+    });
+  }
+
+  function updateHeatFrozen() {
+    if (!heatLayout || !heatSvg.node()) return;
+    var container = heatScrollContainer();
+    // expanded mode scrolls inside body (body.chart-expanded { overflow-y:auto })
+    var isRoot = container === document.documentElement || container === document.body;
+    var svgRect = heatSvg.node().getBoundingClientRect();
+    var conRect = container.getBoundingClientRect();
+    var scrollTop = isRoot ? window.pageYOffset : container.scrollTop;
+    var scrollLeft = isRoot ? window.pageXOffset : container.scrollLeft;
+    var conTop = isRoot ? 0 : conRect.top;
+    var conLeft = isRoot ? 0 : conRect.left;
+    var svgTopInC = svgRect.top - conTop + scrollTop;
+    var svgLeftInC = svgRect.left - conLeft + scrollLeft;
+    // pin the anchors so their natural position has scrolled past the visible
+    // top/left edge; capped so the strips never extend past the matrix bottom
+    var pinOffset = heatLayout.padT - 10;
+    var anchorContentY = svgTopInC + heatLayout.padT - 6;
+    heatFrozen.compY = Math.max(0, Math.min(
+      scrollTop - anchorContentY + pinOffset,
+      heatLayout.n * heatLayout.cell + 6 - pinOffset
+    ));
+    var anchorContentX = svgLeftInC + heatLayout.padL - 6;
+    heatFrozen.compX = Math.max(0, Math.min(
+      scrollLeft - anchorContentX + pinOffset,
+      heatLayout.nCols * heatLayout.cell + 6 - pinOffset
+    ));
+    applyHeatFrozen();
+  }
+
+  var heatFrozenBgColor = null;
+  function applyHeatFrozen() {
+    if (!heatLayout) return;
+    var compY = heatFrozen.compY, compX = heatFrozen.compX;
+    heatSvg.selectAll('text.col').attr('transform', function (d, i) {
+      return 'translate(' + (heatLayout.padL + i * heatLayout.cell + heatLayout.cell / 2) + ',' +
+        (heatLayout.padT - 6 + compY) + ') rotate(-45)';
+    });
+    heatSvg.selectAll('text.row').attr('transform', function (d, i) {
+      return 'translate(' + (heatLayout.padL - 6 + compX) + ',' +
+        (heatLayout.padT + i * heatLayout.cell + heatLayout.cell / 2) + ')';
+    });
+    // solid strip behind the pinned column labels so the cells scrolling under
+    // them don't show through; hidden while the labels sit in their natural
+    // gutter (compY 0). The strip's top lands exactly on the visible top edge
+    // (anchor - rise - margin), and it starts at the cells' left edge so the
+    // row labels in the left gutter are never covered.
+    var bg = heatSvg.select('rect.heat-frozen-bg');
+    if (bg.empty()) bg = heatSvg.append('rect').attr('class', 'heat-frozen-bg');
+    if (!heatFrozenBgColor) heatFrozenBgColor = getComputedStyle(document.body).backgroundColor;
+    var pinOffset = heatLayout.padT - 10;
+    bg.attr('display', compY > 0 ? null : 'none')
+      .attr('x', heatLayout.padL - 2)
+      .attr('y', compY + 4)
+      .attr('width', (+heatSvg.attr('width')) - heatLayout.padL + 2)
+      .attr('height', heatLayout.padT - 4)
+      .attr('fill', heatFrozenBgColor);
+    var firstCol = heatSvg.select('text.col').node();
+    if (firstCol && bg.node() !== firstCol.previousSibling) {
+      heatSvg.node().insertBefore(bg.node(), firstCol);
+    }
+  }
 
   function init() {
     heatSvg = d3.select('#heatmap').append('svg');
@@ -100,6 +191,10 @@
         fitPaneToMatrix(lastMatrixW);
       }
     });
+    // Excel-style frozen matrix labels: keep the pinned strips in sync with
+    // whatever scrolls (the side pane in card mode, the window otherwise)
+    window.addEventListener('scroll', scheduleHeatFrozen, { passive: true });
+    if (pane) pane.addEventListener('scroll', scheduleHeatFrozen, { passive: true });
     document.addEventListener('click', function () {
       VML.tooltip.hide();
     });
@@ -273,6 +368,7 @@
     var colFs = Math.max(3, Math.min(12.6, cell * 0.55));
     heatLayout = {
       padL: padL, padT: padT, cell: cell,
+      n: n, nCols: nCols,
       srcIdx: new Map(srcRows.map(function (c, i) { return [c, i]; })),
       dstIdx: new Map(dsts.map(function (c, i) { return [c, i]; }))
     };
@@ -337,6 +433,13 @@
         if (src === d) return;
         VML.app.toggleSource(src, !state.sources.has(src));
       });
+
+    // the label strips must paint above the cells so they stay readable when
+    // pinned over them; move them to the end, then re-apply the current scroll
+    // compensation (the base transforms above ignore it)
+    heatSvg.selectAll('text.col').each(function () { heatSvg.node().appendChild(this); });
+    heatSvg.selectAll('text.row').each(function () { heatSvg.node().appendChild(this); });
+    updateHeatFrozen();
   }
 
   function heatTip(state, src, dst) {

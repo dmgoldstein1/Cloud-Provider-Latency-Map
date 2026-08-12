@@ -870,6 +870,9 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 .cell.diag { stroke: none; }
 .cell.off { opacity: 0.4; }
 .cell.cut { opacity: 0.12; }
+/* backing strip for the frozen matrix column labels: must never block hover
+   on the cells scrolling underneath it */
+.heat-frozen-bg { pointer-events: none; }
 .pair-hl {
   fill: none;
   stroke: #f8fafc;
