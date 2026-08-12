@@ -432,6 +432,27 @@
     buildSourceList();
     watchDestButtons();
 
+    // mobile View dropdown: pick which chart to display (CSS hides the other
+    // sections via body.view-* classes inside the phone media query; on
+    // desktop the select is hidden and the classes have no effect)
+    var viewSelect = document.getElementById('view-select');
+    if (viewSelect) {
+      var VIEWS = ['map', 'matrix', 'boxes', 'scatter'];
+      function applyView() {
+        VIEWS.forEach(function (v) {
+          document.body.classList.toggle('view-' + v, v === viewSelect.value);
+        });
+      }
+      viewSelect.addEventListener('change', function () {
+        applyView();
+        // re-measure the newly shown chart after its frame lays out
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { VML.events.emit('render'); });
+        });
+      });
+      applyView();
+    }
+
     metricButtons.forEach(function (b) {
       b.addEventListener('click', function () {
         if (state.metric === b.dataset.metric) return;

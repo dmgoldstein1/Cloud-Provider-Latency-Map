@@ -48,6 +48,10 @@ header {
 .group { display: flex; flex-direction: column; gap: 2px; }
 .group.grow { flex: 1 1 220px; min-width: 180px; }
 .group .label { color: var(--text-dim); font-size: 14.7px; text-transform: uppercase; letter-spacing: 0.4px; line-height: 1.15; }
+/* the View dropdown is a mobile-only chart switcher; on desktop every chart
+   is already on screen side by side, so it stays hidden */
+#view-group { display: none; }
+#view-group select { max-width: 180px; }
 
 .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .metric-btn {
@@ -1079,6 +1083,50 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   header { padding-left: 16px; }
   .toolbar { margin-top: -40px; }
   #metric-group { flex-direction: row; align-items: center; gap: 8px; }
+}
+
+/* Smartphone layout: the fixed full-height app becomes a normal scrolling
+   page so the header and footer scroll out of the viewport, and the View
+   dropdown in the header picks which chart to show. Desktop is untouched. */
+@media (max-width: 768px) {
+  html, body { height: auto; }
+  body { display: block; overflow-x: hidden; }
+  main { display: block; }
+  #left-col { overflow: visible; }
+  #src-wrap { flex: none; }
+  #sources-card { flex: none; max-height: none; overflow: visible; }
+  /* a collapsed sources panel could not be reopened on the phone (its tab is
+     hidden), so force it open even if it was collapsed on the desktop */
+  body.src-hidden #sources-card {
+    max-height: none;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-width: 1px;
+    overflow: visible;
+  }
+  /* the map keeps a viewport-sized frame so it stays usable in page flow */
+  #map-pane { flex: none; height: 60vh; min-height: 320px; }
+  #side-wrap { display: block; }
+  #side-pane { width: auto; max-height: none; border-left: 0; overflow: visible; }
+  body.panel-hidden #side-pane {
+    width: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-left-width: 0;
+  }
+  #src-tab, #side-tab { display: none; }
+  #view-group { display: flex; }
+  /* the View dropdown shows one section at a time */
+  body:not(.chart-expanded).view-map #side-wrap { display: none; }
+  body:not(.chart-expanded).view-matrix #left-col,
+  body:not(.chart-expanded).view-boxes #left-col,
+  body:not(.chart-expanded).view-scatter #left-col { display: none; }
+  body:not(.chart-expanded).view-matrix #boxes-card,
+  body:not(.chart-expanded).view-matrix #scatter-card,
+  body:not(.chart-expanded).view-boxes #heatmap-card,
+  body:not(.chart-expanded).view-boxes #scatter-card,
+  body:not(.chart-expanded).view-scatter #heatmap-card,
+  body:not(.chart-expanded).view-scatter #boxes-card { display: none; }
 }
 
 #tooltip {
