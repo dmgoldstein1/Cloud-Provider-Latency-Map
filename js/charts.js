@@ -263,6 +263,14 @@
       }
     }
     var w = padL + nCols * cell + padR, h = padT + n * cell;
+    // Shrink the label fonts to fit the cell pitch when the cells are small
+    // (phones render ~6px cells): adjacent row labels are cell px apart and
+    // rotated column labels cell * sin(45°) apart, so the base 12.6px font
+    // makes the lines overlap. Desktop cells (20px) keep the row font and
+    // shrink the rotated column labels only slightly (11px) so the diagonal
+    // pitch stays clear.
+    var rowFs = Math.max(3, Math.min(12.6, cell - 2));
+    var colFs = Math.max(3, Math.min(12.6, cell * 0.55));
     heatLayout = {
       padL: padL, padT: padT, cell: cell,
       srcIdx: new Map(srcRows.map(function (c, i) { return [c, i]; })),
@@ -280,6 +288,7 @@
         return 'translate(' + (padL + i * cell + cell / 2) + ',' + (padT - 6) + ') rotate(-45)';
       })
       .attr('text-anchor', 'start')
+      .style('font-size', colFs + 'px')
       .text(function (d) { return nameOf(state, d); });
 
     var yLabels = heatSvg.selectAll('text.row').data(srcRows, function (d) { return d; });
@@ -288,6 +297,7 @@
       .attr('transform', function (d, i) { return 'translate(' + (padL - 6) + ',' + (padT + i * cell + cell / 2) + ')'; })
       .attr('text-anchor', 'end')
       .attr('dominant-baseline', 'middle')
+      .style('font-size', rowFs + 'px')
       .text(function (d) { return nameOf(state, d); });
 
     var rows = heatSvg.selectAll('g.heat-row').data(srcRows, function (d) { return d; });
