@@ -20,6 +20,13 @@
       metric: 'latency',
       source: 'ams',
       thresholdFactor: 0.98
-    }
+    },
+    // d3-scale-chromatic's RdYlGn[11], inlined so the 20KB library can be
+    // dropped. High values map to dark red (worse), low to dark blue (better):
+    // the app reverses it via slice().reverse() at use sites.
+    schemeRdYlGn: [
+      '#a50026', '#d73027', '#f46d43', '#fdae61', '#fee090', '#ffffbf',
+      '#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695'
+    ]
   };
 })();

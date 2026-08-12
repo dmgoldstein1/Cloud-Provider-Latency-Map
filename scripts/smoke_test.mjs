@@ -17,6 +17,8 @@ page.on('pageerror', (err) => errors.push('pageerror: ' + err.message));
 
 await page.goto('file://' + path.join(ROOT, 'index.html'), { waitUntil: 'load' });
 await page.waitForFunction(() => !document.body.classList.contains('booting'), null, { timeout: 15000 });
+// the world map loads asynchronously (data/world.js); wait for its landmass
+await page.waitForFunction(() => document.querySelectorAll('#map .land-path').length > 0, null, { timeout: 15000 });
 await page.waitForTimeout(500);
 
 const result = await page.evaluate(() => ({

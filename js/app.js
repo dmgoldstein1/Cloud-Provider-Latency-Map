@@ -218,7 +218,7 @@
       distanceMax: 1,
       metricMax: 1,
       metricTrueMax: 1,
-      colorScale: d3.scaleSequential(d3.interpolateRgbBasis(d3.schemeRdYlGn[11].slice().reverse())),
+      colorScale: d3.scaleSequential(d3.interpolateRgbBasis(VML.config.schemeRdYlGn.slice().reverse())),
       continentColors: VML.config.continentColors
     };
 
@@ -1172,18 +1172,25 @@
     syncFooterLayout();
   }
 
+  function buildWorld(raw) {
+    if (!raw) return null;
+    var w = topojson.feature(raw, raw.objects.countries);
+    w.features = w.features.filter(function (f) {
+      return f.properties.name !== 'Antarctica' && f.properties.name !== 'Fr. S. Antarctic Lands';
+    });
+    return w;
+  }
+
   function main() {
     var D = window.VML_DATA;
-    if (!D || !D.world || !D.regions || !D.measured) {
+    if (!D || !D.regions || !D.measured) {
       document.getElementById('stats').textContent = 'error: data/data.js missing — re-run python3 scripts/build_data_js.py';
       return;
     }
-    state = {
-      world: topojson.feature(D.world, D.world.objects.countries)
-    };
-    state.world.features = state.world.features.filter(function (f) {
-      return f.properties.name !== 'Antarctica' && f.properties.name !== 'Fr. S. Antarctic Lands';
-    });
+    // The world-atlas TopoJSON (data/world.js) is ~108KB and only needed to
+    // draw the map's landmass, so it loads asynchronously: the app boots and
+    // renders everything else first, then the land fades in when it arrives.
+    state = { world: buildWorld(D.world) };
     buildState(D.regions, VML.normalize.loadDataset());
     state.expanded = chartFromURL();
     restoreState(readStore());
@@ -1194,19 +1201,48 @@
     VML.map.init(document.getElementById('map'), state);
     if (state.savedZoom) VML.map.setTransform(state.savedZoom);
     VML.charts.init();
-    VML.events.on(function (name) {
-      if (name === 'render') {
+    // The world data may arrive before or after boot (data/world.js is an
+    // async <script>): if it's missing here, wait for its 'vml-world' event
+    // (dispatched by data/world.js once VML_DATA.world is set) and redraw the
+    // map's landmass when it lands.
+    document.addEventListener('vml-world', function () {
+      if (state.world || !window.VML_DATA || !window.VML_DATA.world) return;
+      state.world = buildWorld(window.VML_DATA.world);
+      emitRender();
+    });
+    // Coalesce the heavy full-page render (map + 3 charts + legend + stats) to
+    // one pass per animation frame. Continuous inputs — dragging the threshold
+    // sliders, holding a metric button — fire 'render' many times per frame;
+    // rendering synchronously on each one made the page janky. Scheduling the
+    // draw on the next frame collapses a burst of events into a single render
+    // and lets the browser paint between frames.
+    var renderScheduled = false;
+    function scheduleRender() {
+      if (renderScheduled) return;
+      renderScheduled = true;
+      requestAnimationFrame(function () {
+        renderScheduled = false;
         VML.map.render();
         VML.charts.render();
         renderStats();
         renderLegend();
+      });
+    }
+    VML.events.on(function (name) {
+      if (name === 'render') {
+        scheduleRender();
       } else if (name === 'pair') {
         VML.map.pair();
         VML.charts.pair();
       }
     });
+    // Persisting writes a cookie + localStorage on every render; debounce it so
+    // a slider drag or resize burst only hits storage once at the end.
+    var persistTimer = null;
     VML.events.on(function (name) {
-      if (name === 'render' || name === 'zoom') persist();
+      if (name !== 'render' && name !== 'zoom') return;
+      clearTimeout(persistTimer);
+      persistTimer = setTimeout(persist, 400);
     });
     emitRender();
     requestAnimationFrame(function () {

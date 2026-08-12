@@ -704,7 +704,7 @@
   function metricColorScale(state, metric) {
     var values = state.data.matrices[metric].values.flat().filter(function (v) { return v > 0; });
     var max = d3.quantile(values, VML.config.defaults.thresholdFactor) || d3.max(values) || 1;
-    return d3.scaleSequential(d3.interpolateRgbBasis(d3.schemeRdYlGn[11].slice().reverse())).domain([0, max]);
+    return d3.scaleSequential(d3.interpolateRgbBasis(VML.config.schemeRdYlGn.slice().reverse())).domain([0, max]);
   }
 
   function paddedDomain(min, max) {
