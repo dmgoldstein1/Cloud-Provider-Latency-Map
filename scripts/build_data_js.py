@@ -16,15 +16,16 @@ FILES = [
 ]
 
 def main():
-    lines = ["(function () {", "  var D = window.VML_DATA = window.VML_DATA || {};"]
+    lines = ["(function(){", "var D=window.VML_DATA=window.VML_DATA||{};"]
     for var, fname in FILES:
         with open(os.path.join(DATA, fname)) as f:
             raw = f.read()
-        json.loads(raw)
-        lines.append("  D.%s = %s;" % (var, raw))
+        # compact the JSON (the pretty-printed sources are kept for humans)
+        obj = json.loads(raw)
+        lines.append("D.%s=%s;" % (var, json.dumps(obj, separators=(",", ":"))))
     lines.append("})();")
     with open(os.path.join(DATA, "data.js"), "w") as f:
-        f.write("\n".join(lines) + "\n")
+        f.write("".join(lines) + "\n")
     print("wrote %s" % os.path.join(DATA, "data.js"))
 
 if __name__ == "__main__":
