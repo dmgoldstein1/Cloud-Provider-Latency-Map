@@ -156,20 +156,20 @@
     var live = matrixLive(state, srcRows, dsts);
     srcRows = live.rows;
     dsts = live.dsts;
-    // sort the visible rows (sources) and columns (destinations) by the same
-    // statistic/direction as the Distribution pane. Only the ORDER changes:
-    // the pane width pin (fitPaneToMatrix below) depends on the column count,
-    // so the matrix still renders 1:1 and the frame never scrolls.
-    srcRows = sortMatrixCodes(state, srcRows, function (src) {
-      var vs = [];
-      dsts.forEach(function (d) {
-        if (d === src) return;
-        var v = valueAt(state, src, d);
-        if (inRange(state, v)) vs.push(v);
-      });
-      return boxStats(vs);
+    // RULE: the diagonal (the transparent src === dst cells) must stay a
+    // straight line, so the rows and the columns must share ONE ordering —
+    // sorting each axis by its own statistic would let the two permutations
+    // diverge on asymmetric links and scatter the diagonal. Each location is
+    // ranked by its distribution across the checked sources (the same
+    // statistic the Distribution pane sorts by), so the matrix's column order
+    // always matches that pane and the rows simply follow it. The ordering is
+    // built over the union of live rows and columns so no visible row or
+    // column ever drops out.
+    var union = [];
+    srcRows.concat(dsts).forEach(function (c) {
+      if (union.indexOf(c) === -1) union.push(c);
     });
-    dsts = sortMatrixCodes(state, dsts, function (dst) {
+    var matrixOrder = sortMatrixCodes(state, union, function (dst) {
       var vs = [];
       srcRows.forEach(function (s) {
         if (s === dst) return;
@@ -178,6 +178,8 @@
       });
       return boxStats(vs);
     });
+    srcRows = matrixOrder;
+    dsts = matrixOrder;
     var n = srcRows.length;
     var nCols = dsts.length;
     var maxPx = maxNameLen(state) * 5.5;
