@@ -1116,11 +1116,23 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   }
   #src-tab, #side-tab { display: none; }
   #view-group { display: flex; }
-  /* the View dropdown shows one section at a time */
+  /* the three charts lose their card chrome on phones so they fill the pane
+     edge to edge, like the map fills its frame */
+  #heatmap-card,
+  #boxes-card,
+  #scatter-card {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  /* the View dropdown shows one section at a time, but the Sources pane
+     stays visible in every view: only the map or the other two charts are
+     hidden */
   body:not(.chart-expanded).view-map #side-wrap { display: none; }
-  body:not(.chart-expanded).view-matrix #left-col,
-  body:not(.chart-expanded).view-boxes #left-col,
-  body:not(.chart-expanded).view-scatter #left-col { display: none; }
+  body:not(.chart-expanded).view-matrix #map-pane,
+  body:not(.chart-expanded).view-boxes #map-pane,
+  body:not(.chart-expanded).view-scatter #map-pane { display: none; }
   body:not(.chart-expanded).view-matrix #boxes-card,
   body:not(.chart-expanded).view-matrix #scatter-card,
   body:not(.chart-expanded).view-boxes #heatmap-card,
