@@ -572,20 +572,28 @@
   }
 
   function wireBoxSortButtons() {
-    var group = document.getElementById('box-sort-btns');
-    var dirGroup = document.getElementById('box-sort-dir-btns');
+    // the Distribution pane and the Pair matrix share one sort state, so the
+    // two identical button sets stay in sync on both cards
+    var groups = ['box-sort-btns', 'heat-sort-btns'].map(function (id) {
+      return document.getElementById(id);
+    }).filter(Boolean);
+    var dirGroups = ['box-sort-dir-btns', 'heat-sort-dir-btns'].map(function (id) {
+      return document.getElementById(id);
+    }).filter(Boolean);
     function sync() {
-      group.querySelectorAll('button').forEach(function (b) {
-        b.classList.toggle('active', state.boxSort === b.dataset.sort);
+      groups.forEach(function (g) {
+        g.querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('active', state.boxSort === b.dataset.sort);
+        });
       });
-      if (dirGroup) {
-        dirGroup.querySelectorAll('button').forEach(function (b) {
+      dirGroups.forEach(function (g) {
+        g.querySelectorAll('button').forEach(function (b) {
           b.classList.toggle('active', state.boxSortDir === b.dataset.dir);
         });
-      }
+      });
     }
-    if (dirGroup) {
-      dirGroup.querySelectorAll('button').forEach(function (b) {
+    dirGroups.forEach(function (g) {
+      g.querySelectorAll('button').forEach(function (b) {
         b.addEventListener('click', function () {
           if (state.boxSortDir === b.dataset.dir) return;
           state.boxSortDir = b.dataset.dir;
@@ -593,13 +601,15 @@
           emitRender();
         });
       });
-    }
-    group.querySelectorAll('button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        if (state.boxSort === b.dataset.sort) return;
-        state.boxSort = b.dataset.sort;
-        sync();
-        emitRender();
+    });
+    groups.forEach(function (g) {
+      g.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (state.boxSort === b.dataset.sort) return;
+          state.boxSort = b.dataset.sort;
+          sync();
+          emitRender();
+        });
       });
     });
     VML.events.on(sync);
@@ -631,44 +641,46 @@
   }
 
   function wireBoxSortChecker() {
-    var group = document.getElementById('box-sort-btns');
-    if (!group || typeof ResizeObserver === 'undefined') return;
-    var raf = null;
-    function rowCounts() {
-      var rows = [];
-      var prevTop = null, row = -1;
-      group.querySelectorAll('button').forEach(function (b) {
-        var top = b.offsetTop;
-        if (top !== prevTop) { row++; rows.push(0); prevTop = top; }
-        rows[row]++;
-      });
-      return rows;
-    }
-    function apply() {
-      raf = null;
-      var btns = group.querySelectorAll('button');
-      // Rule: never leave a lone button on its own row. Flex line
-      // breaking uses each button's natural width, so at some widths the
-      // last row holds exactly one button. Widen the flex-basis (fewer
-      // buttons per row) until the lone button joins the row above.
-      btns.forEach(function (b) { b.style.flexBasis = ''; });
-      var rows = rowCounts();
-      var n = btns.length, perRow = rows[0], lastRow = rows[rows.length - 1];
-      if (perRow > 2 && lastRow === 1) {
-        var k = perRow - 1;
-        for (; k >= 2 && n % k === 1; k--) {}
-        if (k >= 2) {
-          btns.forEach(function (b) { b.style.flexBasis = 'calc(100% / ' + k + ')'; });
-        }
+    ['box-sort-btns', 'heat-sort-btns'].forEach(function (id) {
+      var group = document.getElementById(id);
+      if (!group || typeof ResizeObserver === 'undefined') return;
+      var raf = null;
+      function rowCounts() {
+        var rows = [];
+        var prevTop = null, row = -1;
+        group.querySelectorAll('button').forEach(function (b) {
+          var top = b.offsetTop;
+          if (top !== prevTop) { row++; rows.push(0); prevTop = top; }
+          rows[row]++;
+        });
+        return rows;
       }
-      shadeButtons(group);
-    }
-    function schedule() {
-      if (raf != null) return;
-      raf = requestAnimationFrame(apply);
-    }
-    new ResizeObserver(schedule).observe(group);
-    schedule();
+      function apply() {
+        raf = null;
+        var btns = group.querySelectorAll('button');
+        // Rule: never leave a lone button on its own row. Flex line
+        // breaking uses each button's natural width, so at some widths the
+        // last row holds exactly one button. Widen the flex-basis (fewer
+        // buttons per row) until the lone button joins the row above.
+        btns.forEach(function (b) { b.style.flexBasis = ''; });
+        var rows = rowCounts();
+        var n = btns.length, perRow = rows[0], lastRow = rows[rows.length - 1];
+        if (perRow > 2 && lastRow === 1) {
+          var k = perRow - 1;
+          for (; k >= 2 && n % k === 1; k--) {}
+          if (k >= 2) {
+            btns.forEach(function (b) { b.style.flexBasis = 'calc(100% / ' + k + ')'; });
+          }
+        }
+        shadeButtons(group);
+      }
+      function schedule() {
+        if (raf != null) return;
+        raf = requestAnimationFrame(apply);
+      }
+      new ResizeObserver(schedule).observe(group);
+      schedule();
+    });
   }
 
   function wireAxisButtons() {

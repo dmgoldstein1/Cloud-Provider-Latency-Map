@@ -95,6 +95,24 @@
               <button type="button" class="expand-btn" id="heatmap-expand" title="Expand to full page" aria-label="Expand to full page" aria-pressed="false">⛶</button>
             </span>
           </h2>
+          <div class="box-sort">
+            <span class="box-sort-label">Sort by</span>
+            <div class="src-group-btns" id="heat-sort-dir-btns">
+              <button type="button" data-dir="asc">Low to High</button>
+              <button type="button" data-dir="desc">High to Low</button>
+            </div>
+            <div class="src-group-btns" id="heat-sort-btns">
+              <button type="button" class="active" data-sort="med">Median</button>
+              <button type="button" data-sort="min">Min</button>
+              <button type="button" data-sort="q1">Q1</button>
+              <button type="button" data-sort="mean">Mean</button>
+              <button type="button" data-sort="q3">Q3</button>
+              <button type="button" data-sort="max">Max</button>
+              <button type="button" data-sort="range">Range</button>
+              <button type="button" data-sort="geo">Geography</button>
+              <button type="button" data-sort="alpha">Alphabetical</button>
+            </div>
+          </div>
           <div id="heatmap"></div>
         </section>
         <section class="card" id="boxes-card">

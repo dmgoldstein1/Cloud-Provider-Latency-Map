@@ -847,33 +847,33 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
-#box-sort-btns {
+#box-sort-btns, #heat-sort-btns {
   display: flex;
   flex-wrap: wrap;
   flex: 1 1 auto;
   min-width: 0;
   margin-left: 0;
 }
-#box-sort-btns button {
+#box-sort-btns button, #heat-sort-btns button {
   flex: 1 1 auto;
   min-width: 0;
   border: 0;
   background: var(--panel);
   color: var(--text-dim);
 }
-#box-sort-btns button.shade { background: var(--panel-2); }
-#box-sort-btns button:hover { background: var(--panel-2); color: var(--text); }
-#box-sort-btns button.active {
+#box-sort-btns button.shade, #heat-sort-btns button.shade { background: var(--panel-2); }
+#box-sort-btns button:hover, #heat-sort-btns button:hover { background: var(--panel-2); color: var(--text); }
+#box-sort-btns button.active, #heat-sort-btns button.active {
   background: var(--accent);
   color: #0b1220;
   font-weight: 600;
 }
-#box-sort-dir-btns {
+#box-sort-dir-btns, #heat-sort-dir-btns {
   display: inline-flex;
   flex-wrap: wrap;
   margin-left: 0;
 }
-#box-sort-dir-btns button {
+#box-sort-dir-btns button, #heat-sort-dir-btns button {
   flex: 1 1 auto;
   border: 0;
   background: var(--panel);
@@ -881,8 +881,8 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   text-transform: none;
   white-space: nowrap;
 }
-#box-sort-dir-btns button:hover { background: var(--panel-2); color: var(--text); }
-#box-sort-dir-btns button.active {
+#box-sort-dir-btns button:hover, #heat-sort-dir-btns button:hover { background: var(--panel-2); color: var(--text); }
+#box-sort-dir-btns button.active, #heat-sort-dir-btns button.active {
   background: var(--accent);
   color: #0b1220;
   font-weight: 600;

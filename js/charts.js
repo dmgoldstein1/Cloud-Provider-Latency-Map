@@ -156,6 +156,28 @@
     var live = matrixLive(state, srcRows, dsts);
     srcRows = live.rows;
     dsts = live.dsts;
+    // sort the visible rows (sources) and columns (destinations) by the same
+    // statistic/direction as the Distribution pane. Only the ORDER changes:
+    // the pane width pin (fitPaneToMatrix below) depends on the column count,
+    // so the matrix still renders 1:1 and the frame never scrolls.
+    srcRows = sortMatrixCodes(state, srcRows, function (src) {
+      var vs = [];
+      dsts.forEach(function (d) {
+        if (d === src) return;
+        var v = valueAt(state, src, d);
+        if (inRange(state, v)) vs.push(v);
+      });
+      return boxStats(vs);
+    });
+    dsts = sortMatrixCodes(state, dsts, function (dst) {
+      var vs = [];
+      srcRows.forEach(function (s) {
+        if (s === dst) return;
+        var v = valueAt(state, s, dst);
+        if (inRange(state, v)) vs.push(v);
+      });
+      return boxStats(vs);
+    });
     var n = srcRows.length;
     var nCols = dsts.length;
     var maxPx = maxNameLen(state) * 5.5;
@@ -324,6 +346,51 @@
     };
   }
 
+  function boxStats(vs) {
+    if (!vs.length) return null;
+    vs.sort(function (a, b) { return a - b; });
+    return {
+      min: vs[0],
+      q1: d3.quantile(vs, 0.25),
+      med: d3.quantile(vs, 0.5),
+      q3: d3.quantile(vs, 0.75),
+      max: vs[vs.length - 1],
+      mean: d3.mean(vs),
+      range: vs[vs.length - 1] - vs[0]
+    };
+  }
+
+  // Sort a set of location codes by the shared box-sort state, the same way
+  // the Distribution pane sorts its rows. statsOf(code) returns the box
+  // statistics for that code (null when it has no in-range values), so the
+  // numeric keys sort rows/columns by the chosen statistic and geo/alpha
+  // fall back to continent/alphabetical order.
+  function sortMatrixCodes(state, codes, statsOf) {
+    var items = codes.map(function (code) { return { code: code, stats: statsOf(code) }; });
+    var sorter;
+    if (state.boxSort === 'geo') {
+      var rank = geoRankMap(state);
+      sorter = function (a, b) {
+        var ac = state.byCode.get(a.code).continent || 'Unknown';
+        var bc = state.byCode.get(b.code).continent || 'Unknown';
+        if (ac !== bc) return rank.get(ac) - rank.get(bc);
+        return nameOf(state, a.code).localeCompare(nameOf(state, b.code));
+      };
+    } else if (state.boxSort === 'alpha') {
+      sorter = function (a, b) { return nameOf(state, a.code).localeCompare(nameOf(state, b.code)); };
+    } else {
+      var key = state.boxSort || 'med';
+      sorter = function (a, b) {
+        var av = a.stats ? a.stats[key] : Infinity;
+        var bv = b.stats ? b.stats[key] : Infinity;
+        return av - bv;
+      };
+    }
+    items.sort(sorter);
+    if (state.boxSortDir === 'desc') items.reverse();
+    return items.map(function (o) { return o.code; });
+  }
+
   function renderBoxes() {
     var state = VML.state;
     var order = state.data.matrices[state.metric].order;
@@ -334,18 +401,18 @@
       var vs = srcs.filter(function (s) { return s !== dst; })
         .map(function (s) { return valueAt(state, s, dst); })
         .filter(function (v) { return inRange(state, v); });
-      if (!vs.length) return;
-      vs.sort(function (a, b) { return a - b; });
+      var stats = boxStats(vs);
+      if (!stats) return;
       items.push({
         dst: dst,
-        min: vs[0],
-        q1: d3.quantile(vs, 0.25),
-        med: d3.quantile(vs, 0.5),
-        q3: d3.quantile(vs, 0.75),
-        max: vs[vs.length - 1],
-        mean: d3.mean(vs),
+        min: stats.min,
+        q1: stats.q1,
+        med: stats.med,
+        q3: stats.q3,
+        max: stats.max,
+        mean: stats.mean,
         n: vs.length,
-        range: vs[vs.length - 1] - vs[0]
+        range: stats.range
       });
     });
     if (state.boxSort === 'geo') {
