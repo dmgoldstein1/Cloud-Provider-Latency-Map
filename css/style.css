@@ -1115,6 +1115,9 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
     border-left-width: 0;
   }
   #src-tab, #side-tab { display: none; }
+  /* full-page expansion is a desktop concept; the View dropdown replaces it
+     on phones */
+  .expand-btn { display: none; }
   #view-group { display: flex; }
   /* the three charts lose their card chrome on phones so they fill the pane
      edge to edge, like the map fills its frame */
