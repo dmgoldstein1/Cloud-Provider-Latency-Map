@@ -58,7 +58,6 @@
   // container's visible top while the cells scroll under them (and, if the
   // matrix ever scrolls horizontally, the left row labels pin to the left).
   var heatFrozen = { compY: 0, compX: 0 };
-  var heatScrollRAF = null;
   // how far the pinned anchor sits below the visible top: the rotated column
   // labels rise padT - 14 above their anchor (padT is sized from the measured
   // label width), plus a small margin, so the text stays fully on screen
@@ -81,11 +80,13 @@
   }
 
   function scheduleHeatFrozen() {
-    if (heatScrollRAF != null) return;
-    heatScrollRAF = requestAnimationFrame(function () {
-      heatScrollRAF = null;
-      updateHeatFrozen();
-    });
+    // Applied synchronously, not via requestAnimationFrame: scroll events and
+    // rAF callbacks race, so a rAF-delayed compensation lands one frame behind
+    // the scroll and the labels shudder in bursts. Reading the scroll position
+    // here and setting the transforms in the same handler lets the browser
+    // paint the compensation together with the scroll, so the labels move
+    // fluidly.
+    updateHeatFrozen();
   }
 
   function updateHeatFrozen() {
@@ -118,6 +119,15 @@
   }
 
   var heatFrozenBgColor = null;
+  // the strip must match the frame around the matrix, not the page: on the
+  // desktop the heatmap card paints the lighter --panel shade, on phones the
+  // card is transparent and the page's --bg shows through behind the pane
+  function heatFrozenStripColor() {
+    var card = document.getElementById('heatmap-card');
+    var bg = card ? getComputedStyle(card).backgroundColor : '';
+    if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') return bg;
+    return getComputedStyle(document.body).backgroundColor;
+  }
   function applyHeatFrozen() {
     if (!heatLayout) return;
     var compY = heatFrozen.compY, compX = heatFrozen.compX;
@@ -136,7 +146,7 @@
     // row labels in the left gutter are never covered.
     var bg = heatSvg.select('rect.heat-frozen-bg');
     if (bg.empty()) bg = heatSvg.append('rect').attr('class', 'heat-frozen-bg');
-    if (!heatFrozenBgColor) heatFrozenBgColor = getComputedStyle(document.body).backgroundColor;
+    heatFrozenBgColor = heatFrozenStripColor();
     var pinOffset = heatLayout.padT - 10;
     bg.attr('display', compY > 0 ? null : 'none')
       .attr('x', heatLayout.padL - 2)
