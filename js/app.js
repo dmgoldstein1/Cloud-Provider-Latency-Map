@@ -151,9 +151,9 @@
     var sideTab = document.getElementById('side-tab');
     if (sideTab) sideTab.textContent = document.body.classList.contains('panel-hidden') ? '◂' : '▸';
     var srcTab = document.getElementById('src-tab');
-    if (srcTab) srcTab.textContent = document.body.classList.contains('src-hidden') ? '▴' : '▾';
+    if (srcTab) srcTab.textContent = document.body.classList.contains('src-hidden') ? '▾' : '▴';
     var footerTab = document.getElementById('map-footer-tab');
-    if (footerTab) footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▾' : '▴';
+    if (footerTab) footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▴' : '▾';
   }
 
   // A wrapped flex line otherwise makes its container stretch to the full
@@ -519,7 +519,7 @@
     if (srcTab) {
       srcTab.addEventListener('click', function () {
         document.body.classList.toggle('src-hidden');
-        srcTab.textContent = document.body.classList.contains('src-hidden') ? '▴' : '▾';
+        srcTab.textContent = document.body.classList.contains('src-hidden') ? '▾' : '▴';
         VML.events.emit('render');
       });
     }
@@ -529,7 +529,7 @@
       footerTab.addEventListener('click', function () {
         var footer = document.getElementById('map-footer-body');
         document.body.classList.toggle('footer-hidden');
-        footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▾' : '▴';
+        footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▴' : '▾';
         // Set max-height directly so the CSS transition starts from the exact
         // content edge. Only this click animates the slide: .animating is what
         // enables the max-height transition (see css/style.css) and raising
