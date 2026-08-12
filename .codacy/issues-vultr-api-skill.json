@@ -1,0 +1,2275 @@
+{
+  "metadata": {
+    "startedAt": "2026-08-12T14:03:52.743Z",
+    "completedAt": "2026-08-12T14:04:06.642Z",
+    "durationMs": 13899,
+    "repositoryRoot": "/Users/danielgoldstein/Documents/VibeCoding/vultr-map/Vultr-API-skill",
+    "executionMode": "auto-install",
+    "phaseTimings": {
+      "availabilityMs": 1146,
+      "fileDiscoveryMs": 42,
+      "fileRoutingMs": 4,
+      "toolExecutionMs": 12635,
+      "installMs": 0
+    }
+  },
+  "capability": {
+    "ready": [
+      {
+        "toolId": "jackson",
+        "displayName": "Jackson Linter",
+        "version": "1.0.0",
+        "installation": "bundled",
+        "runner": "local",
+        "filesRouted": 7,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "Agentlinter",
+        "displayName": "Agentlinter",
+        "version": "0.3.3",
+        "installation": "bundled",
+        "runner": "local",
+        "filesRouted": 10,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "PyLintPython3",
+        "displayName": "Pylint",
+        "version": "3.3.9",
+        "installation": "codacy",
+        "runner": "local",
+        "filesRouted": 10,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "shellcheck",
+        "displayName": "ShellCheck",
+        "version": "0.11.0",
+        "installation": "global",
+        "runner": "local",
+        "filesRouted": 2,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "PMD",
+        "displayName": "PMD",
+        "version": "6.55.0",
+        "installation": "codacy",
+        "runner": "local",
+        "filesRouted": 1,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "Lizard",
+        "displayName": "Lizard",
+        "version": "1.21.2",
+        "installation": "codacy",
+        "runner": "local",
+        "filesRouted": 11,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "Semgrep",
+        "displayName": "Opengrep",
+        "version": "1.16.4",
+        "installation": "codacy",
+        "runner": "local",
+        "filesRouted": 38,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "markdownlint",
+        "displayName": "markdownlint",
+        "version": "0.37.4",
+        "installation": "bundled",
+        "runner": "local",
+        "filesRouted": 11,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "Trivy",
+        "displayName": "Trivy",
+        "version": "0.70.0",
+        "installation": "global",
+        "runner": "local",
+        "filesRouted": 38,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "Prospector",
+        "displayName": "Prospector",
+        "version": "1.18.0",
+        "installation": "codacy",
+        "runner": "local",
+        "filesRouted": 10,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "ESLint8",
+        "displayName": "ESLint 8",
+        "version": "8.57.1",
+        "installation": "bundled",
+        "runner": "local",
+        "filesRouted": 10,
+        "configSource": "codacy"
+      },
+      {
+        "toolId": "Bandit",
+        "displayName": "Bandit",
+        "version": "1.8.3",
+        "installation": "codacy",
+        "runner": "local",
+        "filesRouted": 10,
+        "configSource": "codacy"
+      }
+    ],
+    "unavailable": [
+      {
+        "toolId": "coffeelint",
+        "displayName": "CoffeeLint",
+        "reason": "No local analyzer (configured on Codacy Cloud)",
+        "availableVia": "cloud"
+      }
+    ],
+    "checkedAt": "2026-08-12T14:03:53.958Z"
+  },
+  "issues": [
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_structure_has-version-or-update-date",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No version or update date found. Helps track freshness of instructions.",
+      "lineContent": "# AGENTS",
+      "category": "Documentation",
+      "severity": "Info"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_completeness_has-identity",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No identity/persona defined. Without this, the agent has no consistent personality.",
+      "lineContent": "# AGENTS",
+      "category": "Comprehensibility",
+      "severity": "Info"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_completeness_has-tools",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No tool documentation found. The agent doesn't know what tools are available or how to use them.",
+      "lineContent": "# AGENTS",
+      "category": "Documentation",
+      "severity": "Info"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_completeness_has-boundaries",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No boundaries or constraints defined. The agent needs to know what NOT to do.",
+      "lineContent": "# AGENTS",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_completeness_has-user-context",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No user context found. Telling the agent about its user (preferences, role, timezone) improves responses.",
+      "lineContent": "# AGENTS",
+      "category": "Comprehensibility",
+      "severity": "Info"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_completeness_has-priorities",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No priority guidance found. Help the agent know what's most important when instructions conflict.",
+      "lineContent": "# AGENTS",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_security_has-injection-defense",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No prompt injection defense found. The agent is vulnerable to instruction override attacks.",
+      "lineContent": "# AGENTS",
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_memory_has-handoff-protocol",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No session handoff protocol found. The agent doesn't know what to read or do when waking up in a new session.",
+      "lineContent": "# AGENTS",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_memory_has-file-based-notes",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No file-based memory system (daily notes, logs). Consider structured note-taking for long-term knowledge.",
+      "lineContent": "# AGENTS",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_memory_no-mental-notes",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "Memory strategy exists but missing explicit 'write it down' principle. Mental notes don't survive restarts.",
+      "lineContent": "# AGENTS",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_memory_has-state-tracking",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No task/state tracking mechanism. The agent can't resume work from where it left off.",
+      "lineContent": "# AGENTS",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "AGENTS.md",
+      "patternId": "Agentlinter_memory_has-learning-loop",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "No learning loop defined. The agent doesn't know how to improve over time from past interactions.",
+      "lineContent": "# AGENTS",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/SKILL.md",
+      "patternId": "Agentlinter_skill-safety_has-metadata",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "Skill missing author field — unattributed skills are harder to trust.",
+      "lineContent": "---",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/vultr-api/SKILL.md",
+      "patternId": "Agentlinter_skill-safety_has-metadata",
+      "toolId": "Agentlinter",
+      "line": 1,
+      "column": 1,
+      "message": "Skill missing author field — unattributed skills are harder to trust.",
+      "lineContent": "---",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "PyLintPython3_W1510",
+      "toolId": "PyLintPython3",
+      "line": 291,
+      "column": 18,
+      "message": "'subprocess.run' used without explicitly defining the value for 'check'. (subprocess-run-check)",
+      "lineContent": "        result = subprocess.run(",
+      "category": "ErrorProne",
+      "severity": "High",
+      "endLine": 294,
+      "endColumn": 10,
+      "multilineContent": [
+        "        result = subprocess.run(",
+        "            [\"lsof\", \"-ti\", f\":{port}\"],",
+        "            capture_output=True, text=True, timeout=5,",
+        "        )"
+      ]
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "PyLintPython3_W0622",
+      "toolId": "PyLintPython3",
+      "line": 382,
+      "column": 27,
+      "message": "Redefining built-in 'format' (redefined-builtin)",
+      "lineContent": "    def log_message(self, format: str, *args: object) -> None:",
+      "category": "ErrorProne",
+      "severity": "High",
+      "endColumn": 38
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "PyLintPython3_W0612",
+      "toolId": "PyLintPython3",
+      "line": 19,
+      "column": 5,
+      "message": "Unused variable 'holdout' (unused-variable)",
+      "lineContent": "    holdout = data.get(\"holdout\", 0)",
+      "category": "UnusedCode",
+      "severity": "Info",
+      "endColumn": 12
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "PyLintPython3_W0612",
+      "toolId": "PyLintPython3",
+      "line": 157,
+      "column": 5,
+      "message": "Unused variable 'best_train_score' (unused-variable)",
+      "lineContent": "    best_train_score = data.get('best_train_score')",
+      "category": "UnusedCode",
+      "severity": "Info",
+      "endColumn": 21
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "PyLintPython3_W0612",
+      "toolId": "PyLintPython3",
+      "line": 214,
+      "column": 9,
+      "message": "Unused variable 'train_passed' (unused-variable)",
+      "lineContent": "        train_passed = h.get(\"train_passed\", h.get(\"passed\", 0))",
+      "category": "UnusedCode",
+      "severity": "Info",
+      "endColumn": 21
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "PyLintPython3_W0612",
+      "toolId": "PyLintPython3",
+      "line": 215,
+      "column": 9,
+      "message": "Unused variable 'train_total' (unused-variable)",
+      "lineContent": "        train_total = h.get(\"train_total\", h.get(\"total\", 0))",
+      "category": "UnusedCode",
+      "severity": "Info",
+      "endColumn": 20
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "PyLintPython3_W0612",
+      "toolId": "PyLintPython3",
+      "line": 216,
+      "column": 9,
+      "message": "Unused variable 'test_passed' (unused-variable)",
+      "lineContent": "        test_passed = h.get(\"test_passed\")",
+      "category": "UnusedCode",
+      "severity": "Info",
+      "endColumn": 20
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "PyLintPython3_W0612",
+      "toolId": "PyLintPython3",
+      "line": 217,
+      "column": 9,
+      "message": "Unused variable 'test_total' (unused-variable)",
+      "lineContent": "        test_total = h.get(\"test_total\")",
+      "category": "UnusedCode",
+      "severity": "Info",
+      "endColumn": 19
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "PyLintPython3_W1510",
+      "toolId": "PyLintPython3",
+      "line": 35,
+      "column": 14,
+      "message": "'subprocess.run' used without explicitly defining the value for 'check'. (subprocess-run-check)",
+      "lineContent": "    result = subprocess.run(",
+      "category": "ErrorProne",
+      "severity": "High",
+      "endLine": 42,
+      "endColumn": 6,
+      "multilineContent": [
+        "    result = subprocess.run(",
+        "        cmd,",
+        "        input=prompt,",
+        "        capture_output=True,",
+        "        text=True,",
+        "        env=env,",
+        "        timeout=timeout,",
+        "    )"
+      ]
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/package_skill.py",
+      "patternId": "PyLintPython3_W0718",
+      "toolId": "PyLintPython3",
+      "line": 106,
+      "column": 12,
+      "message": "Catching too general exception Exception (broad-exception-caught)",
+      "lineContent": "    except Exception as e:",
+      "category": "ErrorProne",
+      "severity": "High",
+      "endColumn": 21
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/quick_validate.py",
+      "patternId": "PyLintPython3_W0611",
+      "toolId": "PyLintPython3",
+      "line": 7,
+      "column": 1,
+      "message": "Unused import os (unused-import)",
+      "lineContent": "import os",
+      "category": "UnusedCode",
+      "severity": "Warning",
+      "endColumn": 10
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "PyLintPython3_E0611",
+      "toolId": "PyLintPython3",
+      "line": 16,
+      "column": 1,
+      "message": "No name 'ProcessPoolExecutor' in module 'concurrent.futures' (no-name-in-module)",
+      "lineContent": "from concurrent.futures import ProcessPoolExecutor, as_completed",
+      "category": "ErrorProne",
+      "severity": "High",
+      "endColumn": 65
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "PyLintPython3_W0718",
+      "toolId": "PyLintPython3",
+      "line": 223,
+      "column": 20,
+      "message": "Catching too general exception Exception (broad-exception-caught)",
+      "lineContent": "            except Exception as e:",
+      "category": "ErrorProne",
+      "severity": "High",
+      "endColumn": 29
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "PyLintPython3_W0612",
+      "toolId": "PyLintPython3",
+      "line": 279,
+      "column": 33,
+      "message": "Unused variable 'content' (unused-variable)",
+      "lineContent": "    name, original_description, content = parse_skill_md(skill_path)",
+      "category": "UnusedCode",
+      "severity": "Info",
+      "endColumn": 40
+    },
+    {
+      "filePath": ".codacy/cli.sh",
+      "patternId": "shellcheck_SC2155",
+      "toolId": "shellcheck",
+      "line": 40,
+      "column": 15,
+      "endColumn": 22,
+      "message": "Declare and assign separately to avoid masking return values.",
+      "lineContent": "        local version=$(grep -o 'version: *\"[^\"]*\"' \"$version_file\" | cut -d'\"' -f2)",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": ".codacy/cli.sh",
+      "patternId": "shellcheck_SC2155",
+      "toolId": "shellcheck",
+      "line": 58,
+      "column": 11,
+      "endColumn": 18,
+      "message": "Declare and assign separately to avoid masking return values.",
+      "lineContent": "    local version=$(echo \"$response\" | grep -m 1 tag_name | cut -d'\"' -f4)",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 85,
+      "column": 1,
+      "endLine": 146,
+      "message": "build_run has a cyclomatic complexity of 20 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 149,
+      "column": 1,
+      "endLine": 210,
+      "message": "embed_file has a NLOC of 59 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 149,
+      "column": 1,
+      "endLine": 210,
+      "message": "embed_file has a cyclomatic complexity of 10 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 387,
+      "column": 1,
+      "endLine": 467,
+      "message": "main has a NLOC of 69 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 387,
+      "column": 1,
+      "endLine": 467,
+      "message": "main has a cyclomatic complexity of 14 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/aggregate_benchmark.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 67,
+      "column": 1,
+      "endLine": 173,
+      "message": "load_run_results has a NLOC of 80 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/aggregate_benchmark.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 67,
+      "column": 1,
+      "endLine": 173,
+      "message": "load_run_results has a cyclomatic complexity of 21 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 16,
+      "column": 1,
+      "endLine": 301,
+      "message": "generate_html has a NLOC of 212 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 16,
+      "column": 1,
+      "endLine": 301,
+      "message": "generate_html has a cyclomatic complexity of 24 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 50,
+      "column": 1,
+      "endLine": 191,
+      "message": "improve_description has a NLOC of 87 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 50,
+      "column": 1,
+      "endLine": 191,
+      "message": "improve_description has a cyclomatic complexity of 24 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "Lizard_parameter-count-medium",
+      "toolId": "Lizard",
+      "line": 50,
+      "column": 1,
+      "endLine": 191,
+      "message": "improve_description has a parameter count of 9 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/package_skill.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 42,
+      "column": 1,
+      "endLine": 108,
+      "message": "package_skill has a cyclomatic complexity of 10 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/quick_validate.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 12,
+      "column": 1,
+      "endLine": 94,
+      "message": "validate_skill has a NLOC of 56 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/quick_validate.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 12,
+      "column": 1,
+      "endLine": 94,
+      "message": "validate_skill has a cyclomatic complexity of 24 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 35,
+      "column": 1,
+      "endLine": 181,
+      "message": "run_single_query has a NLOC of 114 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 35,
+      "column": 1,
+      "endLine": 181,
+      "message": "run_single_query has a cyclomatic complexity of 35 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 184,
+      "column": 1,
+      "endLine": 256,
+      "message": "run_eval has a NLOC of 67 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 184,
+      "column": 1,
+      "endLine": 256,
+      "message": "run_eval has a cyclomatic complexity of 10 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Lizard_parameter-count-medium",
+      "toolId": "Lizard",
+      "line": 184,
+      "column": 1,
+      "endLine": 256,
+      "message": "run_eval has a parameter count of 9 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 154,
+      "column": 1,
+      "endLine": 171,
+      "message": "run_loop.print_eval_stats has a cyclomatic complexity of 14 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 47,
+      "column": 1,
+      "endLine": 241,
+      "message": "run_loop has a NLOC of 149 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 47,
+      "column": 1,
+      "endLine": 241,
+      "message": "run_loop has a cyclomatic complexity of 36 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Lizard_parameter-count-medium",
+      "toolId": "Lizard",
+      "line": 47,
+      "column": 1,
+      "endLine": 241,
+      "message": "run_loop has a parameter count of 13 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 244,
+      "column": 1,
+      "endLine": 324,
+      "message": "main has a NLOC of 65 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 244,
+      "column": 1,
+      "endLine": 324,
+      "message": "main has a cyclomatic complexity of 11 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/utils.py",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 7,
+      "column": 1,
+      "endLine": 47,
+      "message": "parse_skill_md has a cyclomatic complexity of 12 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 97,
+      "column": 1,
+      "endLine": 159,
+      "message": "validateSchema has a NLOC of 52 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 97,
+      "column": 1,
+      "endLine": 159,
+      "message": "validateSchema has a cyclomatic complexity of 26 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Lizard_nloc-medium",
+      "toolId": "Lizard",
+      "line": 164,
+      "column": 1,
+      "endLine": 251,
+      "message": "validate has a NLOC of 69 (threshold: 50)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Lizard_ccn-medium",
+      "toolId": "Lizard",
+      "line": 164,
+      "column": 1,
+      "endLine": 251,
+      "message": "validate has a cyclomatic complexity of 33 (threshold: 8)",
+      "lineContent": "",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "Semgrep_python.lang.security.audit.dangerous-subprocess-use-audit.dangerous-subprocess-use-audit",
+      "toolId": "Semgrep",
+      "line": 35,
+      "column": 14,
+      "endLine": 42,
+      "endColumn": 6,
+      "message": "Detected subprocess function 'run' without a static string. If this data can be controlled by a malicious actor, it may be an instance of command injection. Audit the use of this call to ensure it is not controllable by an external resource. You m...",
+      "lineContent": "    result = subprocess.run(",
+      "multilineContent": [
+        "    result = subprocess.run(",
+        "        cmd,",
+        "        input=prompt,",
+        "        capture_output=True,",
+        "        text=True,",
+        "        env=env,",
+        "        timeout=timeout,",
+        "    )"
+      ],
+      "category": "Security",
+      "severity": "Error"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Semgrep_python.lang.security.audit.dangerous-subprocess-use-audit.dangerous-subprocess-use-audit",
+      "toolId": "Semgrep",
+      "line": 85,
+      "column": 19,
+      "endLine": 91,
+      "endColumn": 10,
+      "message": "Detected subprocess function 'Popen' without a static string. If this data can be controlled by a malicious actor, it may be an instance of command injection. Audit the use of this call to ensure it is not controllable by an external resource. You...",
+      "lineContent": "        process = subprocess.Popen(",
+      "multilineContent": [
+        "        process = subprocess.Popen(",
+        "            cmd,",
+        "            stdout=subprocess.PIPE,",
+        "            stderr=subprocess.DEVNULL,",
+        "            cwd=project_root,",
+        "            env=env,",
+        "        )"
+      ],
+      "category": "Security",
+      "severity": "Error"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "toolId": "Semgrep",
+      "line": 31,
+      "column": 33,
+      "endColumn": 41,
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or...",
+      "lineContent": "  const resolved = path.resolve(specPath);",
+      "category": "Security",
+      "severity": "Error"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript_pathtraversal_rule-non-literal-fs-filename",
+      "toolId": "Semgrep",
+      "line": 32,
+      "column": 8,
+      "endColumn": 31,
+      "message": "The application dynamically constructs file or path information. If the path\ninformation comes from user-supplied input, it could be abused to read sensitive files,\naccess other users' data, or aid in exploitation to gain further system access.\nUs...",
+      "lineContent": "  if (!fs.existsSync(resolved)) {",
+      "category": "Security",
+      "severity": "Error"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript.lang.security.audit.detect-non-literal-fs-filename.detect-non-literal-fs-filename",
+      "toolId": "Semgrep",
+      "line": 32,
+      "column": 22,
+      "endColumn": 30,
+      "message": "Detected that function argument `specPath` has entered the fs module. An attacker could potentially control the location of this file, to include going backwards in the directory with '../'. To address this, ensure that user-controlled variables i...",
+      "lineContent": "  if (!fs.existsSync(resolved)) {",
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript_pathtraversal_rule-non-literal-fs-filename",
+      "toolId": "Semgrep",
+      "line": 37,
+      "column": 23,
+      "endColumn": 56,
+      "message": "The application dynamically constructs file or path information. If the path\ninformation comes from user-supplied input, it could be abused to read sensitive files,\naccess other users' data, or aid in exploitation to gain further system access.\nUs...",
+      "lineContent": "    return JSON.parse(fs.readFileSync(resolved, 'utf8'));",
+      "category": "Security",
+      "severity": "Error"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript.lang.security.audit.detect-non-literal-fs-filename.detect-non-literal-fs-filename",
+      "toolId": "Semgrep",
+      "line": 37,
+      "column": 39,
+      "endColumn": 47,
+      "message": "Detected that function argument `specPath` has entered the fs module. An attacker could potentially control the location of this file, to include going backwards in the directory with '../'. To address this, ensure that user-controlled variables i...",
+      "lineContent": "    return JSON.parse(fs.readFileSync(resolved, 'utf8'));",
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop",
+      "toolId": "Semgrep",
+      "line": 58,
+      "column": 5,
+      "endColumn": 25,
+      "message": "Possibility of prototype polluting function detected. By adding or modifying attributes of an object prototype, it is possible to create attributes that exist on every object, or replace critical attributes with malicious ones. This can be problem...",
+      "lineContent": "    cursor = cursor[key];",
+      "category": "Security",
+      "severity": "Error"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp",
+      "toolId": "Semgrep",
+      "line": 77,
+      "column": 10,
+      "endColumn": 36,
+      "message": "RegExp() called with a `specPath` function argument, this might allow an attacker to cause a Regular Expression Denial-of-Service (ReDoS) within your application as RegExP blocks the main thread. For this reason, it is recommended to use hardcoded...",
+      "lineContent": "  return new RegExp(`^${pattern}$`).test(requestPath);",
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript_dos_rule-non-literal-regexp",
+      "toolId": "Semgrep",
+      "line": 77,
+      "column": 10,
+      "endColumn": 36,
+      "message": "The `RegExp` constructor was called with a non-literal value. If an adversary were able to\nsupply a malicious regex, they could cause a Regular Expression Denial of Service (ReDoS)\nagainst the application. In Node applications, this could cause th...",
+      "lineContent": "  return new RegExp(`^${pattern}$`).test(requestPath);",
+      "category": "Security",
+      "severity": "Error"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp",
+      "toolId": "Semgrep",
+      "line": 89,
+      "column": 31,
+      "endColumn": 57,
+      "message": "RegExp() called with a `specPath` function argument, this might allow an attacker to cause a Regular Expression Denial-of-Service (ReDoS) within your application as RegExP blocks the main thread. For this reason, it is recommended to use hardcoded...",
+      "lineContent": "  const m = requestPath.match(new RegExp(`^${pattern}$`));",
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/vultr-api/lint/validate-api-call.js",
+      "patternId": "Semgrep_javascript_dos_rule-non-literal-regexp",
+      "toolId": "Semgrep",
+      "line": 89,
+      "column": 31,
+      "endColumn": 57,
+      "message": "The `RegExp` constructor was called with a non-literal value. If an adversary were able to\nsupply a malicious regex, they could cause a Regular Expression Denial of Service (ReDoS)\nagainst the application. In Node applications, this could cause th...",
+      "lineContent": "  const m = requestPath.match(new RegExp(`^${pattern}$`));",
+      "category": "Security",
+      "severity": "Error"
+    },
+    {
+      "filePath": "skills/skill-creator/agents/analyzer.md",
+      "patternId": "markdownlint_MD024",
+      "toolId": "markdownlint",
+      "line": 191,
+      "column": 1,
+      "message": "Multiple headings with the same content",
+      "lineContent": "## Role",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/agents/analyzer.md",
+      "patternId": "markdownlint_MD024",
+      "toolId": "markdownlint",
+      "line": 195,
+      "column": 1,
+      "message": "Multiple headings with the same content",
+      "lineContent": "## Inputs",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/agents/analyzer.md",
+      "patternId": "markdownlint_MD024",
+      "toolId": "markdownlint",
+      "line": 203,
+      "column": 1,
+      "message": "Multiple headings with the same content",
+      "lineContent": "## Process",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/agents/analyzer.md",
+      "patternId": "markdownlint_MD024",
+      "toolId": "markdownlint",
+      "line": 262,
+      "column": 1,
+      "message": "Multiple headings with the same content",
+      "lineContent": "## Guidelines",
+      "category": "BestPractice",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/agents/analyzer.md",
+      "patternId": "markdownlint_MD025",
+      "toolId": "markdownlint",
+      "line": 187,
+      "column": 1,
+      "message": "Multiple top-level headings in the same document",
+      "lineContent": "# Analyzing Benchmark Results",
+      "category": "BestPractice",
+      "severity": "Info"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Prospector_bandit",
+      "toolId": "Prospector",
+      "line": 22,
+      "column": 1,
+      "endColumn": 18,
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "lineContent": "import subprocess",
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Prospector_bandit",
+      "toolId": "Prospector",
+      "line": 291,
+      "column": 18,
+      "endLine": 294,
+      "endColumn": 10,
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "lineContent": "        result = subprocess.run(",
+      "multilineContent": [
+        "        result = subprocess.run(",
+        "            [\"lsof\", \"-ti\", f\":{port}\"],",
+        "            capture_output=True, text=True, timeout=5,",
+        "        )"
+      ],
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Prospector_bandit",
+      "toolId": "Prospector",
+      "line": 291,
+      "column": 18,
+      "endLine": 294,
+      "endColumn": 10,
+      "message": "Starting a process with a partial executable path (B607)",
+      "lineContent": "        result = subprocess.run(",
+      "multilineContent": [
+        "        result = subprocess.run(",
+        "            [\"lsof\", \"-ti\", f\":{port}\"],",
+        "            capture_output=True, text=True, timeout=5,",
+        "        )"
+      ],
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Prospector_mccabe",
+      "toolId": "Prospector",
+      "line": 85,
+      "column": 1,
+      "message": "build_run is too complex (22) (MC0001)",
+      "lineContent": "def build_run(root: Path, run_dir: Path) -> dict | None:",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 450,
+      "column": 12,
+      "message": "f-string is missing placeholders (F541)",
+      "lineContent": "    print(f\"\\n  Eval Viewer\")",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 451,
+      "column": 12,
+      "message": "f-string is missing placeholders (F541)",
+      "lineContent": "    print(f\"  ─────────────────────────────────\")",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 459,
+      "column": 12,
+      "message": "f-string is missing placeholders (F541)",
+      "lineContent": "    print(f\"\\n  Press Ctrl+C to stop.\\n\")",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "Prospector_bandit",
+      "toolId": "Prospector",
+      "line": 13,
+      "column": 1,
+      "endColumn": 18,
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "lineContent": "import subprocess",
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "Prospector_bandit",
+      "toolId": "Prospector",
+      "line": 35,
+      "column": 14,
+      "endLine": 42,
+      "endColumn": 6,
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "lineContent": "    result = subprocess.run(",
+      "multilineContent": [
+        "    result = subprocess.run(",
+        "        cmd,",
+        "        input=prompt,",
+        "        capture_output=True,",
+        "        text=True,",
+        "        env=env,",
+        "        timeout=timeout,",
+        "    )"
+      ],
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Prospector_bandit",
+      "toolId": "Prospector",
+      "line": 12,
+      "column": 1,
+      "endColumn": 18,
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "lineContent": "import subprocess",
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Prospector_bandit",
+      "toolId": "Prospector",
+      "line": 85,
+      "column": 19,
+      "endLine": 91,
+      "endColumn": 10,
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "lineContent": "        process = subprocess.Popen(",
+      "multilineContent": [
+        "        process = subprocess.Popen(",
+        "            cmd,",
+        "            stdout=subprocess.PIPE,",
+        "            stderr=subprocess.DEVNULL,",
+        "            cwd=project_root,",
+        "            env=env,",
+        "        )"
+      ],
+      "category": "Security",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Prospector_mccabe",
+      "toolId": "Prospector",
+      "line": 35,
+      "column": 1,
+      "message": "run_single_query is too complex (29) (MC0001)",
+      "lineContent": "def run_single_query(",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Prospector_pyright",
+      "toolId": "Prospector",
+      "line": 102,
+      "column": 48,
+      "message": "\"read\" is not a known attribute of \"None\" (reportOptionalMemberAccess)",
+      "lineContent": "                if process.poll() is not None:",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Prospector_pyright",
+      "toolId": "Prospector",
+      "line": 107,
+      "column": 46,
+      "message": "Argument of type \"list[IO[Any] | None]\" cannot be assigned to parameter \"rlist\" of type \"Iterable[_R@select]\" in function \"select\"\n  Type \"IO[Any] | None\" is not assignable to type \"FileDescriptorLike\"\n    Type \"IO[Any] | None\" is not assignable to type \"FileDescriptorLike\"\n      Type \"None\" is not assignable to type \"FileDescriptorLike\"\n        \"None\" is not assignable to \"int\"\n        \"None\" is incompatible with protocol \"HasFileno\"\n          \"fileno\" is not present (reportArgumentType)",
+      "lineContent": "",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Prospector_pyright",
+      "toolId": "Prospector",
+      "line": 111,
+      "column": 48,
+      "message": "\"fileno\" is not a known attribute of \"None\" (reportOptionalMemberAccess)",
+      "lineContent": "",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/quick_validate.py",
+      "patternId": "Prospector_mccabe",
+      "toolId": "Prospector",
+      "line": 12,
+      "column": 1,
+      "message": "validate_skill is too complex (22) (MC0001)",
+      "lineContent": "def validate_skill(skill_path):",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/quick_validate.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 7,
+      "column": 2,
+      "message": "'os' imported but unused (F401)",
+      "lineContent": "import os",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/aggregate_benchmark.py",
+      "patternId": "Prospector_mccabe",
+      "toolId": "Prospector",
+      "line": 67,
+      "column": 1,
+      "message": "load_run_results is too complex (23) (MC0001)",
+      "lineContent": "def load_run_results(benchmark_dir: Path) -> dict:",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/aggregate_benchmark.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 392,
+      "column": 12,
+      "message": "f-string is missing placeholders (F541)",
+      "lineContent": "    print(f\"\\nSummary:\")",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Prospector_mccabe",
+      "toolId": "Prospector",
+      "line": 47,
+      "column": 1,
+      "message": "run_loop is too complex (19) (MC0001)",
+      "lineContent": "def run_loop(",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 191,
+      "column": 20,
+      "message": "f-string is missing placeholders (F541)",
+      "lineContent": "            print(f\"\\nImproving description...\", file=sys.stderr)",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_loop.py",
+      "patternId": "Prospector_pyright",
+      "toolId": "Prospector",
+      "line": 174,
+      "column": 43,
+      "message": "Object of type \"None\" is not subscriptable (reportOptionalSubscript)",
+      "lineContent": "            if test_summary:",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Prospector_mccabe",
+      "toolId": "Prospector",
+      "line": 16,
+      "column": 1,
+      "message": "generate_html is too complex (18) (MC0001)",
+      "lineContent": "def generate_html(data: dict, auto_refresh: bool = False, skill_name: str = \"\") -> str:",
+      "category": "Complexity",
+      "severity": "Warning"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 19,
+      "column": 6,
+      "message": "local variable 'holdout' is assigned to but never used (F841)",
+      "lineContent": "    holdout = data.get(\"holdout\", 0)",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 157,
+      "column": 6,
+      "message": "local variable 'best_train_score' is assigned to but never used (F841)",
+      "lineContent": "    best_train_score = data.get('best_train_score')",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 214,
+      "column": 10,
+      "message": "local variable 'train_passed' is assigned to but never used (F841)",
+      "lineContent": "        train_passed = h.get(\"train_passed\", h.get(\"passed\", 0))",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 215,
+      "column": 10,
+      "message": "local variable 'train_total' is assigned to but never used (F841)",
+      "lineContent": "        train_total = h.get(\"train_total\", h.get(\"total\", 0))",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 216,
+      "column": 10,
+      "message": "local variable 'test_passed' is assigned to but never used (F841)",
+      "lineContent": "        test_passed = h.get(\"test_passed\")",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/generate_report.py",
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "line": 217,
+      "column": 10,
+      "message": "local variable 'test_total' is assigned to but never used (F841)",
+      "lineContent": "        test_total = h.get(\"test_total\")",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "",
+      "patternId": "Prospector_mypy",
+      "toolId": "Prospector",
+      "line": 1,
+      "column": 1,
+      "message": "I/O operation on uninitialized object (fatal-options-error)",
+      "lineContent": "",
+      "category": "ErrorProne",
+      "severity": "High"
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Bandit_B404",
+      "toolId": "Bandit",
+      "line": 22,
+      "column": 1,
+      "endColumn": 18,
+      "message": "Consider possible security implications associated with the subprocess module. (CWE-78)",
+      "lineContent": "import subprocess",
+      "category": "Security",
+      "severity": "Info",
+      "confidence": 3
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Bandit_B607",
+      "toolId": "Bandit",
+      "line": 291,
+      "column": 18,
+      "endLine": 294,
+      "endColumn": 10,
+      "message": "Starting a process with a partial executable path (CWE-78)",
+      "lineContent": "        result = subprocess.run(",
+      "multilineContent": [
+        "        result = subprocess.run(",
+        "            [\"lsof\", \"-ti\", f\":{port}\"],",
+        "            capture_output=True, text=True, timeout=5,",
+        "        )"
+      ],
+      "category": "Security",
+      "severity": "Warning",
+      "confidence": 3
+    },
+    {
+      "filePath": "skills/skill-creator/eval-viewer/generate_review.py",
+      "patternId": "Bandit_B603",
+      "toolId": "Bandit",
+      "line": 291,
+      "column": 18,
+      "endLine": 294,
+      "endColumn": 10,
+      "message": "subprocess call - check for execution of untrusted input. (CWE-78)",
+      "lineContent": "        result = subprocess.run(",
+      "multilineContent": [
+        "        result = subprocess.run(",
+        "            [\"lsof\", \"-ti\", f\":{port}\"],",
+        "            capture_output=True, text=True, timeout=5,",
+        "        )"
+      ],
+      "category": "Security",
+      "severity": "Warning",
+      "confidence": 3
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "Bandit_B404",
+      "toolId": "Bandit",
+      "line": 13,
+      "column": 1,
+      "endColumn": 18,
+      "message": "Consider possible security implications associated with the subprocess module. (CWE-78)",
+      "lineContent": "import subprocess",
+      "category": "Security",
+      "severity": "Info",
+      "confidence": 3
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/improve_description.py",
+      "patternId": "Bandit_B603",
+      "toolId": "Bandit",
+      "line": 35,
+      "column": 14,
+      "endLine": 42,
+      "endColumn": 6,
+      "message": "subprocess call - check for execution of untrusted input. (CWE-78)",
+      "lineContent": "    result = subprocess.run(",
+      "multilineContent": [
+        "    result = subprocess.run(",
+        "        cmd,",
+        "        input=prompt,",
+        "        capture_output=True,",
+        "        text=True,",
+        "        env=env,",
+        "        timeout=timeout,",
+        "    )"
+      ],
+      "category": "Security",
+      "severity": "Warning",
+      "confidence": 3
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Bandit_B404",
+      "toolId": "Bandit",
+      "line": 12,
+      "column": 1,
+      "endColumn": 18,
+      "message": "Consider possible security implications associated with the subprocess module. (CWE-78)",
+      "lineContent": "import subprocess",
+      "category": "Security",
+      "severity": "Info",
+      "confidence": 3
+    },
+    {
+      "filePath": "skills/skill-creator/scripts/run_eval.py",
+      "patternId": "Bandit_B603",
+      "toolId": "Bandit",
+      "line": 85,
+      "column": 19,
+      "endLine": 91,
+      "endColumn": 10,
+      "message": "subprocess call - check for execution of untrusted input. (CWE-78)",
+      "lineContent": "        process = subprocess.Popen(",
+      "multilineContent": [
+        "        process = subprocess.Popen(",
+        "            cmd,",
+        "            stdout=subprocess.PIPE,",
+        "            stderr=subprocess.DEVNULL,",
+        "            cwd=project_root,",
+        "            env=env,",
+        "        )"
+      ],
+      "category": "Security",
+      "severity": "Warning",
+      "confidence": 3
+    }
+  ],
+  "errors": [
+    {
+      "toolId": "Semgrep",
+      "phase": "toolInvoke",
+      "kind": "PartialParsing",
+      "message": "Syntax error `<` was unexpected",
+      "level": "warning",
+      "filePath": "skills/vultr-api/lint/lint-vultr-openapi.sh"
+    }
+  ],
+  "toolResults": [
+    {
+      "toolId": "jackson",
+      "status": "success",
+      "issueCount": 0,
+      "errorCount": 0,
+      "durationMs": 5,
+      "filesAnalyzed": 7
+    },
+    {
+      "toolId": "Agentlinter",
+      "status": "success",
+      "issueCount": 14,
+      "errorCount": 0,
+      "durationMs": 1130,
+      "filesAnalyzed": 10
+    },
+    {
+      "toolId": "PyLintPython3",
+      "status": "success",
+      "issueCount": 14,
+      "errorCount": 0,
+      "durationMs": 3032,
+      "filesAnalyzed": 10
+    },
+    {
+      "toolId": "shellcheck",
+      "status": "success",
+      "issueCount": 2,
+      "errorCount": 0,
+      "durationMs": 80,
+      "filesAnalyzed": 2
+    },
+    {
+      "toolId": "PMD",
+      "status": "success",
+      "issueCount": 0,
+      "errorCount": 0,
+      "durationMs": 2181,
+      "filesAnalyzed": 1
+    },
+    {
+      "toolId": "Lizard",
+      "status": "success",
+      "issueCount": 31,
+      "errorCount": 0,
+      "durationMs": 119,
+      "filesAnalyzed": 11
+    },
+    {
+      "toolId": "Semgrep",
+      "status": "success",
+      "issueCount": 12,
+      "errorCount": 1,
+      "durationMs": 12435,
+      "filesAnalyzed": 38
+    },
+    {
+      "toolId": "markdownlint",
+      "status": "success",
+      "issueCount": 5,
+      "errorCount": 0,
+      "durationMs": 98,
+      "filesAnalyzed": 11
+    },
+    {
+      "toolId": "Trivy",
+      "status": "success",
+      "issueCount": 0,
+      "errorCount": 0,
+      "durationMs": 959,
+      "filesAnalyzed": 38
+    },
+    {
+      "toolId": "Prospector",
+      "status": "success",
+      "issueCount": 30,
+      "errorCount": 0,
+      "durationMs": 1854,
+      "filesAnalyzed": 10
+    },
+    {
+      "toolId": "ESLint8",
+      "status": "success",
+      "issueCount": 0,
+      "errorCount": 0,
+      "durationMs": 0,
+      "filesAnalyzed": 10
+    },
+    {
+      "toolId": "Bandit",
+      "status": "success",
+      "issueCount": 7,
+      "errorCount": 0,
+      "durationMs": 283,
+      "filesAnalyzed": 10
+    }
+  ],
+  "patternSummary": {
+    "groups": [
+      {
+        "severity": "Error",
+        "severityLabel": "CRITICAL",
+        "category": "Security",
+        "categoryLabel": "Security",
+        "patterns": [
+          {
+            "patternId": "Semgrep_python.lang.security.audit.dangerous-subprocess-use-audit.dangerous-subprocess-use-audit",
+            "title": "Audit Dangerous Subprocess Use",
+            "toolId": "Semgrep",
+            "toolDisplayName": "Opengrep",
+            "category": "Security",
+            "severity": "Error",
+            "issueCount": 2,
+            "fileCount": 2,
+            "noisy": false
+          },
+          {
+            "patternId": "Semgrep_javascript_pathtraversal_rule-non-literal-fs-filename",
+            "title": "Avoid Using Non-Literal User Input for File System Paths",
+            "toolId": "Semgrep",
+            "toolDisplayName": "Opengrep",
+            "category": "Security",
+            "severity": "Error",
+            "issueCount": 2,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Semgrep_javascript_dos_rule-non-literal-regexp",
+            "title": "Avoid Using Non-Literal Values in RegExp Constructor",
+            "toolId": "Semgrep",
+            "toolDisplayName": "Opengrep",
+            "category": "Security",
+            "severity": "Error",
+            "issueCount": 2,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Semgrep_javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+            "title": "Avoid Path Traversal via path.join or path.resolve with User Input",
+            "toolId": "Semgrep",
+            "toolDisplayName": "Opengrep",
+            "category": "Security",
+            "severity": "Error",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Semgrep_javascript.lang.security.audit.prototype-pollution.prototype-pollution-loop.prototype-pollution-loop",
+            "title": "Detect Prototype Pollution via Loop",
+            "toolId": "Semgrep",
+            "toolDisplayName": "Opengrep",
+            "category": "Security",
+            "severity": "Error",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 8,
+        "totalPatterns": 5
+      },
+      {
+        "severity": "High",
+        "severityLabel": "HIGH",
+        "category": "Security",
+        "categoryLabel": "Security",
+        "patterns": [
+          {
+            "patternId": "Prospector_bandit",
+            "title": "Detect Common Security Issues in Python Code",
+            "toolId": "Prospector",
+            "toolDisplayName": "Prospector",
+            "category": "Security",
+            "severity": "High",
+            "issueCount": 7,
+            "fileCount": 3,
+            "noisy": false
+          },
+          {
+            "patternId": "Semgrep_javascript.lang.security.audit.detect-non-literal-fs-filename.detect-non-literal-fs-filename",
+            "title": "Detect Non-Literal File System Filename Usage",
+            "toolId": "Semgrep",
+            "toolDisplayName": "Opengrep",
+            "category": "Security",
+            "severity": "High",
+            "issueCount": 2,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Semgrep_javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp",
+            "title": "Avoid Non-Literal RegExp Usage",
+            "toolId": "Semgrep",
+            "toolDisplayName": "Opengrep",
+            "category": "Security",
+            "severity": "High",
+            "issueCount": 2,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_security_has-injection-defense",
+            "title": "Require prompt injection defense instructions",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "Security",
+            "severity": "High",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 12,
+        "totalPatterns": 4
+      },
+      {
+        "severity": "High",
+        "severityLabel": "HIGH",
+        "category": "ErrorProne",
+        "categoryLabel": "Error Prone",
+        "patterns": [
+          {
+            "patternId": "Prospector_pyflakes",
+            "title": "Detect Python Source Code Errors with Pyflakes",
+            "toolId": "Prospector",
+            "toolDisplayName": "Prospector",
+            "category": "ErrorProne",
+            "severity": "High",
+            "issueCount": 12,
+            "fileCount": 5,
+            "noisy": false
+          },
+          {
+            "patternId": "Prospector_pyright",
+            "title": "Use Pyright Static Type Checker",
+            "toolId": "Prospector",
+            "toolDisplayName": "Prospector",
+            "category": "ErrorProne",
+            "severity": "High",
+            "issueCount": 4,
+            "fileCount": 2,
+            "noisy": false
+          },
+          {
+            "patternId": "PyLintPython3_W1510",
+            "title": "Enforce explicit 'check' parameter in subprocess.run",
+            "toolId": "PyLintPython3",
+            "toolDisplayName": "Pylint",
+            "category": "ErrorProne",
+            "severity": "High",
+            "issueCount": 2,
+            "fileCount": 2,
+            "noisy": false
+          },
+          {
+            "patternId": "PyLintPython3_W0718",
+            "title": "Avoid Catching Broad Exception",
+            "toolId": "PyLintPython3",
+            "toolDisplayName": "Pylint",
+            "category": "ErrorProne",
+            "severity": "High",
+            "issueCount": 2,
+            "fileCount": 2,
+            "noisy": false
+          },
+          {
+            "patternId": "shellcheck_SC2155",
+            "title": "Declare and Assign Separately to Avoid Masking Return Values",
+            "toolId": "shellcheck",
+            "toolDisplayName": "ShellCheck",
+            "category": "ErrorProne",
+            "severity": "High",
+            "issueCount": 2,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "PyLintPython3_W0622",
+            "title": "Avoid Redefining Built-in Names",
+            "toolId": "PyLintPython3",
+            "toolDisplayName": "Pylint",
+            "category": "ErrorProne",
+            "severity": "High",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "PyLintPython3_E0611",
+            "title": "Avoid Importing Nonexistent Names from Modules",
+            "toolId": "PyLintPython3",
+            "toolDisplayName": "Pylint",
+            "category": "ErrorProne",
+            "severity": "High",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Prospector_mypy",
+            "title": "Use mypy for Static Type Checking in Python",
+            "toolId": "Prospector",
+            "toolDisplayName": "Prospector",
+            "category": "ErrorProne",
+            "severity": "High",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 25,
+        "totalPatterns": 8
+      },
+      {
+        "severity": "Warning",
+        "severityLabel": "WARNING",
+        "category": "Security",
+        "categoryLabel": "Security",
+        "patterns": [
+          {
+            "patternId": "Bandit_B603",
+            "title": "Check subprocess usage without shell=True",
+            "toolId": "Bandit",
+            "toolDisplayName": "Bandit",
+            "category": "Security",
+            "severity": "Warning",
+            "issueCount": 3,
+            "fileCount": 3,
+            "noisy": false
+          },
+          {
+            "patternId": "Bandit_B607",
+            "title": "Avoid starting a process with a partial executable path",
+            "toolId": "Bandit",
+            "toolDisplayName": "Bandit",
+            "category": "Security",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 4,
+        "totalPatterns": 2
+      },
+      {
+        "severity": "Warning",
+        "severityLabel": "WARNING",
+        "category": "BestPractice",
+        "categoryLabel": "Best Practice",
+        "patterns": [
+          {
+            "patternId": "markdownlint_MD024",
+            "title": "Avoid Multiple Headings with the Same Content",
+            "toolId": "markdownlint",
+            "toolDisplayName": "markdownlint",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 4,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_skill-safety_has-metadata",
+            "title": "Require skill metadata (name, description, author)",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 2,
+            "fileCount": 2,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_completeness_has-boundaries",
+            "title": "Require agent to define boundaries and constraints",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_completeness_has-priorities",
+            "title": "Require Priorities in Agent Spec / Documentation",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_memory_has-handoff-protocol",
+            "title": "Ensure agent has a handoff protocol for memory/context between sessions",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_memory_has-file-based-notes",
+            "title": "Require file-based notes for persistent memory",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_memory_no-mental-notes",
+            "title": "Avoid relying on mental notes; write things down",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_memory_has-state-tracking",
+            "title": "Ensure agent tracks current task state",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_memory_has-learning-loop",
+            "title": "Ensure agent learns from past interactions",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "BestPractice",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 13,
+        "totalPatterns": 9
+      },
+      {
+        "severity": "Warning",
+        "severityLabel": "WARNING",
+        "category": "UnusedCode",
+        "categoryLabel": "Unused Code",
+        "patterns": [
+          {
+            "patternId": "PyLintPython3_W0611",
+            "title": "Avoid Unused Imports",
+            "toolId": "PyLintPython3",
+            "toolDisplayName": "Pylint",
+            "category": "UnusedCode",
+            "severity": "Warning",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 1,
+        "totalPatterns": 1
+      },
+      {
+        "severity": "Warning",
+        "severityLabel": "WARNING",
+        "category": "Complexity",
+        "categoryLabel": "Complexity",
+        "patterns": [
+          {
+            "patternId": "Lizard_ccn-medium",
+            "title": "Limit Function Cyclomatic Complexity (Medium)",
+            "toolId": "Lizard",
+            "toolDisplayName": "Lizard",
+            "category": "Complexity",
+            "severity": "Warning",
+            "issueCount": 16,
+            "fileCount": 10,
+            "noisy": false
+          },
+          {
+            "patternId": "Lizard_nloc-medium",
+            "title": "Limit Function Length (Medium)",
+            "toolId": "Lizard",
+            "toolDisplayName": "Lizard",
+            "category": "Complexity",
+            "severity": "Warning",
+            "issueCount": 12,
+            "fileCount": 8,
+            "noisy": false
+          },
+          {
+            "patternId": "Prospector_mccabe",
+            "title": "Enforce Cyclomatic Complexity Threshold",
+            "toolId": "Prospector",
+            "toolDisplayName": "Prospector",
+            "category": "Complexity",
+            "severity": "Warning",
+            "issueCount": 6,
+            "fileCount": 6,
+            "noisy": false
+          },
+          {
+            "patternId": "Lizard_parameter-count-medium",
+            "title": "Limit Function Parameter Count (Medium)",
+            "toolId": "Lizard",
+            "toolDisplayName": "Lizard",
+            "category": "Complexity",
+            "severity": "Warning",
+            "issueCount": 3,
+            "fileCount": 3,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 37,
+        "totalPatterns": 4
+      },
+      {
+        "severity": "Info",
+        "severityLabel": "MINOR",
+        "category": "Security",
+        "categoryLabel": "Security",
+        "patterns": [
+          {
+            "patternId": "Bandit_B404",
+            "title": "Consider security implications of importing subprocess module",
+            "toolId": "Bandit",
+            "toolDisplayName": "Bandit",
+            "category": "Security",
+            "severity": "Info",
+            "issueCount": 3,
+            "fileCount": 3,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 3,
+        "totalPatterns": 1
+      },
+      {
+        "severity": "Info",
+        "severityLabel": "MINOR",
+        "category": "BestPractice",
+        "categoryLabel": "Best Practice",
+        "patterns": [
+          {
+            "patternId": "markdownlint_MD025",
+            "title": "Enforce Single Top-Level Heading in Markdown Document",
+            "toolId": "markdownlint",
+            "toolDisplayName": "markdownlint",
+            "category": "BestPractice",
+            "severity": "Info",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 1,
+        "totalPatterns": 1
+      },
+      {
+        "severity": "Info",
+        "severityLabel": "MINOR",
+        "category": "UnusedCode",
+        "categoryLabel": "Unused Code",
+        "patterns": [
+          {
+            "patternId": "PyLintPython3_W0612",
+            "title": "Avoid Unused Variables",
+            "toolId": "PyLintPython3",
+            "toolDisplayName": "Pylint",
+            "category": "UnusedCode",
+            "severity": "Info",
+            "issueCount": 7,
+            "fileCount": 2,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 7,
+        "totalPatterns": 1
+      },
+      {
+        "severity": "Info",
+        "severityLabel": "MINOR",
+        "category": "Comprehensibility",
+        "categoryLabel": "Comprehensibility",
+        "patterns": [
+          {
+            "patternId": "Agentlinter_completeness_has-identity",
+            "title": "Ensure agent defines an identity or persona",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "Comprehensibility",
+            "severity": "Info",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_completeness_has-user-context",
+            "title": "Provide user context for personalization",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "Comprehensibility",
+            "severity": "Info",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 2,
+        "totalPatterns": 2
+      },
+      {
+        "severity": "Info",
+        "severityLabel": "MINOR",
+        "category": "Documentation",
+        "categoryLabel": "Documentation",
+        "patterns": [
+          {
+            "patternId": "Agentlinter_structure_has-version-or-update-date",
+            "title": "Require file version or last-updated date",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "Documentation",
+            "severity": "Info",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          },
+          {
+            "patternId": "Agentlinter_completeness_has-tools",
+            "title": "Ensure agent has tool documentation",
+            "toolId": "Agentlinter",
+            "toolDisplayName": "Agentlinter",
+            "category": "Documentation",
+            "severity": "Info",
+            "issueCount": 1,
+            "fileCount": 1,
+            "noisy": false
+          }
+        ],
+        "totalIssues": 2,
+        "totalPatterns": 2
+      }
+    ],
+    "totalIssues": 115,
+    "totalPatterns": 40,
+    "noisyPatternCount": 0,
+    "noisyThreshold": 500
+  },
+  "skippedFiles": [
+    {
+      "filePath": "openapi.json",
+      "sizeBytes": 1685629
+    }
+  ]
+}

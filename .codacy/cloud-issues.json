@@ -1,0 +1,1998 @@
+{
+  "issues": [
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-document-method.insecure-document-method",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "js/app.js",
+      "lineNumber": 1074,
+      "lineText": "    legend.innerHTML = html;",
+      "resultDataId": 131526230164,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260808-191836/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230168,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_dollar-variable-no-missing-interpolation",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_dollar-variable-no-missing-interpolation.",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230133,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260809-213058/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230205,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/stitch.py",
+      "lineNumber": 53,
+      "lineText": "            w = csv.writer(f)",
+      "resultDataId": 131526230140,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260809-210032/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230207,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260809-210032/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229790,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260808-194230/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230185,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-document-method.insecure-document-method",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "data/js/app.js",
+      "lineNumber": 18,
+      "lineText": "      this.el.innerHTML = html;",
+      "resultDataId": 131526230162,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method main has a cyclomatic complexity of 13 (limit is 8)",
+      "filePath": "scripts/stitch.py",
+      "lineNumber": 31,
+      "lineText": "def main():",
+      "resultDataId": 131526229748,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260808-184842/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229794,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260808-191836/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230147,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_no-obsolete-attribute",
+        "severityLevel": "Warning",
+        "category": "Compatibility"
+      },
+      "message": "Unknown rule no-obsolete-attribute.",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230137,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260808-184842/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230206,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_function-disallowed-list",
+        "severityLevel": "Warning",
+        "category": "BestPractice"
+      },
+      "message": "Unknown rule scss_function-disallowed-list. Did you mean function-disallowed-list?",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230126,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260808-182757/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230203,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260809-203945/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230182,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260810-095239/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230177,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_at-rule-no-unknown",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_at-rule-no-unknown. Did you mean at-rule-no-unknown?",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230128,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_property-no-unknown",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_property-no-unknown. Did you mean property-no-unknown?",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230125,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-innerhtml.insecure-innerhtml",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in a `this.el.innerHTML` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "js/app.js",
+      "lineNumber": 20,
+      "lineText": "      this.el.innerHTML = html;",
+      "resultDataId": 131526230159,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260808-184842/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229785,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260808-184842/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230178,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_dimension-no-non-numeric-values",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_dimension-no-non-numeric-values.",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230135,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_no-obsolete-attribute",
+        "severityLevel": "Warning",
+        "category": "Compatibility"
+      },
+      "message": "Unknown rule no-obsolete-attribute.",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230136,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_declaration-property-value-no-unknown",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_declaration-property-value-no-unknown. Did you mean declaration-property-value-no-unknown?",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230138,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-document-method.insecure-document-method",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "js/app.js",
+      "lineNumber": 20,
+      "lineText": "      this.el.innerHTML = html;",
+      "resultDataId": 131526230157,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260808-194230/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229805,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260809-203945/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229798,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260808-191836/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230191,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260808-182757/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230180,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260809-210032/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230193,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260808-192841/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230174,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_function-no-unknown",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_function-no-unknown. Did you mean function-no-unknown?",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230134,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_declaration-property-value-no-unknown",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_declaration-property-value-no-unknown. Did you mean declaration-property-value-no-unknown?",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230131,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260809-210032/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230172,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_function-disallowed-list",
+        "severityLevel": "Warning",
+        "category": "BestPractice"
+      },
+      "message": "Unknown rule scss_function-disallowed-list. Did you mean function-disallowed-list?",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230130,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-innerhtml.insecure-innerhtml",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in a `legend.innerHTML` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "js/app.js",
+      "lineNumber": 1074,
+      "lineText": "    legend.innerHTML = html;",
+      "resultDataId": 131526230158,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260809-203945/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230171,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method load_run has a cyclomatic complexity of 9 (limit is 8)",
+      "filePath": "scripts/stitch.py",
+      "lineNumber": 7,
+      "lineText": "def load_run(run):",
+      "resultDataId": 131526229745,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_mccabe",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "main is too complex (18) (MC0001)",
+      "filePath": "scripts/validate.py",
+      "lineNumber": 7,
+      "lineText": "def main():",
+      "resultDataId": 131526230192,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260809-220321/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230188,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260809-210032/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230199,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-document-method.insecure-document-method",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "js/app.js",
+      "lineNumber": 1044,
+      "lineText": "    statsEl.innerHTML =",
+      "resultDataId": 131526230165,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-innerhtml.insecure-innerhtml",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in a `statsEl.innerHTML` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "data/js/app.js",
+      "lineNumber": 1006,
+      "lineText": "    statsEl.innerHTML =",
+      "resultDataId": 131526230156,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-document-method.insecure-document-method",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "data/js/app.js",
+      "lineNumber": 1006,
+      "lineText": "    statsEl.innerHTML =",
+      "resultDataId": 131526230155,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260810-095239/aggregate.py",
+      "lineNumber": 26,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230142,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_property-no-unknown",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_property-no-unknown. Did you mean property-no-unknown?",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230127,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260808-194230/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230181,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260808-192841/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230167,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyflakes",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "local variable 'meta' is assigned to but never used (F841)",
+      "filePath": "scripts/validate.py",
+      "lineNumber": 11,
+      "lineText": "    meta = json.load(open(f\"{root}/regions.json\"))[\"meta\"] if False else {}",
+      "resultDataId": 131526230166,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_no-global-function-names",
+        "severityLevel": "Warning",
+        "category": "Compatibility"
+      },
+      "message": "Unknown rule scss_no-global-function-names.",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230123,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260809-213058/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230170,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260810-095239/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230187,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260809-213058/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229783,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_function-no-unknown",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_function-no-unknown. Did you mean function-no-unknown?",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230122,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260809-220321/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230179,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260808-192841/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230141,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260808-194230/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229789,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260809-220321/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230149,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260809-213058/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230194,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260808-192841/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230196,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "PyLintPython3_W0125",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Using a conditional statement with a constant value",
+      "filePath": "scripts/validate.py",
+      "lineNumber": 11,
+      "lineText": "    meta = json.load(open(f\"{root}/regions.json\"))[\"meta\"] if False else {}",
+      "resultDataId": 131526230152,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260808-184842/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230143,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260808-184842/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230169,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method main has a cyclomatic complexity of 17 (limit is 8)",
+      "filePath": "scripts/convert_stitched_to_measured.py",
+      "lineNumber": 46,
+      "lineText": "def main():",
+      "resultDataId": 131526229747,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260808-182757/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230139,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_dollar-variable-no-missing-interpolation",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_dollar-variable-no-missing-interpolation.",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230121,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260808-182757/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230195,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260808-191836/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230201,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260809-213058/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230176,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_no-global-function-names",
+        "severityLevel": "Warning",
+        "category": "Compatibility"
+      },
+      "message": "Unknown rule scss_no-global-function-names.",
+      "filePath": "css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230132,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260808-194230/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230146,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "PyLintPython3_W0612",
+        "severityLevel": "Info",
+        "category": "UnusedCode"
+      },
+      "message": "Unused variable 'meta'",
+      "filePath": "scripts/validate.py",
+      "lineNumber": 11,
+      "lineText": "    meta = json.load(open(f\"{root}/regions.json\"))[\"meta\"] if False else {}",
+      "resultDataId": 131526230153,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method main has a cyclomatic complexity of 33 (limit is 8)",
+      "filePath": "scripts/validate.py",
+      "lineNumber": 7,
+      "lineText": "def main():",
+      "resultDataId": 131526229746,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-innerhtml.insecure-innerhtml",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in a `this.el.innerHTML` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "data/js/app.js",
+      "lineNumber": 18,
+      "lineText": "      this.el.innerHTML = html;",
+      "resultDataId": 131526230154,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260808-194230/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230204,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260809-220321/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230200,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260808-184842/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230190,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260809-203945/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230189,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260809-220321/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230183,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-innerhtml.insecure-innerhtml",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in a `statsEl.innerHTML` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "js/app.js",
+      "lineNumber": 1044,
+      "lineText": "    statsEl.innerHTML =",
+      "resultDataId": 131526230163,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-document-method.insecure-document-method",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "data/js/app.js",
+      "lineNumber": 1036,
+      "lineText": "    legend.innerHTML = html;",
+      "resultDataId": 131526230160,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260808-191836/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230197,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Starting a process with a partial executable path (B607)",
+      "filePath": "scripts/runs/run-20260808-192841/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230186,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260809-203945/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230198,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_dimension-no-non-numeric-values",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_dimension-no-non-numeric-values.",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230124,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260809-220321/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229796,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "subprocess call - check for execution of untrusted input. (B603)",
+      "filePath": "scripts/runs/run-20260810-095239/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526230184,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_pyright",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Object of type \"None\" cannot be used as iterable value (reportOptionalIterable)",
+      "filePath": "scripts/runs/run-20260810-095239/measure.py",
+      "lineNumber": 8,
+      "lineText": "    times=[]",
+      "resultDataId": 131526230173,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260809-203945/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230148,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260809-210032/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230144,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_python.lang.security.use-defusedcsv.use-defusedcsv",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Detected the generation of a CSV file using the built-in `csv` module.",
+      "filePath": "scripts/runs/run-20260809-213058/aggregate.py",
+      "lineNumber": 24,
+      "lineText": "        w=csv.writer(f)",
+      "resultDataId": 131526230145,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Stylelint_scss_at-rule-no-unknown",
+        "severityLevel": "Warning",
+        "category": "ErrorProne"
+      },
+      "message": "Unknown rule scss_at-rule-no-unknown. Did you mean at-rule-no-unknown?",
+      "filePath": "data/css/style.css",
+      "lineNumber": 1,
+      "lineText": ":root {",
+      "resultDataId": 131526230129,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method main has 57 lines of code (limit is 50)",
+      "filePath": "scripts/validate.py",
+      "lineNumber": 7,
+      "lineText": "def main():",
+      "resultDataId": 131526229744,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260809-203945/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229803,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260808-194230/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230175,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_javascript.browser.security.insecure-innerhtml.insecure-innerhtml",
+        "severityLevel": "Error",
+        "category": "Security",
+        "subCategory": "XSS"
+      },
+      "message": "User controlled data in a `legend.innerHTML` is an anti-pattern that can lead to XSS vulnerabilities",
+      "filePath": "data/js/app.js",
+      "lineNumber": 1036,
+      "lineText": "    legend.innerHTML = html;",
+      "resultDataId": 131526230161,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260809-210032/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229801,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Prospector_bandit",
+        "severityLevel": "High",
+        "category": "Security",
+        "subCategory": "InsecureModulesLibraries"
+      },
+      "message": "Consider possible security implications associated with the subprocess module. (B404)",
+      "filePath": "scripts/runs/run-20260808-182757/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526230202,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderScatter has 95 lines of code (limit is 50)",
+      "filePath": "js/charts.js",
+      "lineNumber": 808,
+      "lineText": "  function renderScatter() {",
+      "resultDataId": 131526229761,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "PMD_category_ecmascript_errorprone_InnaccurateNumericLiteral",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "The numeric literal '0.0001' will have at different value at runtime.",
+      "filePath": "js/charts.js",
+      "lineNumber": 446,
+      "lineText": "      xDomain = [state.thresholdMin, Math.max(state.threshold, state.thresholdMin + 0.0001)];",
+      "resultDataId": 131526230151,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260808-191836/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229797,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method syncFooterLayout has a cyclomatic complexity of 13 (limit is 8)",
+      "filePath": "js/app.js",
+      "lineNumber": 788,
+      "lineText": "  function syncFooterLayout() {",
+      "resultDataId": 131526229759,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderBoxes has a cyclomatic complexity of 14 (limit is 8)",
+      "filePath": "data/js/charts.js",
+      "lineNumber": 364,
+      "lineText": "  function renderBoxes() {",
+      "resultDataId": 131526229755,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260809-203945/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229806,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260808-192841/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229780,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260810-095239/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229786,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260808-191836/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229784,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260808-192841/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229800,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderHeatmap has a cyclomatic complexity of 9 (limit is 8)",
+      "filePath": "js/charts.js",
+      "lineNumber": 149,
+      "lineText": "  function renderHeatmap() {",
+      "resultDataId": 131526229763,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260808-182757/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229782,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260808-182757/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229792,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260809-220321/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229802,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260808-184842/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229795,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderBoxes has a cyclomatic complexity of 14 (limit is 8)",
+      "filePath": "js/charts.js",
+      "lineNumber": 396,
+      "lineText": "  function renderBoxes() {",
+      "resultDataId": 131526229772,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "PMD_category_ecmascript_errorprone_InnaccurateNumericLiteral",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "The numeric literal '0.0001' will have at different value at runtime.",
+      "filePath": "data/js/charts.js",
+      "lineNumber": 414,
+      "lineText": "      xDomain = [state.thresholdMin, Math.max(state.threshold, state.thresholdMin + 0.0001)];",
+      "resultDataId": 131526230150,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Semgrep_bash.lang.correctness.unquoted-expansion.unquoted-variable-expansion-in-command",
+        "severityLevel": "High",
+        "category": "ErrorProne"
+      },
+      "message": "Variable expansions must be double-quoted so as to prevent being split into multiple pieces according to whitespace or whichever separator is specified by the IFS variable.",
+      "filePath": "scripts/netlat.sh",
+      "lineNumber": 61,
+      "lineText": "    code=\"$(curl -sS -o \"$tmp_body\" -w '%{http_code}' -X \"$method\" \"$API_BASE$path\" \\",
+      "resultDataId": 131526230208,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderHeatmap has 77 lines of code (limit is 50)",
+      "filePath": "data/js/charts.js",
+      "lineNumber": 127,
+      "lineText": "  function renderHeatmap() {",
+      "resultDataId": 131526229756,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260809-210032/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229793,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260808-182757/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229787,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260808-192841/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229799,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260809-220321/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229779,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method restoreState has a cyclomatic complexity of 26 (limit is 8)",
+      "filePath": "js/app.js",
+      "lineNumber": 107,
+      "lineText": "  function restoreState(saved) {",
+      "resultDataId": 131526229770,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B603",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "InputValidation"
+      },
+      "message": "subprocess call - check for execution of untrusted input.",
+      "filePath": "scripts/runs/run-20260810-095239/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229804,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method buildControls has 63 lines of code (limit is 50)",
+      "filePath": "js/app.js",
+      "lineNumber": 416,
+      "lineText": "  function buildControls() {",
+      "resultDataId": 131526229777,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method syncFooterLayout has a cyclomatic complexity of 12 (limit is 8)",
+      "filePath": "data/js/app.js",
+      "lineNumber": 769,
+      "lineText": "  function syncFooterLayout() {",
+      "resultDataId": 131526229773,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_file-nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "File data/js/app.js has 944 non-comment lines of code",
+      "filePath": "data/js/app.js",
+      "lineNumber": 1,
+      "lineText": "(function () {",
+      "resultDataId": 131526229768,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method buildControls has 63 lines of code (limit is 50)",
+      "filePath": "data/js/app.js",
+      "lineNumber": 414,
+      "lineText": "  function buildControls() {",
+      "resultDataId": 131526229760,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderBoxes has 169 lines of code (limit is 50)",
+      "filePath": "data/js/charts.js",
+      "lineNumber": 364,
+      "lineText": "  function renderBoxes() {",
+      "resultDataId": 131526229766,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method buildControls has a cyclomatic complexity of 12 (limit is 8)",
+      "filePath": "js/app.js",
+      "lineNumber": 416,
+      "lineText": "  function buildControls() {",
+      "resultDataId": 131526229764,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260808-191836/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229788,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_file-nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "File js/app.js has 967 non-comment lines of code",
+      "filePath": "js/app.js",
+      "lineNumber": 1,
+      "lineText": "(function () {",
+      "resultDataId": 131526229776,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260809-213058/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229807,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method computeScale has a cyclomatic complexity of 11 (limit is 8)",
+      "filePath": "js/app.js",
+      "lineNumber": 245,
+      "lineText": "  function computeScale() {",
+      "resultDataId": 131526229775,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_file-nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "File data/js/charts.js has 802 non-comment lines of code",
+      "filePath": "data/js/charts.js",
+      "lineNumber": 1,
+      "lineText": "(function () {",
+      "resultDataId": 131526229771,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method buildControls has a cyclomatic complexity of 12 (limit is 8)",
+      "filePath": "data/js/app.js",
+      "lineNumber": 414,
+      "lineText": "  function buildControls() {",
+      "resultDataId": 131526229757,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method computeScale has a cyclomatic complexity of 11 (limit is 8)",
+      "filePath": "data/js/app.js",
+      "lineNumber": 243,
+      "lineText": "  function computeScale() {",
+      "resultDataId": 131526229758,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_file-nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "File js/charts.js has 813 non-comment lines of code",
+      "filePath": "js/charts.js",
+      "lineNumber": 1,
+      "lineText": "(function () {",
+      "resultDataId": 131526229765,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderHeatmap has 78 lines of code (limit is 50)",
+      "filePath": "js/charts.js",
+      "lineNumber": 149,
+      "lineText": "  function renderHeatmap() {",
+      "resultDataId": 131526229774,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderBoxes has 169 lines of code (limit is 50)",
+      "filePath": "js/charts.js",
+      "lineNumber": 396,
+      "lineText": "  function renderBoxes() {",
+      "resultDataId": 131526229762,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method restoreState has a cyclomatic complexity of 26 (limit is 8)",
+      "filePath": "data/js/app.js",
+      "lineNumber": 105,
+      "lineText": "  function restoreState(saved) {",
+      "resultDataId": 131526229778,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260808-194230/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229791,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_ccn-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderHeatmap has a cyclomatic complexity of 9 (limit is 8)",
+      "filePath": "data/js/charts.js",
+      "lineNumber": 127,
+      "lineText": "  function renderHeatmap() {",
+      "resultDataId": 131526229767,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B607",
+        "severityLevel": "Warning",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Starting a process with a partial executable path",
+      "filePath": "scripts/runs/run-20260810-095239/measure.py",
+      "lineNumber": 6,
+      "lineText": "    p=subprocess.Popen([\"ping\",\"-i\",interval,\"-c\",str(packets),\"-D\",dst],",
+      "resultDataId": 131526229808,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Lizard_nloc-medium",
+        "severityLevel": "Warning",
+        "category": "Complexity"
+      },
+      "message": "Method renderScatter has 95 lines of code (limit is 50)",
+      "filePath": "data/js/charts.js",
+      "lineNumber": 776,
+      "lineText": "  function renderScatter() {",
+      "resultDataId": 131526229769,
+      "falsePositiveThreshold": 80
+    },
+    {
+      "patternInfo": {
+        "id": "Bandit_B404",
+        "severityLevel": "Info",
+        "category": "Security",
+        "subCategory": "CommandInjection"
+      },
+      "message": "Consider possible security implications associated with the subprocess module.",
+      "filePath": "scripts/runs/run-20260809-213058/measure.py",
+      "lineNumber": 1,
+      "lineText": "import subprocess, re, sys, statistics, concurrent.futures, os",
+      "resultDataId": 131526229781,
+      "falsePositiveThreshold": 80
+    }
+  ]
+}

@@ -870,9 +870,10 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 .cell.diag { stroke: none; }
 .cell.off { opacity: 0.4; }
 .cell.cut { opacity: 0.12; }
-/* backing strip for the frozen matrix column labels: must never block hover
-   on the cells scrolling underneath it */
-.heat-frozen-bg { pointer-events: none; }
+/* backing strip for the frozen matrix column labels: covers the full SVG width
+   (including the row-label gutter) so rows that have scrolled under the header
+   have their labels hidden too. Must never block hover on cells beneath it. */
+.heat-frozen-bg { pointer-events: none; will-change: transform; }
 /* the frozen label strips move with a single CSS transform per scroll frame;
    will-change lets the browser promote them to their own composited layer so
    the transform tracks the scroll without touching layout */

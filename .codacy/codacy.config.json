@@ -6,8 +6,8 @@
     "organization": "dmgoldstein1",
     "repositoryId": "878924",
     "repositoryName": "Vultr-API-skill",
-    "createdAt": "2026-08-11T20:44:07.501Z",
-    "updatedAt": "2026-08-11T20:44:07.501Z",
+    "createdAt": "2026-08-12T12:53:56.907Z",
+    "updatedAt": "2026-08-12T12:53:56.907Z",
     "languages": [
       "CoffeeScript",
       "HTML",
@@ -10130,6 +10130,12 @@
           "patternId": "Bandit_B412"
         },
         {
+          "patternId": "Bandit_B325"
+        },
+        {
+          "patternId": "Bandit_B414"
+        },
+        {
           "patternId": "Bandit_B413"
         },
         {
@@ -10140,6 +10146,9 @@
         },
         {
           "patternId": "Bandit_B507"
+        },
+        {
+          "patternId": "Bandit_B322"
         },
         {
           "patternId": "Bandit_B311"
@@ -10220,6 +10229,9 @@
           "patternId": "Bandit_B321"
         },
         {
+          "patternId": "Bandit_B309"
+        },
+        {
           "patternId": "Bandit_B606"
         },
         {
@@ -10245,6 +10257,9 @@
         },
         {
           "patternId": "Bandit_B313"
+        },
+        {
+          "patternId": "Bandit_B320"
         },
         {
           "patternId": "Bandit_B409"
@@ -10284,6 +10299,9 @@
         },
         {
           "patternId": "Bandit_B306"
+        },
+        {
+          "patternId": "Bandit_B410"
         },
         {
           "patternId": "Bandit_B314"
