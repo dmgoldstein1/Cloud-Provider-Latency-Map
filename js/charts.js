@@ -54,6 +54,10 @@
   var scatterLayout = null;
   var lastMatrixW = 0;
 
+  // on phones the chart frames are much narrower, so the label gutters (padL/
+  // padR below) and the pane cap shrink to give the plots the available width
+  function mobile() { return window.innerWidth <= 768; }
+
   function init() {
     heatSvg = d3.select('#heatmap').append('svg');
     // hidden probe for measuring axis-label text in the label font: the
@@ -150,7 +154,10 @@
       pane.style.width = '';
       return;
     }
-    var target = Math.min(w + paneChrome(), window.innerWidth - 24);
+    // the 24px gutter is a desktop nicety; on phones let the pane span the
+    // full viewport so no strip of empty screen is left next to the chart
+    var cap = mobile() ? window.innerWidth : window.innerWidth - 24;
+    var target = Math.min(w + paneChrome(), cap);
     var px = Math.max(0, Math.round(target)) + 'px';
     if (pane.style.width !== px) pane.style.width = px;
   }
@@ -207,7 +214,7 @@
     // 0.5px wide, so any fractional position (padT comes out to e.g. 114.4 at
     // maxPx = 77) rasterizes with uneven anti-aliasing — some grid lines
     // render a pixel thick, others two, and the cells look misaligned
-    var padL = Math.round(Math.max(60, maxPx + 22));
+    var padL = Math.round(Math.max(mobile() ? 40 : 60, maxPx + (mobile() ? 14 : 22)));
     // top padding sized from the widest column label as actually rendered:
     // the label sits at padT - 6 and, rotated -45°, its box rises above the
     // anchor by (width + ascent) * sin(45°); reserve exactly that plus a
@@ -219,7 +226,7 @@
       var b = heatLabelProbe.node().getBBox();
       padT = Math.max(padT, Math.round(6 + 0.7071067811865476 * (b.width - b.y) + 8));
     });
-    var padR = Math.round(Math.max(40, maxPx * 0.71 + 20));
+    var padR = Math.round(Math.max(mobile() ? 24 : 40, maxPx * 0.71 + (mobile() ? 10 : 20)));
     // the cell pitch must keep the axis labels apart: the row labels are
     // 12.6px text on that same pitch, and the rotated column labels sit on a
     // perpendicular pitch of cell * sin(45deg), so cells smaller than ~20px
@@ -459,7 +466,9 @@
 
     var rowH = 30, gap = 2;
     var maxPx = maxNameLen(state) * 5.5;
-    var padL = Math.max(40, maxPx + 14), padR = 52, padT = 0, padB = 52;
+    var padL = Math.max(mobile() ? 28 : 40, maxPx + (mobile() ? 10 : 14));
+    var padR = mobile() ? 26 : 52;
+    var padT = 0, padB = 52;
     var w = Math.max(300, (boxSvg.node().parentElement.clientWidth || 360));
 
     var xDomain;
@@ -846,7 +855,7 @@
     // padL reserves room for the rotated y-axis label (~58px) plus the tick
     // labels (~27px + d3's 9px text offset), so the label never sits on top
     // of the tick numbers
-    var padL = 104, padR = 14, padT = 10, padB = 52;
+    var padL = mobile() ? 76 : 104, padR = 14, padT = 10, padB = 52;
     var innerW = w - padL - padR, innerH = h - padT - padB;
     var arcs = VML.util.activeArcs(state).filter(function (d) {
       return inRange(state, valueAt(state, d.src, d.dst));
