@@ -137,22 +137,6 @@
     state.savedZoom = saved.zoom || null;
   }
 
-  // Pin both destination buttons to one equal width: the widest label's
-  // natural (nowrap) width, so the active highlight fills the same box on
-  // both buttons. .active switches font-weight 600, so re-measure after
-  // every active toggle. The buttons stay nowrap; when the card is too
-  // narrow for both, the flex-wrap group drops the second button onto its
-  // own line instead of cutting it off.
-  function fitDestButtons() {
-    var btns = document.querySelectorAll('.dest-btn');
-    var max = 0;
-    btns.forEach(function (b) {
-      b.style.width = '';
-      if (b.scrollWidth > max) max = b.scrollWidth;
-    });
-    btns.forEach(function (b) { b.style.width = max + 'px'; });
-  }
-
   function applyRestoredUI() {
     metricButtons.forEach(function (x) { x.classList.toggle('active', x.dataset.metric === state.metric); });
     document.querySelectorAll('.dest-btn').forEach(function (x) { x.classList.toggle('active', x.dataset.dest === state.destMode); });
@@ -162,6 +146,42 @@
     if (srcTab) srcTab.textContent = document.body.classList.contains('src-hidden') ? '▴' : '▾';
     var footerTab = document.getElementById('map-footer-tab');
     if (footerTab) footerTab.textContent = document.body.classList.contains('footer-hidden') ? '▾' : '▴';
+  }
+
+  // A wrapped flex line otherwise makes its container stretch to the full
+  // source-card width. Keep the group no wider than its widest label.
+  function fitDestButtons() {
+    var group = document.getElementById('dest-btns');
+    var btns = group ? Array.from(group.querySelectorAll('.dest-btn')) : [];
+    if (!group || !btns.length) return;
+    group.style.width = 'max-content';
+    group.style.maxWidth = 'none';
+    btns.forEach(function (b) {
+      b.style.width = 'max-content';
+      b.style.maxWidth = 'none';
+      b.style.flex = '0 0 max-content';
+      b.style.whiteSpace = 'nowrap';
+    });
+    var widest = Math.max.apply(null, btns.map(function (b) { return b.scrollWidth; }));
+    var horizontalMargin = parseFloat(getComputedStyle(btns[0]).marginLeft) + parseFloat(getComputedStyle(btns[0]).marginRight);
+    btns.forEach(function (b) {
+      b.style.width = widest + 'px';
+      b.style.maxWidth = '100%';
+      b.style.flex = '0 0 auto';
+      b.style.whiteSpace = 'normal';
+    });
+    group.style.width = '';
+    group.style.maxWidth = '100%';
+    var firstTop = btns[0].getBoundingClientRect().top;
+    var wrapped = btns.some(function (b) { return b.getBoundingClientRect().top !== firstTop; });
+    if (wrapped) group.style.width = (widest + horizontalMargin + 2) + 'px';
+  }
+
+  function watchDestButtons() {
+    var group = document.getElementById('dest-btns');
+    if (group && typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(fitDestButtons).observe(group);
+    }
   }
 
   function buildState(regionsRaw, dataset) {
@@ -402,6 +422,7 @@
     statsEl = document.getElementById('stats');
 
     buildSourceList();
+    watchDestButtons();
 
     metricButtons.forEach(function (b) {
       b.addEventListener('click', function () {
@@ -941,6 +962,7 @@
   var resizeTimeout = null;
   var expandResizeTimeout = null;
   function onResize() {
+    fitDestButtons();
     syncSideTabPosition();
     document.body.classList.add('resizing');
     clearTimeout(resizeTimeout);
