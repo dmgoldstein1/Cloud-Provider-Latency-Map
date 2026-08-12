@@ -244,12 +244,10 @@
       out.push(v);
     });
     var avg = out.reduce(function (a, b) { return a + b; }, 0) / out.length;
-    var status = state.sources.has(d.code) ? 'checked — outgoing arcs shown' : 'unchecked — click to toggle';
     return tipNode([
       [seg(d.name, true), seg(' (' + d.code + ')')],
       [seg(d.country + ' · ' + d.continent)],
-      [seg('avg latency to ' + out.length + ' regions: '), seg(avg.toFixed(0), true), seg(' ms')],
-      [seg(status, false, true)]
+      [seg('avg latency to ' + out.length + ' regions: '), seg(avg.toFixed(0), true), seg(' ms')]
     ]);
   }
 
