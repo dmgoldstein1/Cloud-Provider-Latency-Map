@@ -873,6 +873,11 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 /* backing strip for the frozen matrix column labels: must never block hover
    on the cells scrolling underneath it */
 .heat-frozen-bg { pointer-events: none; }
+/* the frozen label strips move with a single CSS transform per scroll frame;
+   will-change lets the browser promote them to their own composited layer so
+   the transform tracks the scroll without touching layout */
+.heat-col-labels,
+.heat-row-labels { will-change: transform; }
 .pair-hl {
   fill: none;
   stroke: #f8fafc;

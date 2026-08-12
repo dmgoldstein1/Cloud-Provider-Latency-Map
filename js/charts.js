@@ -79,38 +79,46 @@
     return document.documentElement;
   }
 
-  function scheduleHeatFrozen() {
-    // Applied synchronously, not via requestAnimationFrame: scroll events and
-    // rAF callbacks race, so a rAF-delayed compensation lands one frame behind
-    // the scroll and the labels shudder in bursts. Reading the scroll position
-    // here and setting the transforms in the same handler lets the browser
-    // paint the compensation together with the scroll, so the labels move
-    // fluidly.
-    updateHeatFrozen();
-  }
+  // Geometry that only changes when the matrix is re-rendered or the layout
+  // shifts — measured once per render. The scroll handler MUST NOT force
+  // layout (getBoundingClientRect / getComputedStyle): doing so on every
+  // scroll event makes the pane scroll itself stutter, which reads as the
+  // labels shuddering.
+  var heatGeo = { container: null, isRoot: false, svgTopInC: 0, svgLeftInC: 0 };
 
-  function updateHeatFrozen() {
+  function heatFrozenMeasure() {
     if (!heatLayout || !heatSvg.node()) return;
     var container = heatScrollContainer();
     // expanded mode scrolls inside body (body.chart-expanded { overflow-y:auto })
     var isRoot = container === document.documentElement || container === document.body;
     var svgRect = heatSvg.node().getBoundingClientRect();
     var conRect = container.getBoundingClientRect();
-    var scrollTop = isRoot ? window.pageYOffset : container.scrollTop;
-    var scrollLeft = isRoot ? window.pageXOffset : container.scrollLeft;
-    var conTop = isRoot ? 0 : conRect.top;
-    var conLeft = isRoot ? 0 : conRect.left;
-    var svgTopInC = svgRect.top - conTop + scrollTop;
-    var svgLeftInC = svgRect.left - conLeft + scrollLeft;
+    heatGeo.container = container;
+    heatGeo.isRoot = isRoot;
+    heatGeo.svgTopInC = svgRect.top - (isRoot ? 0 : conRect.top) + (isRoot ? window.pageYOffset : container.scrollTop);
+    heatGeo.svgLeftInC = svgRect.left - (isRoot ? 0 : conRect.left) + (isRoot ? window.pageXOffset : container.scrollLeft);
+    updateHeatFrozen();
+  }
+
+  function scheduleHeatFrozen() {
+    // cheap path for the scroll handler: read the scroll position and move the
+    // two label groups, nothing else (no forced layout, no re-measuring)
+    updateHeatFrozen();
+  }
+
+  function updateHeatFrozen() {
+    if (!heatLayout || !heatSvg.node() || !heatGeo.container) return;
+    var scrollTop = heatGeo.isRoot ? window.pageYOffset : heatGeo.container.scrollTop;
+    var scrollLeft = heatGeo.isRoot ? window.pageXOffset : heatGeo.container.scrollLeft;
     // pin the anchors so their natural position has scrolled past the visible
     // top/left edge; capped so the strips never extend past the matrix bottom
     var pinOffset = heatLayout.padT - 10;
-    var anchorContentY = svgTopInC + heatLayout.padT - 6;
+    var anchorContentY = heatGeo.svgTopInC + heatLayout.padT - 6;
     heatFrozen.compY = Math.max(0, Math.min(
       scrollTop - anchorContentY + pinOffset,
       heatLayout.n * heatLayout.cell + 6 - pinOffset
     ));
-    var anchorContentX = svgLeftInC + heatLayout.padL - 6;
+    var anchorContentX = heatGeo.svgLeftInC + heatLayout.padL - 6;
     heatFrozen.compX = Math.max(0, Math.min(
       scrollLeft - anchorContentX + pinOffset,
       heatLayout.nCols * heatLayout.cell + 6 - pinOffset
@@ -131,14 +139,11 @@
   function applyHeatFrozen() {
     if (!heatLayout) return;
     var compY = heatFrozen.compY, compX = heatFrozen.compX;
-    heatSvg.selectAll('text.col').attr('transform', function (d, i) {
-      return 'translate(' + (heatLayout.padL + i * heatLayout.cell + heatLayout.cell / 2) + ',' +
-        (heatLayout.padT - 6 + compY) + ') rotate(-45)';
-    });
-    heatSvg.selectAll('text.row').attr('transform', function (d, i) {
-      return 'translate(' + (heatLayout.padL - 6 + compX) + ',' +
-        (heatLayout.padT + i * heatLayout.cell + heatLayout.cell / 2) + ')';
-    });
+    // one CSS transform per label group (the labels keep their own base
+    // transforms); will-change lets the browser composite the group so the
+    // transform can be applied in sync with the compositor scroll
+    heatSvg.selectAll('g.heat-col-labels').style('transform', 'translate(0,' + compY + 'px)');
+    heatSvg.selectAll('g.heat-row-labels').style('transform', 'translate(' + compX + 'px,0)');
     // solid strip behind the pinned column labels so the cells scrolling under
     // them don't show through; hidden while the labels sit in their natural
     // gutter (compY 0). The strip's top lands exactly on the visible top edge
@@ -154,7 +159,7 @@
       .attr('width', (+heatSvg.attr('width')) - heatLayout.padL + 2)
       .attr('height', heatLayout.padT - 4)
       .attr('fill', heatFrozenBgColor);
-    var firstCol = heatSvg.select('text.col').node();
+    var firstCol = heatSvg.select('g.heat-col-labels').node();
     if (firstCol && bg.node() !== firstCol.previousSibling) {
       heatSvg.node().insertBefore(bg.node(), firstCol);
     }
@@ -387,7 +392,11 @@
       .attr('height', h)
       .attr('viewBox', '0 0 ' + w + ' ' + h);
 
-    var xLabels = heatSvg.selectAll('text.col').data(dsts, function (d) { return d; });
+    // the column/row labels live in their own groups so the scroll handler can
+    // pin them with a single transform per strip (see applyHeatFrozen)
+    var colG = heatSvg.selectAll('g.heat-col-labels').data([1]);
+    colG.join('g').attr('class', 'heat-col-labels');
+    var xLabels = colG.selectAll('text.col').data(dsts, function (d) { return d; });
     xLabels.join('text')
       .attr('class', 'axis-label col')
       .attr('transform', function (d, i) {
@@ -397,7 +406,9 @@
       .style('font-size', colFs + 'px')
       .text(function (d) { return nameOf(state, d); });
 
-    var yLabels = heatSvg.selectAll('text.row').data(srcRows, function (d) { return d; });
+    var rowG = heatSvg.selectAll('g.heat-row-labels').data([1]);
+    rowG.join('g').attr('class', 'heat-row-labels');
+    var yLabels = rowG.selectAll('text.row').data(srcRows, function (d) { return d; });
     yLabels.join('text')
       .attr('class', function (d) { return 'axis-label row' + (state.sources.has(d) ? '' : ' off'); })
       .attr('transform', function (d, i) { return 'translate(' + (padL - 6) + ',' + (padT + i * cell + cell / 2) + ')'; })
@@ -445,11 +456,12 @@
       });
 
     // the label strips must paint above the cells so they stay readable when
-    // pinned over them; move them to the end, then re-apply the current scroll
-    // compensation (the base transforms above ignore it)
-    heatSvg.selectAll('text.col').each(function () { heatSvg.node().appendChild(this); });
-    heatSvg.selectAll('text.row').each(function () { heatSvg.node().appendChild(this); });
-    updateHeatFrozen();
+    // pinned over them; move them to the end, then measure the pinned geometry
+    // (layout-forcing, only safe here at render time) and apply the current
+    // scroll compensation
+    heatSvg.selectAll('g.heat-col-labels').each(function () { heatSvg.node().appendChild(this); });
+    heatSvg.selectAll('g.heat-row-labels').each(function () { heatSvg.node().appendChild(this); });
+    heatFrozenMeasure();
   }
 
   function heatTip(state, src, dst) {
