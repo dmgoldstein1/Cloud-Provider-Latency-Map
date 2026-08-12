@@ -50,6 +50,7 @@
   }
 
   var heatSvg, heatLabelProbe, boxSvg, scatterSvg;
+  var boxLabelProbe;
   var heatLayout = null;
   var scatterLayout = null;
   var lastMatrixW = 0;
@@ -69,6 +70,12 @@
       .attr('class', 'axis-label')
       .style('visibility', 'hidden');
     boxSvg = d3.select('#boxes').append('svg');
+    // hidden probe in the .box-code font: the 5.5px/char estimate undercounts
+    // the 13.3px label font, which would push long names ("Johannesburg") past
+    // the SVG's left edge since the box chart has no overflow clipping
+    boxLabelProbe = boxSvg.append('text')
+      .attr('class', 'box-code')
+      .style('visibility', 'hidden');
     scatterSvg = d3.select('#scatter').append('svg');
     scatterSvg.append('g').attr('class', 'grid');
     boxSvg.append('g').attr('class', 'grid');
@@ -466,7 +473,14 @@
 
     var rowH = 30, gap = 2;
     var maxPx = maxNameLen(state) * 5.5;
-    var padL = Math.max(mobile() ? 28 : 40, maxPx + (mobile() ? 10 : 14));
+    // measure the widest rendered location label (see init's boxLabelProbe)
+    var maxLabel = 0;
+    state.data.matrices[state.metric].order.forEach(function (code) {
+      boxLabelProbe.text(nameOf(state, code));
+      var b = boxLabelProbe.node().getBBox();
+      if (b.width > maxLabel) maxLabel = b.width;
+    });
+    var padL = Math.round(Math.max(mobile() ? 28 : 40, maxLabel + (mobile() ? 10 : 14)));
     var padR = mobile() ? 26 : 52;
     var padT = 0, padB = 52;
     var w = Math.max(300, (boxSvg.node().parentElement.clientWidth || 360));
