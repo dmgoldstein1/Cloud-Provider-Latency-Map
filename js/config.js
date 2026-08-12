@@ -22,11 +22,12 @@
       thresholdFactor: 0.98
     },
     // d3-scale-chromatic's RdYlGn[11], inlined so the 20KB library can be
-    // dropped. High values map to dark red (worse), low to dark blue (better):
-    // the app reverses it via slice().reverse() at use sites.
+    // dropped. Index 0 is dark red (worse) and index 10 dark green (better);
+    // the app reverses it via slice().reverse() so low values render green
+    // and high values red.
     schemeRdYlGn: [
-      '#a50026', '#d73027', '#f46d43', '#fdae61', '#fee090', '#ffffbf',
-      '#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695'
+      '#a50026', '#d73027', '#f46d43', '#fdae61', '#fee08b', '#ffffbf',
+      '#d9ef8b', '#a6d96a', '#66bd63', '#1a9850', '#006837'
     ]
   };
 })();
