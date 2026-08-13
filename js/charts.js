@@ -96,7 +96,10 @@
       .style('height', '0px')
       .style('overflow', 'visible');
 
-    heatHeaderSvg = heatHeaderDiv.append('svg').style('display', 'block');
+    // overflow visible: the frozen strip's background rect starts a few px
+    // above the svg's own box (see the y/height on .heat-frozen-bg below),
+    // and the default svg overflow: hidden would clip that overhang away
+    heatHeaderSvg = heatHeaderDiv.append('svg').style('display', 'block').style('overflow', 'visible');
     heatSvg = hm.append('svg').style('display', 'block');
     // hidden probe for measuring axis-label text in the label font: the
     // rotated column labels rise above their anchor by roughly
@@ -231,11 +234,11 @@
     // straight line, so the rows and the columns must share ONE ordering —
     // sorting each axis by its own statistic would let the two permutations
     // diverge on asymmetric links and scatter the diagonal. Each location is
-    // ranked by its distribution across the checked sources (the same
-    // statistic the Distribution pane sorts by), so the matrix's column order
-    // always matches that pane and the rows simply follow it. The ordering is
-    // built over the union of live rows and columns so no visible row or
-    // column ever drops out.
+    // ranked by its distribution across the checked sources, using the Pair
+    // matrix's own sort state (state.heatSort), so the matrix can be ordered
+    // independently of the Distribution pane. The ordering is built over the
+    // union of live rows and columns so no visible row or column ever drops
+    // out.
     var union = [];
     srcRows.concat(dsts).forEach(function (c) {
       if (union.indexOf(c) === -1) union.push(c);
@@ -324,13 +327,39 @@
       .attr('height', padT)
       .attr('viewBox', '0 0 ' + w + ' ' + padT);
 
+    // RULE: the sticky div's height sets the titles' release point. A sticky
+    // box may never extend below its containing block (#heatmap's content
+    // box, which ends at the matrix's bottom edge), so a div padT + cell
+    // tall starts riding exactly when the top of the last row rises to the
+    // strip's bottom edge — and while riding, the strip's bottom stays
+    // glued to that row's top edge, so the titles leave the pane together
+    // with the last row. The main svg's negative top margin cancels the
+    // div's flow footprint, so the layout is unchanged. (With a 0-height
+    // div the strip released only when the matrix bottom reached the
+    // strip's TOP: the titles hung below the last row and the pane
+    // scrolled deep into the next card before they moved.)
+    heatHeaderDiv.style('height', padT + cell + 'px');
+    heatSvg.style('margin-top', -(padT + cell) + 'px');
+
     // sticky background strip
     var bg = heatHeaderSvg.select('rect.heat-frozen-bg');
     if (bg.empty()) bg = heatHeaderSvg.append('rect').attr('class', 'heat-frozen-bg');
+    // RULE: the strip's background must overhang the strip's own box at the
+    // top by a few px. When the strip is stuck, its top edge sits at a
+    // fractional device-pixel position (the sticky offset is top:-10px from a
+    // scrollport whose top is rarely device-aligned), and the compositor
+    // rounds the stuck layer's edge differently from the scrolled content's
+    // clip — leaving a 1-2 device px crack at the seam through which the
+    // scrolling cells flash, which reads as the titles jittering against the
+    // header. The overhang makes the seam land on background in every
+    // rounding. 5px stays inside the 6px margin of the sort-button row above
+    // (same color as the card behind it, so invisible when not stuck) and is
+    // far more than the worst-case 2 device px bleed. +1 at the bottom
+    // prevents subpixel bleeding there too.
     bg.attr('x', 0)
-      .attr('y', 0)
+      .attr('y', -5)
       .attr('width', w)
-      .attr('height', padT + 1) // 1px overlap to prevent subpixel bleeding
+      .attr('height', padT + 6)
       .attr('fill', heatFrozenStripColor());
 
     // column labels move to the sticky header SVG
@@ -395,11 +424,9 @@
         VML.app.toggleSource(src, !state.sources.has(src));
       });
 
-    // the label strips must paint above the cells so they stay readable when
-    // pinned over them; move them to the end, then measure the pinned geometry
-    // (layout-forcing, only safe here at render time) and apply the current
-    // scroll compensation
-    // row labels and cells are in the main SVG; no layout measurement needed
+    // the column labels live in the separate sticky header svg, which paints
+    // above this main svg on its own (z-index on the sticky div), so there is
+    // nothing left to order or measure here
   }
 
   function heatTip(state, src, dst) {
@@ -474,15 +501,15 @@
     };
   }
 
-  // Sort a set of location codes by the shared box-sort state, the same way
-  // the Distribution pane sorts its rows. statsOf(code) returns the box
-  // statistics for that code (null when it has no in-range values), so the
-  // numeric keys sort rows/columns by the chosen statistic and geo/alpha
-  // fall back to continent/alphabetical order.
+  // Sort a set of location codes by the pair matrix's OWN sort state
+  // (state.heatSort / heatSortDir), independent of the Distribution pane's
+  // boxSort. statsOf(code) returns the box statistics for that code (null when
+  // it has no in-range values), so the numeric keys sort rows/columns by the
+  // chosen statistic and geo/alpha fall back to continent/alphabetical order.
   function sortMatrixCodes(state, codes, statsOf) {
     var items = codes.map(function (code) { return { code: code, stats: statsOf(code) }; });
     var sorter;
-    if (state.boxSort === 'geo') {
+    if (state.heatSort === 'geo') {
       var rank = geoRankMap(state);
       sorter = function (a, b) {
         var ac = state.byCode.get(a.code).continent || 'Unknown';
@@ -490,10 +517,10 @@
         if (ac !== bc) return rank.get(ac) - rank.get(bc);
         return nameOf(state, a.code).localeCompare(nameOf(state, b.code));
       };
-    } else if (state.boxSort === 'alpha') {
+    } else if (state.heatSort === 'alpha') {
       sorter = function (a, b) { return nameOf(state, a.code).localeCompare(nameOf(state, b.code)); };
     } else {
-      var key = state.boxSort || 'med';
+      var key = state.heatSort || 'med';
       sorter = function (a, b) {
         var av = a.stats ? a.stats[key] : Infinity;
         var bv = b.stats ? b.stats[key] : Infinity;
@@ -501,7 +528,7 @@
       };
     }
     items.sort(sorter);
-    if (state.boxSortDir === 'desc') items.reverse();
+    if (state.heatSortDir === 'desc') items.reverse();
     return items.map(function (o) { return o.code; });
   }
 
@@ -665,8 +692,10 @@
       .attr('width', function (d) { return nCols === 1 ? w : colW + maxPx + 10; })
       .attr('height', rowH + 4)
       .on('mouseenter', function (e, d) {
-        var src = srcs.find(function (s) { return s !== d.dst; });
-        state.pair = src ? { src: src, dst: d.dst } : { dst: d.dst };
+        // a box row is a single destination, not a source→destination pair:
+        // pinning an arbitrary source here drew a white cell outline in the
+        // matrix and a misleading arc on the map. Highlight only the row.
+        state.pair = { dst: d.dst };
         VML.events.emit('pair');
       })
       .on('mouseleave', function () { state.pair = null; VML.events.emit('pair'); });
@@ -875,10 +904,13 @@
     if (!layout) return;
     var state = VML.state;
     var p = state.pair;
-    var data = p ? [p] : [];
+    // a dst-only pair (box-row hover) or src-only pair (map-marker hover)
+    // names no single measured link, so there is no crosshair to draw
+    var complete = !!(p && p.src && p.dst);
+    var data = complete ? [p] : [];
     var key = function (d) { return d.src + ':' + d.dst; };
     var g = svg.select('g.grid');
-    var pos = p ? posFn(p) : null;
+    var pos = complete ? posFn(p) : null;
     g.selectAll('line.pair-v').data(data, key)
       .join('line')
       .attr('class', 'grid pair-v')

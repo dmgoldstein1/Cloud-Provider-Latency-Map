@@ -101,6 +101,8 @@
       destMode: state.destMode,
       boxSort: state.boxSort,
       boxSortDir: state.boxSortDir,
+      heatSort: state.heatSort,
+      heatSortDir: state.heatSortDir,
       panelHidden: document.body.classList.contains('panel-hidden'),
       srcHidden: document.body.classList.contains('src-hidden'),
       footerHidden: document.body.classList.contains('footer-hidden'),
@@ -116,6 +118,8 @@
     if (saved.destMode === 'all' || saved.destMode === 'checked') state.destMode = saved.destMode;
     if (saved.boxSort && ['min', 'q1', 'med', 'mean', 'q3', 'max', 'range', 'geo', 'alpha'].indexOf(saved.boxSort) !== -1) state.boxSort = saved.boxSort;
     if (saved.boxSortDir === 'asc' || saved.boxSortDir === 'desc') state.boxSortDir = saved.boxSortDir;
+    if (saved.heatSort && ['min', 'q1', 'med', 'mean', 'q3', 'max', 'range', 'geo', 'alpha'].indexOf(saved.heatSort) !== -1) state.heatSort = saved.heatSort;
+    if (saved.heatSortDir === 'asc' || saved.heatSortDir === 'desc') state.heatSortDir = saved.heatSortDir;
     if (Array.isArray(saved.sources)) {
       state.sources = new Set(saved.sources.filter(function (c) { return order.indexOf(c) !== -1; }));
     }
@@ -205,6 +209,8 @@
       destMode: 'all',
       boxSort: 'med',
       boxSortDir: 'asc',
+      heatSort: 'med',
+      heatSortDir: 'asc',
       expanded: null,
       sources: new Set(order),
       threshold: null,
@@ -599,41 +605,54 @@
   }
 
   function wireBoxSortButtons() {
-    // the Distribution pane and the Pair matrix share one sort state, so the
-    // two identical button sets stay in sync on both cards
-    var groups = ['box-sort-btns', 'heat-sort-btns'].map(function (id) {
-      return document.getElementById(id);
-    }).filter(Boolean);
-    var dirGroups = ['box-sort-dir-btns', 'heat-sort-dir-btns'].map(function (id) {
-      return document.getElementById(id);
-    }).filter(Boolean);
+    // The Distribution pane and the Pair matrix each keep their OWN sort
+    // state, so the user can order one chart without re-ordering the other:
+    // box-sort-* drives state.boxSort / boxSortDir, heat-sort-* drives
+    // state.heatSort / heatSortDir. Each button only reflects and updates its
+    // own group's state.
+    var groups = [
+      { id: 'box-sort-btns', key: 'boxSort' },
+      { id: 'heat-sort-btns', key: 'heatSort' }
+    ];
+    var dirGroups = [
+      { id: 'box-sort-dir-btns', key: 'boxSortDir' },
+      { id: 'heat-sort-dir-btns', key: 'heatSortDir' }
+    ];
     function sync() {
       groups.forEach(function (g) {
-        g.querySelectorAll('button').forEach(function (b) {
-          b.classList.toggle('active', state.boxSort === b.dataset.sort);
+        var el = document.getElementById(g.id);
+        if (!el) return;
+        el.querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('active', state[g.key] === b.dataset.sort);
         });
       });
       dirGroups.forEach(function (g) {
-        g.querySelectorAll('button').forEach(function (b) {
-          b.classList.toggle('active', state.boxSortDir === b.dataset.dir);
+        var el = document.getElementById(g.id);
+        if (!el) return;
+        el.querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('active', state[g.key] === b.dataset.dir);
         });
       });
     }
     dirGroups.forEach(function (g) {
-      g.querySelectorAll('button').forEach(function (b) {
+      var el = document.getElementById(g.id);
+      if (!el) return;
+      el.querySelectorAll('button').forEach(function (b) {
         b.addEventListener('click', function () {
-          if (state.boxSortDir === b.dataset.dir) return;
-          state.boxSortDir = b.dataset.dir;
+          if (state[g.key] === b.dataset.dir) return;
+          state[g.key] = b.dataset.dir;
           sync();
           emitRender();
         });
       });
     });
     groups.forEach(function (g) {
-      g.querySelectorAll('button').forEach(function (b) {
+      var el = document.getElementById(g.id);
+      if (!el) return;
+      el.querySelectorAll('button').forEach(function (b) {
         b.addEventListener('click', function () {
-          if (state.boxSort === b.dataset.sort) return;
-          state.boxSort = b.dataset.sort;
+          if (state[g.key] === b.dataset.sort) return;
+          state[g.key] = b.dataset.sort;
           sync();
           emitRender();
         });
