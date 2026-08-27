@@ -222,3 +222,47 @@ NOT from the CSV (CSVs only carry region codes).
 - All instances are billed by the hour and torn down automatically. If you see
   leftover `netlat-*` VMs, delete them via the API or the dashboard won't be the
   only thing draining the account.
+
+---
+
+## 7. Linode (second cloud provider)
+
+The dashboard renders multiple providers side by side. Each provider's mesh is
+measured within its own cloud only — no cross-provider links exist — and every
+location belongs to exactly one provider.
+
+Pipeline:
+
+```
+linode-skill/linode_mesh_results.csv   raw all-pairs ping/jitter CSV
+        |  scripts/build_linode_data.py
+        v
+data/linode_locations_measured.json    latency + jitter + loss matrices
+data/linode_regions.json               (v3 mesh measures packet loss)
+        |  scripts/build_data_js.py (inlines all four JSON files)
+        v
+data/data.js   D.measured/D.regions (Vultr) + D.linodeMeasured/D.linodeRegions
+        |
+        v
+js/normalize.js  -> one normalized matrix per provider
+js/app.js        -> provider toggles, arcs, centrality, thresholds
+```
+
+- Region slugs follow Linode's API, but two are counterintuitive: **ap-south is
+  Singapore** and **ap-southeast is Sydney**. The authoritative city mapping is
+  the creation log of the mesh run (`linode-skill/mesh_test_v2.log`); the
+  build script encodes it.
+- Packet loss comes from `mesh_test_v3.py` (100 probes @ 0.1s per pair, loss =
+  missing/duplicate-collapsed icmp_seq replies — the same methodology as
+  `netlat.sh`). The legacy v2 CSV has no loss column; the build script omits
+  the loss section for it, and the frontend treats that as no-data.
+- `linode_regions.json` bakes small coordinate offsets into cities shared with
+  Vultr (three regions sit on Tokyo, for example) so map markers never stack.
+  The offsets are display-only.
+- Toggling a provider in the header gates its whole
+  mesh everywhere: map, pair matrix, box chart, scatter chart, sources panel.
+  A provider switched on selects all of its locations; switched off removes
+  them from the selection. The scale and threshold caps rescale to whatever
+  providers remain active.
+- Regenerate everything after new data:
+  `python3 scripts/build_linode_data.py && python3 scripts/build_data_js.py && npm run build`

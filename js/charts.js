@@ -4,8 +4,17 @@
 
   function nameOf(state, code) { return state.byCode.get(code).name; }
 
+  // values resolve through the source's own provider mesh (see app.js):
+  // pairs that don't exist — cross-provider or a metric the provider never
+  // measured — come back NaN
   function valueAt(state, src, dst, metric) {
-    return state.data.matrices[metric || state.metric].values[state.idx.get(src)][state.idx.get(dst)];
+    return VML.util.valueAt(state, src, dst, metric);
+  }
+
+  function visibleOrder(state) { return VML.util.visibleOrder(state); }
+
+  function fmtNum(v) {
+    return (v == null || isNaN(v)) ? '—' : String(v);
   }
 
   function inRange(state, v) {
@@ -156,7 +165,7 @@
   }
 
   function maxNameLen(state) {
-    return state.data.matrices[state.metric].order.reduce(function (mx, code) {
+    return visibleOrder(state).reduce(function (mx, code) {
       return Math.max(mx, nameOf(state, code).length);
     }, 0);
   }
@@ -222,7 +231,7 @@
 
   function renderHeatmap() {
     var state = VML.state;
-    var order = state.data.matrices[state.metric].order;
+    var order = visibleOrder(state);
     var srcRows = state.destMode === 'checked'
       ? order.filter(function (c) { return state.sources.has(c); })
       : order;
@@ -397,6 +406,9 @@
         var src = this.parentNode.__data__;
         var cls = 'cell';
         if (src === d) cls += ' diag';
+        // pairs that don't exist (other provider's mesh or unmeasured
+        // metric) are entirely absent rather than grayed-out
+        if (src !== d && !VML.util.hasValue(state, src, d)) cls += ' none';
         if (!state.sources.has(src)) cls += ' off';
         if (src !== d && !inRange(state, valueAt(state, src, d))) cls += ' cut';
         return cls;
@@ -430,12 +442,12 @@
   }
 
   function heatTip(state, src, dst) {
-    var lat = state.data.matrices.latency.values[state.idx.get(src)][state.idx.get(dst)];
-    var jit = state.data.matrices.jitter.values[state.idx.get(src)][state.idx.get(dst)];
-    var loss = state.data.matrices.loss.values[state.idx.get(src)][state.idx.get(dst)];
+    var lat = valueAt(state, src, dst, 'latency');
+    var jit = valueAt(state, src, dst, 'jitter');
+    var loss = valueAt(state, src, dst, 'loss');
     return tipNode([
       [seg(nameOf(state, src) + ' → ' + nameOf(state, dst), true), seg(' (' + src + ' → ' + dst + ')')],
-      [seg('latency '), seg(lat, true), seg(' ms · jitter '), seg(jit, true), seg(' ms · loss '), seg(loss, true), seg(' %')],
+      [seg('latency '), seg(fmtNum(lat), true), seg(' ms · jitter '), seg(fmtNum(jit), true), seg(' ms · loss '), seg(fmtNum(loss), true), seg(' %')],
       [seg('click to toggle source', false, true)]
     ]);
   }
@@ -446,7 +458,7 @@
       var dec = VML.config.metrics[state.metric].decimals;
       return dec === 0 ? v.toFixed(0) : v.toFixed(dec);
     };
-    var lines = state.data.matrices[state.metric].order
+    var lines = visibleOrder(state)
       .filter(function (s) {
         return state.sources.has(s) && s !== d.dst && inRange(state, valueAt(state, s, d.dst));
       })
@@ -468,7 +480,7 @@
   function geoRankMap(state) {
     var configConts = VML.config.continents;
     var extras = [];
-    state.data.matrices.latency.order.forEach(function (code) {
+    visibleOrder(state).forEach(function (code) {
       var cont = state.byCode.get(code).continent || 'Unknown';
       if (configConts.indexOf(cont) === -1 && extras.indexOf(cont) === -1) extras.push(cont);
     });
@@ -534,12 +546,17 @@
 
   function renderBoxes() {
     var state = VML.state;
-    var order = state.data.matrices[state.metric].order;
+    var order = visibleOrder(state);
     var srcs = order.filter(function (c) { return state.sources.has(c); });
     var dsts = order.filter(function (c) { return VML.util.destSet(state).has(c); });
     var items = [];
     dsts.forEach(function (dst) {
-      var vs = srcs.filter(function (s) { return s !== dst; })
+      // a destination's distribution aggregates only sources from the SAME
+      // provider's mesh — cross-provider links are never measured
+      var prov = state.byCode.get(dst).provider;
+      var vs = srcs.filter(function (s) {
+        return s !== dst && state.byCode.get(s).provider === prov;
+      })
         .map(function (s) { return valueAt(state, s, dst); })
         .filter(function (v) { return inRange(state, v); });
       var stats = boxStats(vs);
@@ -575,7 +592,7 @@
     var maxPx = maxNameLen(state) * 5.5;
     // measure the widest rendered location label (see init's boxLabelProbe)
     var maxLabel = 0;
-    state.data.matrices[state.metric].order.forEach(function (code) {
+    visibleOrder(state).forEach(function (code) {
       boxLabelProbe.text(nameOf(state, code));
       var b = boxLabelProbe.node().getBBox();
       if (b.width > maxLabel) maxLabel = b.width;
@@ -827,7 +844,15 @@
   }
 
   function metricColorScale(state, metric) {
-    var values = state.data.matrices[metric].values.flat().filter(function (v) { return v > 0; });
+    var values = [];
+    VML.util.activeProviderIds(state).forEach(function (pid) {
+      var m = state.data.providers[pid].matrices[metric];
+      if (!m) return; // provider never measured this metric
+      m.values.forEach(function (row) {
+        row.forEach(function (v) { if (v > 0) values.push(v); });
+      });
+    });
+    if (!values.length) values = [1];
     var max = d3.quantile(values, VML.config.defaults.thresholdFactor) || d3.max(values) || 1;
     return d3.scaleSequential(d3.interpolateRgbBasis(VML.config.schemeRdYlGn.slice().reverse())).domain([0, max]);
   }
@@ -933,8 +958,8 @@
     var loss = valueAt(state, d.src, d.dst, 'loss');
     return tipNode([
       [seg(nameOf(state, d.src) + ' → ' + nameOf(state, d.dst), true), seg(' (' + d.src + ' → ' + d.dst + ')')],
-      [seg(xMetric + ' '), seg(valueAt(state, d.src, d.dst, xMetric), true), seg(' · ' + yMetric + ' '), seg(valueAt(state, d.src, d.dst, yMetric), true)],
-      [seg('latency '), seg(lat, true), seg(' ms · jitter '), seg(jit, true), seg(' ms · loss '), seg(loss, true), seg(' %')],
+      [seg(xMetric + ' '), seg(fmtNum(valueAt(state, d.src, d.dst, xMetric)), true), seg(' · ' + yMetric + ' '), seg(fmtNum(valueAt(state, d.src, d.dst, yMetric)), true)],
+      [seg('latency '), seg(fmtNum(lat), true), seg(' ms · jitter '), seg(fmtNum(jit), true), seg(' ms · loss '), seg(fmtNum(loss), true), seg(' %')],
       [seg('latency = round-trip time · jitter = variation in latency · loss = % packets lost', false, true)],
       [seg('click to toggle source', false, true)]
     ]);

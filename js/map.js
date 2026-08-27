@@ -112,11 +112,24 @@
   }
 
   function valueOf(d) {
-    var state = m.state;
-    return state.data.matrices[state.metric].values[state.idx.get(d.src)][state.idx.get(d.dst)];
+    return VML.util.valueAt(m.state, d.src, d.dst);
   }
 
   function nameOf(code) { return m.state.byCode.get(code).name; }
+
+  // provider colors ring each marker so mixed clouds stay identifiable
+  function providerOf(code) { return m.state.byCode.get(code).provider; }
+  function providerColor(code) {
+    var pid = providerOf(code);
+    var p = m.state.providers.find(function (x) { return x.id === pid; });
+    return p ? p.color : '#f8fafc';
+  }
+
+  // tooltips must survive metrics a provider never measured (Linode has no
+  // loss): missing numbers print as an em dash instead of NaN
+  function fmtVal(v) {
+    return (v == null || isNaN(v)) ? '—' : String(v);
+  }
 
   // Tooltip content is built as DOM nodes (never innerHTML) so values are
   // rendered as styled <b>/<i> elements — the tooltip sets textContent for
@@ -175,13 +188,19 @@
 
   function arcTip(d) {
     var state = m.state;
-    var lat = state.data.matrices.latency.values[state.idx.get(d.src)][state.idx.get(d.dst)];
-    var jit = state.data.matrices.jitter.values[state.idx.get(d.src)][state.idx.get(d.dst)];
-    var loss = state.data.matrices.loss.values[state.idx.get(d.src)][state.idx.get(d.dst)];
+    var lat = VML.util.valueAt(state, d.src, d.dst, 'latency');
+    var jit = VML.util.valueAt(state, d.src, d.dst, 'jitter');
+    var loss = VML.util.valueAt(state, d.src, d.dst, 'loss');
     return tipNode([
       [seg(nameOf(d.src) + ' → ' + nameOf(d.dst), true), seg(' (' + d.src + ' → ' + d.dst + ')')],
-      [seg('latency '), seg(lat, true), seg(' ms · jitter '), seg(jit, true), seg(' ms · loss '), seg(loss, true), seg(' %')]
+      [seg(latencyLabelPrefix(d), false), seg('latency '), seg(fmtVal(lat), true), seg(' ms · jitter '), seg(fmtVal(jit), true), seg(' ms · loss '), seg(fmtVal(loss), true), seg(' %')]
     ]);
+  }
+
+  // measured links only ever exist inside one provider's mesh
+  function latencyLabelPrefix(d) {
+    var p = m.state.providers.find(function (x) { return x.id === providerOf(d.src); });
+    return p ? p.label + ' · ' : '';
   }
 
   function markerRadius(meanLat, extent) {
@@ -191,7 +210,9 @@
 
   function drawMarkers() {
     var state = m.state;
-    var visible = state.regions;
+    var visible = state.regions.filter(function (d) {
+      return state.providerOn[d.provider];
+    });
     var sel = m.markerG.selectAll('circle.region').data(visible, function (d) { return d.code; });
     sel.join('circle')
       .attr('class', function (d) {
@@ -199,6 +220,7 @@
       })
       .attr('r', function (d) { return markerRadius(state.centrality[d.code], state.centralityExtent); })
       .attr('fill', function (d) { return state.continentColors[d.continent]; })
+      .attr('stroke', function (d) { return providerColor(d.code); })
       .on('click', function (e, d) {
         toggleSource(d.code, !state.sources.has(d.code));
       })
@@ -210,7 +232,7 @@
       .on('mousemove', function (e) { moveTip(e); })
       .on('mouseleave', function () { state.pair = null; emitPair(); hideTip(); });
 
-    var checked = state.data.matrices.latency.order.filter(function (c) {
+    var checked = VML.util.visibleOrder(state).filter(function (c) {
       return state.sources.has(c);
     });
     var labelData = state.sources.size <= 8 ? checked : [];
@@ -237,16 +259,18 @@
 
   function markerTip(d) {
     var state = m.state;
+    // the marker's own provider mesh: avg latency to its sibling regions
+    var ord = state.data.providers[d.provider].order;
     var out = [];
-    state.regions.forEach(function (o) {
+    ord.forEach(function (o) {
       if (o.code === d.code) return;
-      var v = state.data.matrices.latency.values[state.idx.get(d.code)][state.idx.get(o.code)];
-      out.push(v);
+      var v = VML.util.valueAt(state, d.code, o.code, 'latency');
+      if (!isNaN(v)) out.push(v);
     });
     var avg = out.reduce(function (a, b) { return a + b; }, 0) / out.length;
     return tipNode([
       [seg(d.name, true), seg(' (' + d.code + ')')],
-      [seg(d.country + ' · ' + d.continent)],
+      [seg(latencyLabelPrefix({ src: d.code }) + d.country + ' · ' + d.continent)],
       [seg('avg latency to ' + out.length + ' regions: '), seg(avg.toFixed(0), true), seg(' ms')]
     ]);
   }
@@ -273,7 +297,7 @@
   }
 
   function fitTransform() {
-    var codes = m.state.data.matrices.latency.order.filter(function (c) { return m.state.sources.has(c); });
+    var codes = VML.util.visibleOrder(m.state).filter(function (c) { return m.state.sources.has(c); });
     return fitTransformFor(codes);
   }
 
@@ -328,7 +352,7 @@
   m.fitToContinent = function (continent) {
     if (!m.state || !m.svg) return;
     var codes = m.state.regions
-      .filter(function (r) { return r.continent === continent; })
+      .filter(function (r) { return r.continent === continent && m.state.providerOn[r.provider]; })
       .map(function (r) { return r.code; });
     if (!codes.length) return;
     var fit = fitTransformFor(codes);

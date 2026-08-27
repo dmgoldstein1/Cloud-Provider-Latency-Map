@@ -1,0 +1,266 @@
+{
+  "source": "GeoNames (public domain); cities taken from the region list of the mesh run log; coordinates offset where several providers share one city point",
+  "regions": [
+    {
+      "code": "ap-northeast",
+      "name": "Tokyo 2",
+      "country": "Japan",
+      "country_code": "JP",
+      "lat": 35.6762,
+      "lon": 139.5103,
+      "continent": "Asia"
+    },
+    {
+      "code": "ap-south",
+      "name": "Singapore 3",
+      "country": "Singapore",
+      "country_code": "SG",
+      "lat": 1.3521,
+      "lon": 103.6798,
+      "continent": "Asia"
+    },
+    {
+      "code": "ap-southeast",
+      "name": "Sydney",
+      "country": "Australia",
+      "country_code": "AU",
+      "lat": -33.8688,
+      "lon": 151.2093,
+      "continent": "Oceania"
+    },
+    {
+      "code": "ap-west",
+      "name": "Mumbai 2",
+      "country": "India",
+      "country_code": "IN",
+      "lat": 19.076,
+      "lon": 72.7077,
+      "continent": "Asia"
+    },
+    {
+      "code": "br-gru",
+      "name": "S\u00e3o Paulo 2",
+      "country": "Brazil",
+      "country_code": "BR",
+      "lat": -23.5505,
+      "lon": -46.7733,
+      "continent": "South America"
+    },
+    {
+      "code": "ca-central",
+      "name": "Toronto 2",
+      "country": "Canada",
+      "country_code": "CA",
+      "lat": 43.6532,
+      "lon": -79.2432,
+      "continent": "North America"
+    },
+    {
+      "code": "de-fra-2",
+      "name": "Frankfurt 2",
+      "country": "Germany",
+      "country_code": "DE",
+      "lat": 50.1109,
+      "lon": 8.8621,
+      "continent": "Europe"
+    },
+    {
+      "code": "eu-central",
+      "name": "Frankfurt",
+      "country": "Germany",
+      "country_code": "DE",
+      "lat": 50.1109,
+      "lon": 8.5021,
+      "continent": "Europe"
+    },
+    {
+      "code": "fr-par-2",
+      "name": "Paris 2",
+      "country": "France",
+      "country_code": "FR",
+      "lat": 48.8566,
+      "lon": 2.6322,
+      "continent": "Europe"
+    },
+    {
+      "code": "gb-lon",
+      "name": "London 2",
+      "country": "United Kingdom",
+      "country_code": "GB",
+      "lat": 51.5074,
+      "lon": 0.1322,
+      "continent": "Europe"
+    },
+    {
+      "code": "id-cgk",
+      "name": "Jakarta",
+      "country": "Indonesia",
+      "country_code": "ID",
+      "lat": -6.2088,
+      "lon": 106.8456,
+      "continent": "Asia"
+    },
+    {
+      "code": "in-bom-2",
+      "name": "Mumbai 3",
+      "country": "India",
+      "country_code": "IN",
+      "lat": 19.076,
+      "lon": 73.0477,
+      "continent": "Asia"
+    },
+    {
+      "code": "in-maa",
+      "name": "Chennai",
+      "country": "India",
+      "country_code": "IN",
+      "lat": 13.0827,
+      "lon": 80.2707,
+      "continent": "Asia"
+    },
+    {
+      "code": "it-mil",
+      "name": "Milan 2",
+      "country": "Italy",
+      "country_code": "IT",
+      "lat": 45.4642,
+      "lon": 9.55,
+      "continent": "Europe"
+    },
+    {
+      "code": "jp-osa",
+      "name": "Osaka",
+      "country": "Japan",
+      "country_code": "JP",
+      "lat": 34.6937,
+      "lon": 135.5023,
+      "continent": "Asia"
+    },
+    {
+      "code": "jp-tyo-3",
+      "name": "Tokyo 3",
+      "country": "Japan",
+      "country_code": "JP",
+      "lat": 35.6762,
+      "lon": 139.7903,
+      "continent": "Asia"
+    },
+    {
+      "code": "nl-ams",
+      "name": "Amsterdam 2",
+      "country": "Netherlands",
+      "country_code": "NL",
+      "lat": 52.3676,
+      "lon": 5.1841,
+      "continent": "Europe"
+    },
+    {
+      "code": "se-sto",
+      "name": "Stockholm",
+      "country": "Sweden",
+      "country_code": "SE",
+      "lat": 59.3293,
+      "lon": 18.0686,
+      "continent": "Europe"
+    },
+    {
+      "code": "sg-sin-2",
+      "name": "Singapore 2",
+      "country": "Singapore",
+      "country_code": "SG",
+      "lat": 1.3521,
+      "lon": 103.9598,
+      "continent": "Asia"
+    },
+    {
+      "code": "us-central",
+      "name": "Dallas 2",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 32.7767,
+      "lon": -96.607,
+      "continent": "North America"
+    },
+    {
+      "code": "us-east",
+      "name": "Newark 2",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 40.7357,
+      "lon": -74.0224,
+      "continent": "North America"
+    },
+    {
+      "code": "us-iad",
+      "name": "Washington DC",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 38.9072,
+      "lon": -77.1869,
+      "continent": "North America"
+    },
+    {
+      "code": "us-iad-2",
+      "name": "Washington DC 2",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 38.9072,
+      "lon": -76.8869,
+      "continent": "North America"
+    },
+    {
+      "code": "us-lax",
+      "name": "Los Angeles 2",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 34.0522,
+      "lon": -118.0937,
+      "continent": "North America"
+    },
+    {
+      "code": "us-mia",
+      "name": "Miami 2",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 25.7617,
+      "lon": -80.0418,
+      "continent": "North America"
+    },
+    {
+      "code": "us-ord",
+      "name": "Chicago 2",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 41.8781,
+      "lon": -87.4498,
+      "continent": "North America"
+    },
+    {
+      "code": "us-sea",
+      "name": "Seattle 2",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 47.6062,
+      "lon": -122.1821,
+      "continent": "North America"
+    },
+    {
+      "code": "us-southeast",
+      "name": "Atlanta 2",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 33.749,
+      "lon": -84.218,
+      "continent": "North America"
+    },
+    {
+      "code": "us-west",
+      "name": "Fremont",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 37.5485,
+      "lon": -121.9886,
+      "continent": "North America"
+    }
+  ]
+}

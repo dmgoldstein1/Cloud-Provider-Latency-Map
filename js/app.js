@@ -39,6 +39,11 @@
 
   function unit() { return VML.config.metrics[state.metric].unit; }
   function decimals() { return VML.config.metrics[state.metric].decimals; }
+  // lower threshold knob's default for a metric with no saved threshold
+  function defaultMin(metric) {
+    var m = VML.config.metrics[metric || state.metric];
+    return m && m.defaultMin != null ? m.defaultMin : 0;
+  }
   function fmt(v) {
     if (v == null || isNaN(v)) return '—';
     var d = decimals();
@@ -46,15 +51,31 @@
   }
   function nameOf(code) { return state.byCode.get(code).name; }
 
+  // Every measured link lives inside exactly one provider's mesh — no
+  // cross-provider links are ever measured — so values resolve through the
+  // SOURCE's provider. Pairs that don't exist (either provider toggled off or
+  // dst outside src's own mesh) resolve to NaN, which every chart treats as
+  // "no data".
+  function valueAt(state, src, dst, metric) {
+    var idxMap = state.indexes.get(src);
+    if (!idxMap) return NaN;
+    var m = state.data.providers[idxMap.pid].matrices[metric || state.metric];
+    if (!m) return NaN;
+    var i = idxMap.i;
+    var j = idxMap.map.get(dst);
+    return j == null ? NaN : m.values[i][j];
+  }
+
   function destSet(state) {
+    var s = new Set();
     if (state.destMode === 'checked') {
-      var s = new Set();
-      state.data.matrices.latency.order.forEach(function (c) {
+      VML.util.visibleOrder(state).forEach(function (c) {
         if (state.sources.has(c)) s.add(c);
       });
       return s;
     }
-    return new Set(state.data.matrices.latency.order);
+    VML.util.visibleOrder(state).forEach(function (c) { s.add(c); });
+    return s;
   }
 
   function activeArcs(state) {
@@ -64,7 +85,28 @@
     });
   }
 
-  VML.util = { destSet: destSet, activeArcs: activeArcs };
+  VML.util = {
+    destSet: destSet,
+    activeArcs: activeArcs,
+    valueAt: valueAt,
+    activeProviderIds: function (state) {
+      return VML.config.providers
+        .map(function (p) { return p.id; })
+        .filter(function (id) { return state.providerOn[id] && state.data.providers[id]; });
+    },
+    // union ordering of every ACTIVE provider's regions (config order first)
+    visibleOrder: function (state) {
+      var out = [];
+      VML.util.activeProviderIds(state).forEach(function (pid) {
+        out = out.concat(state.data.providers[pid].order);
+      });
+      return out;
+    },
+    hasValue: function (state, src, dst, metric) {
+      var v = valueAt(state, src, dst, metric);
+      return v != null && !isNaN(v);
+    }
+  };
 
   var STORE_KEY = 'vml_state';
 
@@ -92,6 +134,7 @@
   function persist() {
     writeStore({
       sources: Array.from(state.sources),
+      providers: Object.assign({}, state.providerOn),
       metric: state.metric,
       graphX: state.graphX,
       graphY: state.graphY,
@@ -114,14 +157,44 @@
 
   function restoreState(saved) {
     if (!saved) return;
-    var order = state.data.matrices.latency.order;
+    var order = VML.util.visibleOrder(state);
     if (saved.destMode === 'all' || saved.destMode === 'checked') state.destMode = saved.destMode;
     if (saved.boxSort && ['min', 'q1', 'med', 'mean', 'q3', 'max', 'range', 'geo', 'alpha'].indexOf(saved.boxSort) !== -1) state.boxSort = saved.boxSort;
     if (saved.boxSortDir === 'asc' || saved.boxSortDir === 'desc') state.boxSortDir = saved.boxSortDir;
     if (saved.heatSort && ['min', 'q1', 'med', 'mean', 'q3', 'max', 'range', 'geo', 'alpha'].indexOf(saved.heatSort) !== -1) state.heatSort = saved.heatSort;
     if (saved.heatSortDir === 'asc' || saved.heatSortDir === 'desc') state.heatSortDir = saved.heatSortDir;
+    if (saved.providers && typeof saved.providers === 'object') {
+      Object.keys(state.providerOn).forEach(function (pid) {
+        if (typeof saved.providers[pid] === 'boolean') {
+          state.providerOn[pid] = saved.providers[pid] && !!state.data.providers[pid];
+        }
+      });
+      // a provider toggled off keeps its locations out of the selection
+      VML.config.providers.forEach(function (p) {
+        if (!state.providerOn[p.id]) {
+          (state.data.providers[p.id] ? state.data.providers[p.id].order : [])
+            .forEach(function (c) { state.sources.delete(c); });
+        }
+      });
+    }
     if (Array.isArray(saved.sources)) {
-      state.sources = new Set(saved.sources.filter(function (c) { return order.indexOf(c) !== -1; }));
+      var off = new Set(
+        VML.config.providers
+          .map(function (p) { return p.id; })
+          .filter(function (pid) { return !state.providerOn[pid]; })
+          .reduce(function (acc, pid) { return acc.concat(state.data.providers[pid].order); }, [])
+      );
+      state.sources = new Set(saved.sources.filter(function (c) {
+        return order.indexOf(c) !== -1 && !off.has(c);
+      }));
+      // upgrade path: a saved selection from before this provider existed
+      // carries no clue about it, so treat the mesh like the fresh default —
+      // every location checked
+      VML.util.activeProviderIds(state).forEach(function (pid) {
+        var ord = state.data.providers[pid].order;
+        var any = ord.some(function (c) { return state.sources.has(c); });
+        if (!any) ord.forEach(function (c) { state.sources.add(c); });
+      });
     }
     if (saved.metric && VML.config.metrics[saved.metric]) state.metric = saved.metric;
     if (saved.graphX && VML.config.metrics[saved.graphX]) state.graphX = saved.graphX;
@@ -196,13 +269,31 @@
     }
   }
 
-  function buildState(regionsRaw, dataset) {
-    var order = dataset.matrices.latency.order;
+  function buildState(dataset) {
+    var providers = dataset.providers;
+    var providerOn = {};
+    VML.config.providers.forEach(function (p) {
+      if (providers[p.id]) providerOn[p.id] = true;
+    });
+
+    // flatten region metadata across providers; each entry remembers which
+    // cloud it belongs to
+    var regionsAll = [];
+    VML.config.providers.forEach(function (p) {
+      var norm = providers[p.id];
+      if (!norm) return;
+      norm.regions.forEach(function (r) {
+        regionsAll.push(Object.assign({}, r, { provider: p.id }));
+      });
+    });
+
     state = {
       data: dataset,
-      regions: regionsRaw.regions,
-      byCode: new Map(regionsRaw.regions.map(function (r) { return [r.code, r]; })),
-      idx: new Map(order.map(function (c, i) { return [c, i]; })),
+      providers: VML.config.providers.filter(function (p) { return providers[p.id]; }),
+      regions: regionsAll,
+      byCode: new Map(regionsAll.map(function (r) { return [r.code, r]; })),
+      providerOn: providerOn,
+      indexes: new Map(),
       metric: VML.config.defaults.metric,
       graphX: 'latency',
       graphY: 'jitter',
@@ -212,9 +303,9 @@
       heatSort: 'med',
       heatSortDir: 'asc',
       expanded: null,
-      sources: new Set(order),
+      sources: new Set(),
       threshold: null,
-      thresholdMin: 1,
+      thresholdMin: defaultMin(VML.config.defaults.metric),
       thresholds: { latency: null, jitter: null, loss: null },
       pair: null,
       world: state && state.world ? state.world : null,
@@ -228,38 +319,71 @@
       continentColors: VML.config.continentColors
     };
 
-    order.forEach(function (src) {
-      var avg = 0, cnt = 0;
-      order.forEach(function (dst) {
-        if (src === dst) return;
-        avg += dataset.matrices.latency.values[state.idx.get(src)][state.idx.get(dst)];
-        cnt++;
-        var a = state.byCode.get(src), b = state.byCode.get(dst);
-        state.arcs.push({
-          src: src, dst: dst,
-          distance: d3.geoDistance([a.lon, a.lat], [b.lon, b.lat]) * 6371
-        });
+    // selection starts at "everything measured"; visibleOrder needs
+    // state.providerOn to exist first, so fill it now
+    state.sources = new Set((function () {
+      var all = [];
+      VML.util.activeProviderIds(state).forEach(function (pid) {
+        all = all.concat(providers[pid].order);
       });
-      state.centrality[src] = avg / cnt;
-    });
-    state.centralityExtent = d3.extent(order, function (c) { return state.centrality[c]; });
-    state.distanceMax = d3.max(state.arcs, function (d) { return d.distance; });
+      return all;
+    })());
 
-    state.metricTrueMaxes = {};
-    Object.keys(dataset.matrices).forEach(function (metric) {
-      var vals = dataset.matrices[metric].values.flat().filter(function (v) { return v > 0; });
-      state.metricTrueMaxes[metric] = Math.ceil(d3.max(vals) || 1);
+    // per-provider code → row index (+ shared pid), the single source of truth
+    // valueAt resolves pairs through
+    Object.keys(providers).forEach(function (pid) {
+      providers[pid].order.forEach(function (code, i) {
+        state.indexes.set(code, { pid: pid, i: i, map: new Map(
+          providers[pid].order.map(function (c2, j2) { return [c2, j2]; })
+        ) });
+      });
     });
+
+    // one arc per measured pair; centrality is each region's mean latency to
+    // the REST OF ITS OWN PROVIDER'S mesh
+    VML.util.activeProviderIds(state).forEach(function (pid) {
+      var ord = providers[pid].matrices.latency.order;
+      ord.forEach(function (src) {
+        var avg = 0, cnt = 0;
+        ord.forEach(function (dst) {
+          if (src === dst) return;
+          avg += valueAt(state, src, dst, 'latency');
+          cnt++;
+          var a = state.byCode.get(src), b = state.byCode.get(dst);
+          state.arcs.push({
+            src: src, dst: dst, p: pid,
+            distance: d3.geoDistance([a.lon, a.lat], [b.lon, b.lat]) * 6371
+          });
+        });
+        state.centrality[src] = avg / cnt;
+      });
+    });
+    var centralCodes = Object.keys(state.centrality);
+    state.centralityExtent = d3.extent(centralCodes, function (c) { return state.centrality[c]; });
+    state.distanceMax = d3.max(state.arcs, function (d) { return d.distance; });
 
     VML.state = state;
   }
 
   function computeScale() {
-    var values = state.data.matrices[state.metric].values.flat().filter(function (v) { return v > 0; });
-    var q = d3.quantile(values, VML.config.defaults.thresholdFactor);
-    var raw = q || d3.max(values) || 1;
+    // the scale (and threshold caps) follow whatever providers are currently
+    // switched on — toggling one rescales colors to the remaining meshes
+    var vals = [];
+    var trueMax = 1;
+    VML.util.activeProviderIds(state).forEach(function (pid) {
+      var m = state.data.providers[pid].matrices[state.metric];
+      if (!m) return; // e.g. Linode measures no loss
+      m.values.forEach(function (row) {
+        row.forEach(function (v) { if (v > 0) vals.push(v); });
+      });
+    });
+    if (!vals.length) vals = [1];
+    trueMax = Math.ceil(d3.max(vals) || 1);
+    state.metricTrueMax = trueMax;
+
+    var q = d3.quantile(vals, VML.config.defaults.thresholdFactor);
+    var raw = q || d3.max(vals) || 1;
     state.metricMax = Math.round(raw * 10) / 10;
-    state.metricTrueMax = state.metricTrueMaxes[state.metric];
     state.colorScale.domain([0, state.metricMax]);
 
     var step = state.metric === 'latency' ? 1 : 0.1;
@@ -268,7 +392,7 @@
       state.threshold = state.metricTrueMax;
     }
     if (state.thresholdMin == null || state.thresholdMin > state.metricTrueMax) {
-      state.thresholdMin = Math.min(1, state.metricTrueMax);
+      state.thresholdMin = Math.min(defaultMin(state.metric), state.metricTrueMax);
     }
     if (state.threshold < state.thresholdMin) {
       state.threshold = state.thresholdMin;
@@ -340,13 +464,43 @@
     emitRender();
   }
 
+  // Switching a cloud on/off gates its whole mesh everywhere: the map, the
+  // pair matrix, both graphs, and the sources panel. Turning one on selects
+  // all of its locations (the default for a fresh mesh); turning one off
+  // removes them from the selection.
+  function toggleProvider(pid, on) {
+    if (!state.data.providers[pid] || state.providerOn[pid] === !!on) return;
+    state.providerOn[pid] = !!on;
+    var ord = state.data.providers[pid].order;
+    if (on) ord.forEach(function (c) { state.sources.add(c); });
+    else ord.forEach(function (c) { state.sources.delete(c); });
+    syncProviderButtons();
+    buildSourceList();
+    persist();
+    emitRender();
+  }
+
+  function syncProviderButtons() {
+    var group = document.getElementById('provider-btns');
+    if (!group) return;
+    group.querySelectorAll('.provider-btn').forEach(function (b) {
+      b.classList.toggle('active', !!state.providerOn[b.dataset.provider]);
+      b.setAttribute('aria-pressed', state.providerOn[b.dataset.provider] ? 'true' : 'false');
+    });
+  }
+
   function buildSourceList() {
     sourceListEl.innerHTML = '';
     sourceCheckboxes = {};
     continentCodes = {};
 
-    var order = state.data.matrices.latency.order;
-    order.forEach(function (code) {
+    var visible = VML.util.visibleOrder(state);
+    var providerColor = {};
+    state.providers.forEach(function (p) {
+      providerColor[p.id] = p.color;
+      providerColor[p.id + 'Label'] = p.label;
+    });
+    visible.forEach(function (code) {
       var cont = state.byCode.get(code).continent || 'Unknown';
       (continentCodes[cont] = continentCodes[cont] || []).push(code);
     });
@@ -357,7 +511,7 @@
 
     contOrder.forEach(function (cont) {
       var codes = continentCodes[cont];
-      if (!codes) return;
+      if (!codes || !codes.length) return;
       codes.sort(function (a, b) { return nameOf(a).localeCompare(nameOf(b)); });
 
       var group = document.createElement('div');
@@ -398,6 +552,7 @@
       group.appendChild(head);
 
       codes.forEach(function (code) {
+        var meta = state.byCode.get(code);
         var label = document.createElement('label');
         label.className = 'src';
         var input = document.createElement('input');
@@ -408,6 +563,12 @@
         });
         label.appendChild(input);
         label.appendChild(document.createTextNode(nameOf(code)));
+        // tiny provider ring so mixed clouds stay identifiable in the list
+        var chip = document.createElement('span');
+        chip.className = 'src-prov';
+        chip.style.borderColor = providerColor[meta.provider] || '#94a3b8';
+        chip.title = (providerColor[meta.provider + 'Label'] || 'Cloud') + ' region';
+        label.appendChild(chip);
         group.appendChild(label);
         sourceCheckboxes[code] = input;
       });
@@ -417,12 +578,40 @@
   }
 
   function syncSourceList() {
-    state.data.matrices.latency.order.forEach(function (code) {
+    VML.util.visibleOrder(state).forEach(function (code) {
       var cb = sourceCheckboxes[code];
       if (cb) cb.checked = state.sources.has(code);
     });
     var label = document.getElementById('sources-label');
     if (label) label.textContent = 'Sources (' + state.sources.size + ' checked)';
+  }
+
+  function buildProviderButtons() {
+    var group = document.getElementById('provider-btns');
+    if (!group) return;
+    group.innerHTML = '';
+    state.providers.forEach(function (p) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'provider-btn';
+      btn.dataset.provider = p.id;
+      btn.title = 'Show or hide all ' + p.label + ' data';
+      btn.setAttribute('aria-pressed', 'true');
+      var sw = document.createElement('span');
+      sw.className = 'sw provider-swatch';
+      sw.style.borderColor = p.color;
+      var mark = document.createElement('span');
+      mark.className = 'provider-mark';
+      mark.style.background = p.color;
+      sw.appendChild(mark);
+      btn.appendChild(sw);
+      btn.appendChild(document.createTextNode(p.label));
+      btn.addEventListener('click', function () {
+        toggleProvider(p.id, !state.providerOn[p.id]);
+      });
+      group.appendChild(btn);
+    });
+    syncProviderButtons();
   }
 
   function buildControls() {
@@ -435,6 +624,7 @@
     knobLabelMax = document.getElementById('knob-label-max');
     statsEl = document.getElementById('stats');
 
+    buildProviderButtons();
     buildSourceList();
     watchDestButtons();
 
@@ -466,7 +656,7 @@
         state.metric = b.dataset.metric;
         var t = state.thresholds[state.metric];
         state.threshold = t ? t.max : null;
-        state.thresholdMin = t ? t.min : 1;
+        state.thresholdMin = t ? t.min : defaultMin(state.metric);
         metricButtons.forEach(function (x) { x.classList.toggle('active', x === b); });
         emitRender();
       });
@@ -485,7 +675,7 @@
     var selectAll = document.getElementById('src-select-all');
     if (selectAll) {
       selectAll.addEventListener('click', function () {
-        state.data.matrices.latency.order.forEach(function (c) { state.sources.add(c); });
+        VML.util.visibleOrder(state).forEach(function (c) { state.sources.add(c); });
         emitRender();
       });
     }
@@ -1078,11 +1268,11 @@
   function renderStats() {
     var metric = state.metric;
     var vals = activeArcs(state)
-      .map(function (d) { return state.data.matrices[metric].values[state.idx.get(d.src)][state.idx.get(d.dst)]; });
-    var shown = vals.filter(function (v) { return v >= state.thresholdMin && state.threshold >= v; }).length;
-    var avg = d3.mean(vals);
+      .map(function (d) { return VML.util.valueAt(state, d.src, d.dst, metric); });
+    var shown = vals.filter(function (v) { return !isNaN(v) && v >= state.thresholdMin && state.threshold >= v; }).length;
+    var avg = d3.mean(vals.filter(function (v) { return !isNaN(v); }));
     var nSrc = state.sources.size;
-    var first = state.data.matrices.latency.order.find(function (c) { return state.sources.has(c); });
+    var first = VML.util.visibleOrder(state).find(function (c) { return state.sources.has(c); });
     statsEl.textContent = '';
     function text(s) { statsEl.appendChild(document.createTextNode(s)); }
     function bold(s) {
@@ -1097,7 +1287,7 @@
     } else {
       text('no sources checked');
     }
-    text(' · avg ' + metric + ' across ' + (nSrc ? vals.length / nSrc : 0) + ' targets: ');
+    text(' · avg ' + metric + ' across ' + (nSrc ? Math.round((vals.length / nSrc) * 10) / 10 : 0) + ' targets: ');
     bold(avg != null ? fmt(avg) : '—');
     text(' ' + unit() + ' · showing ');
     bold(String(shown));
@@ -1131,6 +1321,24 @@
       btn.appendChild(sw);
       btn.appendChild(document.createTextNode(c));
       frag.appendChild(btn);
+    });
+
+    // which clouds are on the map right now: ring color matches each
+    // marker's stroke so the legend doubles as a key for the two meshes
+    state.providers.forEach(function (p) {
+      var n = state.data.providers[p.id].order.filter(function (c) {
+        return state.sources.has(c);
+      }).length;
+      var span = document.createElement('span');
+      span.className = 'lg';
+      span.title = p.label + ' · ' + n + ' checked of ' +
+        state.data.providers[p.id].order.length + ' measured locations';
+      var dotSvg = svgEl('svg', { width: 10, height: 10 });
+      dotSvg.style.verticalAlign = 'middle';
+      dotSvg.appendChild(svgEl('circle', { cx: 5, cy: 5, r: 3, fill: 'none', stroke: p.color, 'stroke-width': 2 }));
+      span.appendChild(dotSvg);
+      span.appendChild(document.createTextNode(p.label));
+      frag.appendChild(span);
     });
 
     var dotSpan = document.createElement('span');
@@ -1221,9 +1429,23 @@
     return w;
   }
 
+  // header subtitle: "N locations · Vultr + Linode" over the measured clouds
+  function updateBrandSub() {
+    var el = document.getElementById('brand-sub');
+    if (!el) return;
+    var total = 0;
+    var labels = [];
+    state.providers.forEach(function (p) {
+      var n = state.data.providers[p.id].order.length;
+      total += n;
+      labels.push(p.label);
+    });
+    el.textContent = total + ' locations · ' + labels.join(' + ');
+  }
+
   function main() {
     var D = window.VML_DATA;
-    if (!D || !D.regions || !D.measured) {
+    if (!D || !D.measured || !D.regions) {
       document.getElementById('stats').textContent = 'error: data/data.js missing — re-run python3 scripts/build_data_js.py';
       return;
     }
@@ -1231,9 +1453,11 @@
     // draw the map's landmass, so it loads asynchronously: the app boots and
     // renders everything else first, then the land fades in when it arrives.
     state = { world: buildWorld(D.world) };
-    buildState(D.regions, VML.normalize.loadDataset());
+    buildState(VML.normalize.loadDataset());
+    updateBrandSub();
     state.expanded = chartFromURL();
     restoreState(readStore());
+    syncProviderButtons();
     buildControls();
     applyRestoredUI();
     fitDestButtons();

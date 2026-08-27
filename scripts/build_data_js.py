@@ -4,8 +4,9 @@
 # but classic <script> tags load fine). Regenerate whenever data/*.json change:
 #   python3 scripts/build_data_js.py
 #
-# Outputs two files:
-#   * data/data.js  - regions + measured matrices (small, needed at boot)
+# Outputs one core file plus the world atlas:
+#   * data/data.js  - Vultr + Linode region metadata and measured matrices
+#                     (small, needed at boot)
 #   * data/world.js - the world-atlas TopoJSON (~108KB, not needed until the
 #                     map's landmass renders, so it loads asynchronously)
 import json
@@ -17,6 +18,8 @@ DATA = os.path.join(ROOT, "data")
 CORE_FILES = [
     ("measured", "locations_measured.json"),
     ("regions", "regions.json"),
+    ("linodeMeasured", "linode_locations_measured.json"),
+    ("linodeRegions", "linode_regions.json"),
 ]
 WORLD_FILES = [
     ("world", "countries-110m.json"),
