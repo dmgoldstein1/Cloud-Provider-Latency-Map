@@ -12,7 +12,7 @@
       loss: { label: 'Loss', unit: '%', short: 'loss', decimals: 1, defaultMin: 1 }
     },
     continents: ['Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'],
-    // Cloud providers whose measured meshes are shown side by side. Each
+    // Measured meshes shown side by side. Each measured dataset is loaded
     // measured dataset is loaded by js/normalize.js into a per-provider
     // matrix; every location belongs to exactly one provider and arcs are
     // only ever drawn within one provider's mesh (no cross-provider links are
