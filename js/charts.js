@@ -571,11 +571,14 @@
     var dsts = order.filter(function (c) { return VML.util.destSet(state).has(c); });
     var items = [];
     dsts.forEach(function (dst) {
-      // a destination's distribution aggregates only sources from the SAME
-      // provider's mesh — cross-provider links are never measured
+      // a destination's distribution aggregates its own mesh plus any
+      // cross-provider sources the NA mesh run measured to it
       var prov = state.byCode.get(dst).provider;
       var vs = srcs.filter(function (s) {
-        return s !== dst && state.byCode.get(s).provider === prov;
+        if (s === dst) return false;
+        if (state.byCode.get(s).provider === prov) return true;
+        var xp = state.data.xmesh && state.data.xmesh.pairs;
+        return !!(xp && xp[s] && xp[s][dst] != null);
       })
         .map(function (s) { return valueAt(state, s, dst); })
         .filter(function (v) { return inRange(state, v); });
@@ -874,6 +877,21 @@
       });
     });
     if (!values.length) values = [1];
+    // cross-provider pairs (both clouds on) join the scatter scale too
+    (function () {
+      var xp = state.data.xmesh && state.data.xmesh.pairs;
+      if (!xp) return;
+      Object.keys(xp).forEach(function (src) {
+        var a = state.byCode.get(src);
+        if (!a || !state.providerOn[a.provider]) return;
+        Object.keys(xp[src]).forEach(function (dst) {
+          var b = state.byCode.get(dst);
+          if (!b || !state.providerOn[b.provider]) return;
+          var v = xp[src][dst][metric];
+          if (v > 0) values.push(v);
+        });
+      });
+    })();
     var max = d3.quantile(values, VML.config.defaults.thresholdFactor) || d3.max(values) || 1;
     return d3.scaleSequential(d3.interpolateRgbBasis(VML.config.schemeRdYlGn.slice().reverse())).domain([0, max]);
   }

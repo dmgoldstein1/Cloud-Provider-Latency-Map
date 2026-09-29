@@ -53,6 +53,20 @@
     return null;
   }
 
+  // cross-provider links measured by the NA full-mesh run (data/xmesh.json):
+  // directed pairs keyed by GLOBAL region codes, e.g.
+  // pairs['us-east']['US-east'] = {latency, jitter, loss}. Only pairs whose
+  // endpoints belong to different providers live here; same-provider pairs
+  // stay in their provider's own matrix.
+  function loadXMesh(D) {
+    var raw = D.xmesh;
+    if (!raw || !raw.pairs) return { pairs: {}, meta: {} };
+    return {
+      pairs: raw.pairs,
+      meta: { source: raw.source, retrieved_at: raw.retrieved_at }
+    };
+  }
+
   function loadDataset() {
     var D = window.VML_DATA || {};
     var providers = {};
@@ -74,7 +88,8 @@
     }
     return {
       meta: { format: 'providers-v1' },
-      providers: providers
+      providers: providers,
+      xmesh: loadXMesh(D)
     };
   }
 

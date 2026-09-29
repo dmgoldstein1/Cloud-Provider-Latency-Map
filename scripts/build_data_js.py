@@ -22,6 +22,7 @@ CORE_FILES = [
     ("linodeRegions", "linode_regions.json"),
     ("contaboMeasured", "contabo_locations_measured.json"),
     ("contaboRegions", "contabo_regions.json"),
+    ("xmesh", "xmesh.json"),
 ]
 WORLD_FILES = [
     ("world", "countries-110m.json"),

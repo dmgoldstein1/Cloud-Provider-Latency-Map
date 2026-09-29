@@ -64,14 +64,29 @@
   // SOURCE's provider. Pairs that don't exist (either provider toggled off or
   // dst outside src's own mesh) resolve to NaN, which every chart treats as
   // "no data".
+  // Cross-provider links measured by the NA full-mesh run live outside the
+  // per-provider matrices (see normalize.js loadXMesh): when the source's
+  // own mesh has no value for dst, fall back to the directed xmesh pair.
+  function xmeshValue(state, src, dst, metric) {
+    var xp = state.data.xmesh && state.data.xmesh.pairs;
+    var row = xp && xp[src];
+    var cell = row && row[dst];
+    var v = cell && cell[metric || state.metric];
+    return v == null ? NaN : v;
+  }
   function valueAt(state, src, dst, metric) {
     var idxMap = state.indexes.get(src);
-    if (!idxMap) return NaN;
-    var m = state.data.providers[idxMap.pid].matrices[metric || state.metric];
-    if (!m) return NaN;
-    var i = idxMap.i;
-    var j = idxMap.map.get(dst);
-    return j == null ? NaN : m.values[i][j];
+    if (idxMap) {
+      var m = state.data.providers[idxMap.pid].matrices[metric || state.metric];
+      if (m) {
+        var j = idxMap.map.get(dst);
+        if (j != null) {
+          var v = m.values[idxMap.i][j];
+          if (!isNaN(v)) return v;
+        }
+      }
+    }
+    return xmeshValue(state, src, dst, metric);
   }
 
   function destSet(state) {
@@ -366,6 +381,26 @@
         state.centrality[src] = avg / cnt;
       });
     });
+    // cross-provider arcs measured by the NA mesh run: every directed xmesh
+    // pair whose endpoints both exist in the global region index. p names
+    // the SOURCE's provider (informational only). Centrality and marker
+    // sizing stay intra-provider by design.
+    (function () {
+      var xp = state.data.xmesh && state.data.xmesh.pairs;
+      if (!xp) return;
+      Object.keys(xp).forEach(function (src) {
+        var a = state.byCode.get(src);
+        if (!a) return;
+        Object.keys(xp[src]).forEach(function (dst) {
+          var b = state.byCode.get(dst);
+          if (!b || src === dst) return;
+          state.arcs.push({
+            src: src, dst: dst, p: a.provider, x: true,
+            distance: d3.geoDistance([a.lon, a.lat], [b.lon, b.lat]) * 6371
+          });
+        });
+      });
+    })();
     var centralCodes = Object.keys(state.centrality);
     state.centralityExtent = d3.extent(centralCodes, function (c) { return state.centrality[c]; });
     state.distanceMax = d3.max(state.arcs, function (d) { return d.distance; });
@@ -385,6 +420,22 @@
         row.forEach(function (v) { if (v > 0) vals.push(v); });
       });
     });
+    // cross-provider pairs join the scale only when BOTH endpoint clouds
+    // are switched on (a pair with either side off has no visible arcs)
+    (function () {
+      var xp = state.data.xmesh && state.data.xmesh.pairs;
+      if (!xp) return;
+      Object.keys(xp).forEach(function (src) {
+        var a = state.byCode.get(src);
+        if (!a || !state.providerOn[a.provider]) return;
+        Object.keys(xp[src]).forEach(function (dst) {
+          var b = state.byCode.get(dst);
+          if (!b || !state.providerOn[b.provider]) return;
+          var v = xp[src][dst][state.metric];
+          if (v > 0) vals.push(v);
+        });
+      });
+    })();
     if (!vals.length) vals = [1];
     trueMax = Math.ceil(d3.max(vals) || 1);
     state.metricTrueMax = trueMax;

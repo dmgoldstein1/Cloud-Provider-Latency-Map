@@ -1,0 +1,364 @@
+{
+  "source": "measured via NA full-mesh ping test (11 linode NA regions + 3 existing contabo VMs, all-pairs run 2026-09-29; cross-provider pairs only)",
+  "retrieved_at": "2026-09-29",
+  "pairs": {
+    "US-central": {
+      "ca-central": {
+        "latency": 27.3,
+        "jitter": 1.4,
+        "loss": 0.0
+      },
+      "us-central": {
+        "latency": 22.0,
+        "jitter": 0.5,
+        "loss": 0.0
+      },
+      "us-east": {
+        "latency": 24.3,
+        "jitter": 0.5,
+        "loss": 0.0
+      },
+      "us-iad": {
+        "latency": 23.5,
+        "jitter": 0.6,
+        "loss": 0.0
+      },
+      "us-iad-2": {
+        "latency": 22.7,
+        "jitter": 0.5,
+        "loss": 0.0
+      },
+      "us-lax": {
+        "latency": 42.9,
+        "jitter": 0.8,
+        "loss": 0.0
+      },
+      "us-mia": {
+        "latency": 53.1,
+        "jitter": 0.3,
+        "loss": 0.0
+      },
+      "us-ord": {
+        "latency": 23.5,
+        "jitter": 0.4,
+        "loss": 0.0
+      },
+      "us-sea": {
+        "latency": 58.0,
+        "jitter": 0.6,
+        "loss": 0.0
+      },
+      "us-southeast": {
+        "latency": 37.8,
+        "jitter": 0.4,
+        "loss": 0.0
+      },
+      "us-west": {
+        "latency": 48.8,
+        "jitter": 5.6,
+        "loss": 0.0
+      }
+    },
+    "US-east": {
+      "ca-central": {
+        "latency": 13.8,
+        "jitter": 7.3,
+        "loss": 0.0
+      },
+      "us-central": {
+        "latency": 37.6,
+        "jitter": 0.8,
+        "loss": 0.0
+      },
+      "us-east": {
+        "latency": 2.5,
+        "jitter": 0.5,
+        "loss": 0.0
+      },
+      "us-iad": {
+        "latency": 8.5,
+        "jitter": 4.1,
+        "loss": 0.0
+      },
+      "us-iad-2": {
+        "latency": 7.8,
+        "jitter": 1.8,
+        "loss": 0.0
+      },
+      "us-lax": {
+        "latency": 71.5,
+        "jitter": 1.0,
+        "loss": 0.0
+      },
+      "us-mia": {
+        "latency": 32.6,
+        "jitter": 5.0,
+        "loss": 0.0
+      },
+      "us-ord": {
+        "latency": 20.4,
+        "jitter": 1.7,
+        "loss": 0.0
+      },
+      "us-sea": {
+        "latency": 62.4,
+        "jitter": 4.4,
+        "loss": 0.0
+      },
+      "us-southeast": {
+        "latency": 21.1,
+        "jitter": 6.9,
+        "loss": 0.0
+      },
+      "us-west": {
+        "latency": 71.9,
+        "jitter": 9.5,
+        "loss": 0.0
+      }
+    },
+    "US-west": {
+      "ca-central": {
+        "latency": 58.3,
+        "jitter": 6.2,
+        "loss": 0.0
+      },
+      "us-central": {
+        "latency": 49.1,
+        "jitter": 17.5,
+        "loss": 0.0
+      },
+      "us-east": {
+        "latency": 66.4,
+        "jitter": 4.8,
+        "loss": 0.0
+      },
+      "us-iad": {
+        "latency": 65.7,
+        "jitter": 4.8,
+        "loss": 0.0
+      },
+      "us-iad-2": {
+        "latency": 63.1,
+        "jitter": 5.1,
+        "loss": 0.0
+      },
+      "us-lax": {
+        "latency": 31.7,
+        "jitter": 14.5,
+        "loss": 0.0
+      },
+      "us-mia": {
+        "latency": 75.9,
+        "jitter": 9.5,
+        "loss": 0.0
+      },
+      "us-ord": {
+        "latency": 46.5,
+        "jitter": 2.8,
+        "loss": 0.0
+      },
+      "us-sea": {
+        "latency": 3.7,
+        "jitter": 8.0,
+        "loss": 0.0
+      },
+      "us-southeast": {
+        "latency": 62.2,
+        "jitter": 6.7,
+        "loss": 0.0
+      },
+      "us-west": {
+        "latency": 23.2,
+        "jitter": 8.8,
+        "loss": 0.0
+      }
+    },
+    "ca-central": {
+      "US-central": {
+        "latency": 27.4,
+        "jitter": 1.0,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 13.2,
+        "jitter": 7.6,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 57.0,
+        "jitter": 5.1,
+        "loss": 0.0
+      }
+    },
+    "us-central": {
+      "US-central": {
+        "latency": 22.1,
+        "jitter": 1.3,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 37.9,
+        "jitter": 2.2,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 43.3,
+        "jitter": 6.0,
+        "loss": 0.0
+      }
+    },
+    "us-east": {
+      "US-central": {
+        "latency": 24.6,
+        "jitter": 0.7,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 3.3,
+        "jitter": 4.7,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 66.3,
+        "jitter": 5.4,
+        "loss": 0.0
+      }
+    },
+    "us-iad-2": {
+      "US-central": {
+        "latency": 22.9,
+        "jitter": 0.7,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 8.6,
+        "jitter": 5.5,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 67.0,
+        "jitter": 11.7,
+        "loss": 0.0
+      }
+    },
+    "us-iad": {
+      "US-central": {
+        "latency": 23.5,
+        "jitter": 1.6,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 8.3,
+        "jitter": 3.7,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 65.7,
+        "jitter": 4.3,
+        "loss": 0.0
+      }
+    },
+    "us-lax": {
+      "US-central": {
+        "latency": 45.7,
+        "jitter": 5.8,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 73.6,
+        "jitter": 12.2,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 32.4,
+        "jitter": 14.4,
+        "loss": 0.0
+      }
+    },
+    "us-mia": {
+      "US-central": {
+        "latency": 52.6,
+        "jitter": 0.7,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 48.9,
+        "jitter": 6.2,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 74.7,
+        "jitter": 3.5,
+        "loss": 0.0
+      }
+    },
+    "us-ord": {
+      "US-central": {
+        "latency": 23.6,
+        "jitter": 0.5,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 21.1,
+        "jitter": 5.2,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 49.7,
+        "jitter": 12.4,
+        "loss": 0.0
+      }
+    },
+    "us-sea": {
+      "US-central": {
+        "latency": 58.2,
+        "jitter": 0.9,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 62.7,
+        "jitter": 4.2,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 3.5,
+        "jitter": 6.1,
+        "loss": 0.0
+      }
+    },
+    "us-southeast": {
+      "US-central": {
+        "latency": 38.1,
+        "jitter": 0.8,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 20.8,
+        "jitter": 9.6,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 62.0,
+        "jitter": 8.8,
+        "loss": 0.0
+      }
+    },
+    "us-west": {
+      "US-central": {
+        "latency": 48.5,
+        "jitter": 4.0,
+        "loss": 0.0
+      },
+      "US-east": {
+        "latency": 70.0,
+        "jitter": 3.9,
+        "loss": 0.0
+      },
+      "US-west": {
+        "latency": 21.1,
+        "jitter": 5.7,
+        "loss": 0.0
+      }
+    }
+  }
+}
