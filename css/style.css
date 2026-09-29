@@ -1,11 +1,11 @@
 :root {
-  --bg: #0f172a;
-  --panel: #1e293b;
-  --panel-2: #263449;
-  --border: #334155;
-  --text: #e2e8f0;
-  --text-dim: #94a3b8;
-  --accent: #38bdf8;
+  --bg: #24273a;
+  --panel: #1e2030;
+  --panel-2: #363a4f;
+  --border: #494d64;
+  --text: #cad3f5;
+  --text-dim: #a5adcb;
+  --accent: #8aadf4;
 }
 
 * { box-sizing: border-box; }
@@ -33,7 +33,7 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
-.brand h1 { margin: 0; font-size: 23.8px; font-weight: 700; letter-spacing: 0.2px; color: #ffffff; }
+.brand h1 { margin: 0; font-size: 23.8px; font-weight: 700; letter-spacing: 0.2px; color: #cad3f5; }
 .brand .sub { color: var(--text-dim); font-size: 16.1px; }
 
 .toolbar {
@@ -61,7 +61,7 @@ header {
 .metric-btn:hover { color: var(--text); background: var(--panel-2); }
 .metric-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .metric-btn.shade { background: var(--panel-2); }
-.metric-btn.active { background: var(--accent); color: #0b1220; font-weight: 600; }
+.metric-btn.active { background: var(--accent); color: #181926; font-weight: 600; }
 
 /* cloud-provider toggles in the header. Each button keeps its provider's
    ring color on the swatch (set inline by app.js) so the toggle doubles as a
@@ -73,7 +73,7 @@ header {
 }
 .provider-btn:hover { color: var(--text); background: var(--panel-2); }
 .provider-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.provider-btn.active { background: var(--panel-2); color: #ffffff; font-weight: 600; }
+.provider-btn.active { background: var(--panel-2); color: #cad3f5; font-weight: 600; }
 .provider-swatch {
   width: 11px; height: 11px; border-radius: 50%;
   border: 2px solid currentColor; display: inline-block;
@@ -95,7 +95,7 @@ header {
   line-height: 1.5; text-transform: capitalize; letter-spacing: 0;
 }
 .axis-metric-btn.shade { background: var(--panel-2); }
-.axis-metric-btn.active { background: var(--accent); color: #0b1220; font-weight: 600; }
+.axis-metric-btn.active { background: var(--accent); color: #181926; font-weight: 600; }
 
 select {
   background: var(--panel-2); color: var(--text);
@@ -148,7 +148,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   height: 14px;
   border-radius: 50%;
   background: var(--accent);
-  border: 2px solid #0b1220;
+  border: 2px solid #181926;
   cursor: grab;
   margin-top: -5px;
 }
@@ -158,7 +158,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   height: 14px;
   border-radius: 50%;
   background: var(--accent);
-  border: 2px solid #0b1220;
+  border: 2px solid #181926;
   cursor: grab;
 }
 .dual-range input[type="range"]::-webkit-slider-runnable-track {
@@ -299,7 +299,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 }
 .dest-btn:hover { color: var(--text); background: var(--panel-2); }
 .dest-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.dest-btn.active { background: var(--accent); color: #0b1220; font-weight: 600; }
+.dest-btn.active { background: var(--accent); color: #181926; font-weight: 600; }
 
 body.src-hidden #sources-card {
   max-height: 0;
@@ -327,7 +327,7 @@ body.src-hidden #sources-card {
 .src-group-head {
   display: flex;
   align-items: center;
-  color: #ffffff;
+  color: #cad3f5;
   font-size: 16.8px;
   letter-spacing: 0.4px;
   white-space: nowrap;
@@ -616,7 +616,7 @@ body.footer-hidden #map-footer {
   min-width: 0;
 }
 #map-controls button {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(30, 32, 48, 0.85);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -831,7 +831,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   width: min(400px, calc(100vw - 40px));
   max-height: 70vh;
   overflow-y: auto;
-  background: #0b1220;
+  background: #181926;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
@@ -860,7 +860,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 }
 #scatter-help-pop, #boxes-help-pop ul { margin: 0 0 4px; padding-left: 16px; }
 #scatter-help-pop, #boxes-help-pop li { margin-bottom: 3px; }
-#scatter-help-pop, #boxes-help-pop b { color: #f8fafc; }
+#scatter-help-pop, #boxes-help-pop b { color: #cad3f5; }
 #scatter-help-pop, #boxes-help-pop i { color: var(--text-dim); }
 .chart-help-close {
   position: absolute;
@@ -877,14 +877,14 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 .chart-help-close:hover { color: var(--text); }
 
 /* map svg */
-.map-svg { width: 100%; height: 100%; display: block; background: #0b1526; }
-.land-path { fill: #334155; stroke: #1e293b; stroke-width: 0.4; }
-.grat-path { fill: none; stroke: #475569; stroke-width: 0.4; opacity: 0.35; }
+.map-svg { width: 100%; height: 100%; display: block; background: #1e2030; }
+.land-path { fill: #363a4f; stroke: #1e2030; stroke-width: 0.4; }
+.grat-path { fill: none; stroke: #6e738d; stroke-width: 0.4; opacity: 0.35; }
 .arc { fill: none; stroke-width: 1.2; opacity: 0.45; }
 .arc.pair { opacity: 1; stroke-width: 2.6; }
-.region { stroke: #f8fafc; stroke-width: 1.2; cursor: pointer; }
+.region { stroke: #cad3f5; stroke-width: 1.2; cursor: pointer; }
 .region.unchecked { opacity: 0.35; }
-.label { fill: #f8fafc; font-size: 15.4px; font-weight: 600; paint-order: stroke; stroke: #0b1526; stroke-width: 3px; pointer-events: none; }
+.label { fill: #cad3f5; font-size: 15.4px; font-weight: 600; paint-order: stroke; stroke: #1e2030; stroke-width: 3px; pointer-events: none; }
 
 /* heatmap */
 /* RULE: there must NEVER be a vertical or horizontal scroll bar within the
@@ -895,8 +895,8 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 #heatmap { overflow: hidden; }
 #heatmap svg { max-width: none; margin: 0 auto; }
 .axis-label { fill: var(--text-dim); font-size: 12.6px; }
-.axis-label.col, .axis-label.row { fill: #f8fafc; }
-.cell { stroke: #0f172a; stroke-width: 0.5; cursor: pointer; }
+.axis-label.col, .axis-label.row { fill: #cad3f5; }
+.cell { stroke: #24273a; stroke-width: 0.5; cursor: pointer; }
 .cell.diag { stroke: none; }
 .cell.off { opacity: 0.4; }
 .cell.cut { opacity: 0.12; }
@@ -913,7 +913,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 .heat-frozen-bg { pointer-events: none; }
 .pair-hl {
   fill: none;
-  stroke: #f8fafc;
+  stroke: #cad3f5;
   stroke-width: 2;
   pointer-events: none;
 }
@@ -952,7 +952,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 #box-sort-btns button:hover, #heat-sort-btns button:hover { background: var(--panel-2); color: var(--text); }
 #box-sort-btns button.active, #heat-sort-btns button.active {
   background: var(--accent);
-  color: #0b1220;
+  color: #181926;
   font-weight: 600;
 }
 #box-sort-dir-btns, #heat-sort-dir-btns {
@@ -971,21 +971,21 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 #box-sort-dir-btns button:hover, #heat-sort-dir-btns button:hover { background: var(--panel-2); color: var(--text); }
 #box-sort-dir-btns button.active, #heat-sort-dir-btns button.active {
   background: var(--accent);
-  color: #0b1220;
+  color: #181926;
   font-weight: 600;
 }
-.box-code { fill: #ffffff; font-size: 13.3px; }
+.box-code { fill: #cad3f5; font-size: 13.3px; }
 .box-grid.major { stroke: var(--border); stroke-width: 0.8; opacity: 0.75; pointer-events: none; }
 .box-grid.minor { stroke: var(--border); stroke-width: 0.5; opacity: 0.35; pointer-events: none; }
-.box-whisker { stroke: #f8fafc; stroke-width: 1.5; }
-.box-cap { stroke: #f8fafc; stroke-width: 1.8; }
+.box-whisker { stroke: #cad3f5; stroke-width: 1.5; }
+.box-cap { stroke: #cad3f5; stroke-width: 1.8; }
 .box-rect { stroke: var(--text); stroke-width: 1; }
-.box-med { stroke: #0b1220; stroke-width: 1.6; }
-.box-mean { fill: #0b1220; }
+.box-med { stroke: #181926; stroke-width: 1.6; }
+.box-mean { fill: #181926; }
 .box-lab { opacity: 0; pointer-events: none; transition: opacity 0.12s; }
 .box-lab rect { fill: var(--panel); }
 .box-lab.alt rect { fill: var(--panel-2); }
-.box-lab text { fill: #ffffff; font-size: 13px; font-weight: 500; }
+.box-lab text { fill: #cad3f5; font-size: 13px; font-weight: 500; }
 .box-lab.alt text { fill: var(--text-dim); }
 .box:hover .box-lab { opacity: 1; }
 #boxes g.box:has(~ g.box:hover), #boxes g.box:hover ~ g.box { opacity: 0.5; transition: opacity 0.15s; }
@@ -1003,9 +1003,9 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
 .grid-minor, .x-minor, .y-minor { stroke: var(--border); stroke-width: 0.5; opacity: 0.35; }
 .grid.pair-v, .grid.pair-h { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.9; }
 .dot { stroke: none; opacity: 0.35; cursor: pointer; }
-.dot.src { opacity: 1; stroke: #f8fafc; stroke-width: 0.7; }
-.dot.pair { opacity: 1; stroke: #f8fafc; stroke-width: 1.4; }
-.fit { stroke: #f8fafc; stroke-width: 1.4; stroke-dasharray: 5 4; }
+.dot.src { opacity: 1; stroke: #cad3f5; stroke-width: 0.7; }
+.dot.pair { opacity: 1; stroke: #cad3f5; stroke-width: 1.4; }
+.fit { stroke: #cad3f5; stroke-width: 1.4; stroke-dasharray: 5 4; }
 .axis { color: var(--text-dim); }
 .axis path, .axis line { stroke: var(--border); }
 .axis text { fill: var(--text-dim); font-size: 14px; }
@@ -1022,7 +1022,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
    of popping in and out. pointer-events: none lets clicks pass through. */
 #legend-label {
   font-size: 15.4px;
-  color: #ffffff;
+  color: #cad3f5;
   font-weight: 700;
   white-space: nowrap;
   pointer-events: none;
@@ -1035,7 +1035,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  background: rgba(15, 23, 42, 0.82);
+  background: rgba(30, 32, 48, 0.82);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 10px;
@@ -1066,7 +1066,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   cursor: pointer;
   border-radius: 4px;
 }
-.continent-btn:hover { color: #f8fafc; text-decoration: underline; }
+.continent-btn:hover { color: #cad3f5; text-decoration: underline; }
 .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
 #footer {
@@ -1189,7 +1189,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   position: fixed;
   z-index: 50;
   pointer-events: none;
-  background: #0b1220;
+  background: #181926;
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 7px 9px;
@@ -1200,7 +1200,7 @@ body.chart-expanded #side-pane .card:not(.expanded) { display: none; }
   transition: opacity 90ms;
   max-width: 320px;
 }
-#tooltip b { color: #f8fafc; }
+#tooltip b { color: #cad3f5; }
 #tooltip i { color: var(--text-dim); }
 
 ::-webkit-scrollbar { width: 10px; }

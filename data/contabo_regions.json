@@ -1,0 +1,86 @@
+{
+  "source": "GeoNames (public domain); Contabo region slugs mapped to city coords with +0.28 lon display offset",
+  "regions": [
+    {
+      "code": "AUS",
+      "name": "Sydney",
+      "country": "Australia",
+      "country_code": "AU",
+      "lat": -33.8688,
+      "lon": 151.4893,
+      "continent": "Oceania"
+    },
+    {
+      "code": "EU",
+      "name": "Frankfurt",
+      "country": "Germany",
+      "country_code": "DE",
+      "lat": 50.1109,
+      "lon": 8.9621,
+      "continent": "Europe"
+    },
+    {
+      "code": "IND",
+      "name": "Mumbai",
+      "country": "India",
+      "country_code": "IN",
+      "lat": 19.076,
+      "lon": 73.1577,
+      "continent": "Asia"
+    },
+    {
+      "code": "JPN",
+      "name": "Tokyo",
+      "country": "Japan",
+      "country_code": "JP",
+      "lat": 35.6762,
+      "lon": 139.9303,
+      "continent": "Asia"
+    },
+    {
+      "code": "SIN",
+      "name": "Singapore",
+      "country": "Singapore",
+      "country_code": "SG",
+      "lat": 1.3521,
+      "lon": 104.0998,
+      "continent": "Asia"
+    },
+    {
+      "code": "UK",
+      "name": "London",
+      "country": "United Kingdom",
+      "country_code": "GB",
+      "lat": 51.5074,
+      "lon": 0.1522,
+      "continent": "Europe"
+    },
+    {
+      "code": "US-central",
+      "name": "Dallas",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 32.7767,
+      "lon": -96.517,
+      "continent": "North America"
+    },
+    {
+      "code": "US-east",
+      "name": "Newark",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 40.7357,
+      "lon": -73.8924,
+      "continent": "North America"
+    },
+    {
+      "code": "US-west",
+      "name": "Los Angeles",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 34.0522,
+      "lon": -117.9637,
+      "continent": "North America"
+    }
+  ]
+}

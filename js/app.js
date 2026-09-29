@@ -521,7 +521,7 @@
       head.className = 'src-group-head';
       var sw = document.createElement('span');
       sw.className = 'sw';
-      sw.style.background = state.continentColors[cont] || '#94a3b8';
+      sw.style.background = state.continentColors[cont] || '#8087a2';
       var title = document.createElement('span');
       title.appendChild(sw);
       title.appendChild(document.createTextNode(cont));
@@ -566,7 +566,7 @@
         // tiny provider ring so mixed clouds stay identifiable in the list
         var chip = document.createElement('span');
         chip.className = 'src-prov';
-        chip.style.borderColor = providerColor[meta.provider] || '#94a3b8';
+        chip.style.borderColor = providerColor[meta.provider] || '#8087a2';
         chip.title = (providerColor[meta.provider + 'Label'] || 'Cloud') + ' region';
         label.appendChild(chip);
         group.appendChild(label);

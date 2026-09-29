@@ -1,0 +1,330 @@
+{
+  "source": "measured via contabo full-mesh ping test (all-pairs run 2026-09-15)",
+  "retrieved_at": "2026-09-15",
+  "regions": [
+    {
+      "code": "AUS",
+      "location": "Sydney",
+      "country": "AU",
+      "country_name": "Australia",
+      "latency": {
+        "EU": 311.3,
+        "IND": 413.4,
+        "JPN": 180.8,
+        "SIN": 250.0,
+        "UK": 310.2,
+        "US-central": 216.1,
+        "US-east": 239.4,
+        "US-west": 174.6
+      },
+      "jitter": {
+        "EU": 2.4,
+        "IND": 1.6,
+        "JPN": 3.3,
+        "SIN": 7.5,
+        "UK": 0.6,
+        "US-central": 13.9,
+        "US-east": 13.6,
+        "US-west": 5.4
+      },
+      "loss": {
+        "EU": 0.0,
+        "IND": 0.0,
+        "JPN": 0.0,
+        "SIN": 0.0,
+        "UK": 0.0,
+        "US-central": 0.0,
+        "US-east": 0.0,
+        "US-west": 0.0
+      }
+    },
+    {
+      "code": "EU",
+      "location": "Frankfurt",
+      "country": "DE",
+      "country_name": "Germany",
+      "latency": {
+        "AUS": 311.1,
+        "IND": 128.0,
+        "JPN": 217.3,
+        "SIN": 167.9,
+        "UK": 15.6,
+        "US-central": 111.1,
+        "US-east": 89.2,
+        "US-west": 147.5
+      },
+      "jitter": {
+        "AUS": 2.4,
+        "IND": 0.2,
+        "JPN": 0.3,
+        "SIN": 0.6,
+        "UK": 0.3,
+        "US-central": 11.8,
+        "US-east": 8.3,
+        "US-west": 0.9
+      },
+      "loss": {
+        "AUS": 0.0,
+        "IND": 0.0,
+        "JPN": 0.0,
+        "SIN": 0.0,
+        "UK": 0.0,
+        "US-central": 0.0,
+        "US-east": 0.0,
+        "US-west": 0.0
+      }
+    },
+    {
+      "code": "IND",
+      "location": "Mumbai",
+      "country": "IN",
+      "country_name": "India",
+      "latency": {
+        "AUS": 413.5,
+        "EU": 128.1,
+        "JPN": 118.0,
+        "SIN": 52.7,
+        "UK": 117.2,
+        "US-central": 210.1,
+        "US-east": 188.7,
+        "US-west": 255.3
+      },
+      "jitter": {
+        "AUS": 2.6,
+        "EU": 0.3,
+        "JPN": 0.4,
+        "SIN": 2.5,
+        "UK": 0.1,
+        "US-central": 7.4,
+        "US-east": 5.6,
+        "US-west": 0.4
+      },
+      "loss": {
+        "AUS": 0.0,
+        "EU": 0.0,
+        "JPN": 0.0,
+        "SIN": 0.0,
+        "UK": 0.0,
+        "US-central": 0.0,
+        "US-east": 0.0,
+        "US-west": 0.0
+      }
+    },
+    {
+      "code": "JPN",
+      "location": "Tokyo",
+      "country": "JP",
+      "country_name": "Japan",
+      "latency": {
+        "AUS": 180.4,
+        "EU": 217.7,
+        "IND": 118.0,
+        "SIN": 80.8,
+        "UK": 225.5,
+        "US-central": 127.1,
+        "US-east": 163.2,
+        "US-west": 88.8
+      },
+      "jitter": {
+        "AUS": 2.1,
+        "EU": 0.8,
+        "IND": 0.1,
+        "SIN": 27.2,
+        "UK": 0.3,
+        "US-central": 6.1,
+        "US-east": 8.6,
+        "US-west": 0.2
+      },
+      "loss": {
+        "AUS": 0.0,
+        "EU": 0.0,
+        "IND": 0.0,
+        "SIN": 0.0,
+        "UK": 0.0,
+        "US-central": 0.0,
+        "US-east": 0.0,
+        "US-west": 0.0
+      }
+    },
+    {
+      "code": "SIN",
+      "location": "Singapore",
+      "country": "SG",
+      "country_name": "Singapore",
+      "latency": {
+        "AUS": 248.9,
+        "EU": 168.8,
+        "IND": 52.6,
+        "JPN": 74.2,
+        "UK": 169.8,
+        "US-central": 231.7,
+        "US-east": 221.2,
+        "US-west": 184.7
+      },
+      "jitter": {
+        "AUS": 8.6,
+        "EU": 2.7,
+        "IND": 0.8,
+        "JPN": 1.1,
+        "UK": 3.0,
+        "US-central": 12.5,
+        "US-east": 2.9,
+        "US-west": 1.4
+      },
+      "loss": {
+        "AUS": 0.0,
+        "EU": 0.0,
+        "IND": 0.0,
+        "JPN": 0.0,
+        "UK": 0.0,
+        "US-central": 0.0,
+        "US-east": 0.0,
+        "US-west": 0.0
+      }
+    },
+    {
+      "code": "UK",
+      "location": "London",
+      "country": "GB",
+      "country_name": "United Kingdom",
+      "latency": {
+        "AUS": 310.1,
+        "EU": 15.9,
+        "IND": 117.3,
+        "JPN": 225.4,
+        "SIN": 169.1,
+        "US-central": 98.6,
+        "US-east": 72.9,
+        "US-west": 132.3
+      },
+      "jitter": {
+        "AUS": 0.4,
+        "EU": 2.6,
+        "IND": 0.2,
+        "JPN": 0.1,
+        "SIN": 0.5,
+        "US-central": 7.8,
+        "US-east": 2.7,
+        "US-west": 0.1
+      },
+      "loss": {
+        "AUS": 0.0,
+        "EU": 0.0,
+        "IND": 0.0,
+        "JPN": 0.0,
+        "SIN": 0.0,
+        "US-central": 0.0,
+        "US-east": 0.0,
+        "US-west": 0.0
+      }
+    },
+    {
+      "code": "US-central",
+      "location": "Dallas",
+      "country": "US",
+      "country_name": "United States",
+      "latency": {
+        "AUS": 214.2,
+        "EU": 110.6,
+        "IND": 210.3,
+        "JPN": 126.3,
+        "SIN": 234.0,
+        "UK": 101.5,
+        "US-east": 33.5,
+        "US-west": 60.3
+      },
+      "jitter": {
+        "AUS": 8.6,
+        "EU": 10.3,
+        "IND": 8.2,
+        "JPN": 7.5,
+        "SIN": 13.2,
+        "UK": 14.2,
+        "US-east": 14.6,
+        "US-west": 14.8
+      },
+      "loss": {
+        "AUS": 0.0,
+        "EU": 0.0,
+        "IND": 0.0,
+        "JPN": 0.0,
+        "SIN": 0.0,
+        "UK": 0.0,
+        "US-east": 0.0,
+        "US-west": 0.0
+      }
+    },
+    {
+      "code": "US-east",
+      "location": "Newark",
+      "country": "US",
+      "country_name": "United States",
+      "latency": {
+        "AUS": 236.5,
+        "EU": 89.2,
+        "IND": 189.1,
+        "JPN": 166.3,
+        "SIN": 222.0,
+        "UK": 72.9,
+        "US-central": 30.9,
+        "US-west": 66.3
+      },
+      "jitter": {
+        "AUS": 5.1,
+        "EU": 4.9,
+        "IND": 7.0,
+        "JPN": 13.0,
+        "SIN": 5.8,
+        "UK": 1.7,
+        "US-central": 7.7,
+        "US-west": 4.7
+      },
+      "loss": {
+        "AUS": 0.0,
+        "EU": 0.0,
+        "IND": 0.0,
+        "JPN": 0.0,
+        "SIN": 0.0,
+        "UK": 0.0,
+        "US-central": 0.0,
+        "US-west": 0.0
+      }
+    },
+    {
+      "code": "US-west",
+      "location": "Los Angeles",
+      "country": "US",
+      "country_name": "United States",
+      "latency": {
+        "AUS": 173.4,
+        "EU": 147.7,
+        "IND": 255.3,
+        "JPN": 89.0,
+        "SIN": 187.2,
+        "UK": 132.2,
+        "US-central": 55.0,
+        "US-east": 65.3
+      },
+      "jitter": {
+        "AUS": 0.6,
+        "EU": 2.0,
+        "IND": 0.8,
+        "JPN": 1.5,
+        "SIN": 12.3,
+        "UK": 0.2,
+        "US-central": 8.8,
+        "US-east": 3.5
+      },
+      "loss": {
+        "AUS": 0.0,
+        "EU": 0.0,
+        "IND": 0.0,
+        "JPN": 0.0,
+        "SIN": 0.0,
+        "UK": 0.0,
+        "US-central": 0.0,
+        "US-east": 0.0
+      }
+    }
+  ]
+}

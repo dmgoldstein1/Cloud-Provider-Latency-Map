@@ -122,7 +122,7 @@
   function providerColor(code) {
     var pid = providerOf(code);
     var p = m.state.providers.find(function (x) { return x.id === pid; });
-    return p ? p.color : '#f8fafc';
+    return p ? p.color : '#cad3f5';
   }
 
   // tooltips must survive metrics a provider never measured (Linode has no

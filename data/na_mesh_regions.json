@@ -1,0 +1,131 @@
+{
+  "source": "GeoNames (public domain); canonical city coords with a small deterministic provider-side lon display offset so NA markers don't stack on global-mesh markers",
+  "regions": [
+    {
+      "code": "na-cb-us-central",
+      "name": "Dallas \u00b7 Contabo",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 32.7767,
+      "lon": -96.377,
+      "continent": "North America"
+    },
+    {
+      "code": "na-cb-us-east",
+      "name": "Newark \u00b7 Contabo",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 40.7357,
+      "lon": -73.7524,
+      "continent": "North America"
+    },
+    {
+      "code": "na-cb-us-west",
+      "name": "Los Angeles \u00b7 Contabo",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 34.0522,
+      "lon": -117.8237,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-ca-central",
+      "name": "Toronto \u00b7 Linode",
+      "country": "Canada",
+      "country_code": "CA",
+      "lat": 43.6532,
+      "lon": -79.5232,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-central",
+      "name": "Dallas \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 32.7767,
+      "lon": -96.937,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-east",
+      "name": "Newark \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 40.7357,
+      "lon": -74.3124,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-iad",
+      "name": "Washington DC \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 38.9072,
+      "lon": -77.1769,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-iad-2",
+      "name": "Washington DC 2 \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 38.9072,
+      "lon": -77.2969,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-lax",
+      "name": "Los Angeles \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 34.0522,
+      "lon": -118.3837,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-mia",
+      "name": "Miami \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 25.7617,
+      "lon": -80.3318,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-ord",
+      "name": "Chicago \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 41.8781,
+      "lon": -87.7698,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-sea",
+      "name": "Seattle \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 47.6062,
+      "lon": -122.4721,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-southeast",
+      "name": "Atlanta \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 33.749,
+      "lon": -84.528,
+      "continent": "North America"
+    },
+    {
+      "code": "na-ln-us-west",
+      "name": "Fremont \u00b7 Linode",
+      "country": "United States",
+      "country_code": "US",
+      "lat": 37.5485,
+      "lon": -122.1286,
+      "continent": "North America"
+    }
+  ]
+}

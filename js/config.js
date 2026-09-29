@@ -16,32 +16,36 @@
     // measured dataset is loaded by js/normalize.js into a per-provider
     // matrix; every location belongs to exactly one provider and arcs are
     // only ever drawn within one provider's mesh (no cross-provider links are
-    // measured). `color` rings the map markers so the two clouds stay apart.
+    // measured). `color` rings the map markers so the meshes stay apart.
+    // The NA Mesh provider is itself one measured mesh spanning two clouds
+    // (11 Linode NA regions + 3 existing Contabo VMs, every pair measured
+    // both ways), so the single-provider-mesh invariant still holds.
     providers: [
-      { id: 'vultr', label: 'Vultr', color: '#38bdf8' },
-      { id: 'linode', label: 'Linode', color: '#f472b6' }
+      { id: 'vultr', label: 'Vultr', color: '#8aadf4' },
+      { id: 'linode', label: 'Linode', color: '#f5bde6' },
+      { id: 'contabo', label: 'Contabo', color: '#8bd5ca' },
+      { id: 'na', label: 'NA Mesh', color: '#a6da95' }
     ],
     continentColors: {
-      'Africa': '#f4a261',
-      'Asia': '#e76f51',
-      'Europe': '#2a9d8f',
-      'North America': '#457b9d',
-      'Oceania': '#a8dadc',
-      'South America': '#e9c46a',
-      'Unknown': '#94a3b8'
+      'Africa': '#f5a97f',
+      'Asia': '#ed8796',
+      'Europe': '#8bd5ca',
+      'North America': '#b7bdf8',
+      'Oceania': '#91d7e3',
+      'South America': '#eed49f',
+      'Unknown': '#8087a2'
     },
     defaults: {
       metric: 'latency',
       source: 'ams',
       thresholdFactor: 0.98
     },
-    // d3-scale-chromatic's RdYlGn[11], inlined so the 20KB library can be
-    // dropped. Index 0 is dark red (worse) and index 10 dark green (better);
-    // the app reverses it via slice().reverse() so low values render green
-    // and high values red.
+    // Catppuccin Macchiato sequential scale (worst -> best): Red -> Maroon
+    // -> Peach -> Yellow -> Green -> Teal. The app reverses it via
+    // slice().reverse() so low values render Teal/Green (good) and high
+    // values render Red (bad).
     schemeRdYlGn: [
-      '#a50026', '#d73027', '#f46d43', '#fdae61', '#fee08b', '#ffffbf',
-      '#d9ef8b', '#a6d96a', '#66bd63', '#1a9850', '#006837'
+      '#ed8796', '#ee99a0', '#f5a97f', '#eed49f', '#a6da95', '#8bd5ca'
     ]
   };
 })();
