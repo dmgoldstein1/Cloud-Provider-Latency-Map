@@ -16,15 +16,11 @@
     // measured dataset is loaded by js/normalize.js into a per-provider
     // matrix; every location belongs to exactly one provider and arcs are
     // only ever drawn within one provider's mesh (no cross-provider links are
-    // measured). `color` rings the map markers so the meshes stay apart.
-    // The NA Mesh provider is itself one measured mesh spanning two clouds
-    // (11 Linode NA regions + 3 existing Contabo VMs, every pair measured
-    // both ways), so the single-provider-mesh invariant still holds.
+    // measured). `color` rings the map markers so the clouds stay apart.
     providers: [
       { id: 'vultr', label: 'Vultr', color: '#8aadf4' },
       { id: 'linode', label: 'Linode', color: '#f5bde6' },
-      { id: 'contabo', label: 'Contabo', color: '#8bd5ca' },
-      { id: 'na', label: 'NA Mesh', color: '#a6da95' }
+      { id: 'contabo', label: 'Contabo', color: '#8bd5ca' }
     ],
     continentColors: {
       'Africa': '#f5a97f',

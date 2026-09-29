@@ -1,6 +1,6 @@
 {
-  "source": "measured via contabo full-mesh ping test (all-pairs run 2026-09-15)",
-  "retrieved_at": "2026-09-15",
+  "source": "measured via contabo full-mesh ping test (all-pairs run 2026-09-15); NA pairs re-measured 2026-09-29 via NA full-mesh run (11 linode NA regions + 3 existing contabo VMs, all-pairs; raw: scripts/na_mesh_results.csv)",
+  "retrieved_at": "2026-09-29",
   "regions": [
     {
       "code": "AUS",
@@ -230,8 +230,8 @@
         "JPN": 126.3,
         "SIN": 234.0,
         "UK": 101.5,
-        "US-east": 33.5,
-        "US-west": 60.3
+        "US-east": 31.8,
+        "US-west": 49.0
       },
       "jitter": {
         "AUS": 8.6,
@@ -240,8 +240,8 @@
         "JPN": 7.5,
         "SIN": 13.2,
         "UK": 14.2,
-        "US-east": 14.6,
-        "US-west": 14.8
+        "US-east": 14.3,
+        "US-west": 4.7
       },
       "loss": {
         "AUS": 0.0,
@@ -266,8 +266,8 @@
         "JPN": 166.3,
         "SIN": 222.0,
         "UK": 72.9,
-        "US-central": 30.9,
-        "US-west": 66.3
+        "US-central": 29.5,
+        "US-west": 69.1
       },
       "jitter": {
         "AUS": 5.1,
@@ -276,8 +276,8 @@
         "JPN": 13.0,
         "SIN": 5.8,
         "UK": 1.7,
-        "US-central": 7.7,
-        "US-west": 4.7
+        "US-central": 7.2,
+        "US-west": 9.9
       },
       "loss": {
         "AUS": 0.0,
@@ -302,8 +302,8 @@
         "JPN": 89.0,
         "SIN": 187.2,
         "UK": 132.2,
-        "US-central": 55.0,
-        "US-east": 65.3
+        "US-central": 50.1,
+        "US-east": 74.1
       },
       "jitter": {
         "AUS": 0.6,
@@ -312,8 +312,8 @@
         "JPN": 1.5,
         "SIN": 12.3,
         "UK": 0.2,
-        "US-central": 8.8,
-        "US-east": 3.5
+        "US-central": 9.3,
+        "US-east": 24.6
       },
       "loss": {
         "AUS": 0.0,

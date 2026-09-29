@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cloud Latency Map — Vultr, Linode, Contabo &amp; NA Mesh</title>
+  <title>Cloud Latency Map — Vultr, Linode &amp; Contabo</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -23,7 +23,7 @@
   <header>
     <div class="brand">
       <h1>Cloud Latency Map</h1>
-      <span class="sub" id="brand-sub">Vultr + Linode + Contabo + NA Mesh</span>
+      <span class="sub" id="brand-sub">Vultr + Linode + Contabo</span>
     </div>
     <div class="toolbar">
       <div class="group" id="provider-group">
@@ -238,13 +238,15 @@
   <footer id="footer">
     <p class="disclaimer">
       The latency, jitter, and packet-loss data shown here were collected from virtual machines hosted on
-      Vultr, Linode (Akamai), and Contabo. The NA Mesh is a full cross-provider mesh over 11 Linode
-      North America regions plus the 3 existing Contabo US VMs, measured in both directions.
+      Vultr, Linode (Akamai), and Contabo. North American Linode pairs and Contabo US pairs were
+      re-measured on 2026-09-29 via a full 14-node mesh over 11 Linode NA regions plus the 3
+      existing Contabo US VMs; the 66 cross-provider pairs from that run are outside the
+      per-provider model and live only in the raw run file.
       <a href="data/locations_measured.json" download="vultr-raw-ping-data.json">Download the raw Vultr ping data</a>,
       <a href="data/linode_locations_measured.json" download="linode-raw-ping-data.json">the raw Linode ping data</a>,
       <a href="data/contabo_locations_measured.json" download="contabo-raw-ping-data.json">the raw Contabo ping data</a>,
       or
-      <a href="data/na_mesh_locations_measured.json" download="na-mesh-raw-ping-data.json">the raw NA Mesh ping data</a>.
+      <a href="scripts/na_mesh_results.csv" download="na-mesh-raw-ping-data.csv">the raw 14-node NA run (all pairs, both directions)</a>.
       This is a personal, unofficial project and is not affiliated with, endorsed by, or sponsored by
       VULTR, The Constant Company, LLC, LINODE, Akamai Technologies, Contabo GmbH, or any other provider.
       Product names, logos, and brands are property of their respective owners.
