@@ -50,6 +50,14 @@
     return d === 0 ? v.toFixed(0) : v.toFixed(d);
   }
   function nameOf(code) { return state.byCode.get(code).name; }
+  // every location's display color is its cloud provider's color, used
+  // everywhere the location's name appears (source list, stats line, axis
+  // labels, tooltips) so a location is recognizable across views
+  function provColor(code) {
+    var r = state.byCode.get(code);
+    var p = r && state.providers.find(function (x) { return x.id === r.provider; });
+    return p ? p.color : '#cad3f5';
+  }
 
   // Every measured link lives inside exactly one provider's mesh — no
   // cross-provider links are ever measured — so values resolve through the
@@ -562,7 +570,11 @@
           toggleSource(code, input.checked);
         });
         label.appendChild(input);
-        label.appendChild(document.createTextNode(nameOf(code)));
+        var nm = document.createElement('span');
+        nm.className = 'src-name';
+        nm.style.color = provColor(code);
+        nm.textContent = nameOf(code);
+        label.appendChild(nm);
         // tiny provider ring so mixed clouds stay identifiable in the list
         var chip = document.createElement('span');
         chip.className = 'src-prov';
@@ -1283,7 +1295,12 @@
     if (first != null) {
       text('from ');
       bold(String(nSrc));
-      text(' checked source' + (nSrc === 1 ? '' : 's') + ' (e.g. ' + nameOf(first) + ')');
+      text(' checked source' + (nSrc === 1 ? '' : 's') + ' (e.g. ');
+      var ex = document.createElement('span');
+      ex.style.color = provColor(first);
+      ex.textContent = nameOf(first);
+      statsEl.appendChild(ex);
+      text(')');
     } else {
       text('no sources checked');
     }

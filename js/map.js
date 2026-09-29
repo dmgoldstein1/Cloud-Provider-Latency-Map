@@ -135,20 +135,32 @@
   // rendered as styled <b>/<i> elements — the tooltip sets textContent for
   // plain strings, so raw HTML strings would show their tags literally. This
   // mirrors charts.js's seg/tipNode helpers.
-  function seg(t, b, i) { return { t: String(t), b: !!b, i: !!i }; }
+  function seg(t, b, i, c) { return { t: String(t), b: !!b, i: !!i, c: c || null }; }
 
   function tipNode(lines) {
     var wrap = document.createElement('div');
     lines.forEach(function (line) {
       var div = document.createElement('div');
       line.forEach(function (s) {
+        var n;
         if (s.b || s.i) {
-          var n = document.createElement(s.i ? 'i' : 'b');
+          n = document.createElement(s.i ? 'i' : 'b');
           n.textContent = s.t;
-          div.appendChild(n);
         } else {
-          div.appendChild(document.createTextNode(s.t));
+          n = document.createTextNode(s.t);
         }
+        // optional location color: wraps plain text in a span, tints elements
+        if (s.c) {
+          if (n.nodeType === 3) {
+            var sp = document.createElement('span');
+            sp.style.color = s.c;
+            sp.appendChild(n);
+            n = sp;
+          } else {
+            n.style.color = s.c;
+          }
+        }
+        div.appendChild(n);
       });
       wrap.appendChild(div);
     });
@@ -192,7 +204,7 @@
     var jit = VML.util.valueAt(state, d.src, d.dst, 'jitter');
     var loss = VML.util.valueAt(state, d.src, d.dst, 'loss');
     return tipNode([
-      [seg(nameOf(d.src) + ' → ' + nameOf(d.dst), true), seg(' (' + d.src + ' → ' + d.dst + ')')],
+      [seg(nameOf(d.src), true, false, providerColor(d.src)), seg(' → '), seg(nameOf(d.dst), true, false, providerColor(d.dst)), seg(' (' + d.src + ' → ' + d.dst + ')')],
       [seg(latencyLabelPrefix(d), false), seg('latency '), seg(fmtVal(lat), true), seg(' ms · jitter '), seg(fmtVal(jit), true), seg(' ms · loss '), seg(fmtVal(loss), true), seg(' %')]
     ]);
   }
@@ -239,6 +251,7 @@
     var labels = m.labelsG.selectAll('text.label').data(labelData, function (d) { return d; });
     labels.join('text')
       .attr('class', 'label')
+      .style('fill', function (d) { return providerColor(d); })
       .text(function (d) { return state.byCode.get(d).name; });
   }
 
@@ -269,7 +282,7 @@
     });
     var avg = out.reduce(function (a, b) { return a + b; }, 0) / out.length;
     return tipNode([
-      [seg(d.name, true), seg(' (' + d.code + ')')],
+      [seg(d.name, true, false, providerColor(d.code)), seg(' (' + d.code + ')')],
       [seg(latencyLabelPrefix({ src: d.code }) + d.country + ' · ' + d.continent)],
       [seg('avg latency to ' + out.length + ' regions: '), seg(avg.toFixed(0), true), seg(' ms')]
     ]);

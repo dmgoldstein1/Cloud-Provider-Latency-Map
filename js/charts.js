@@ -3,6 +3,12 @@
   var c = {};
 
   function nameOf(state, code) { return state.byCode.get(code).name; }
+  // location display color = its provider's color (see app.js provColor)
+  function provColor(state, code) {
+    var r = state.byCode.get(code);
+    var p = r && state.providers.find(function (x) { return x.id === r.provider; });
+    return p ? p.color : '#cad3f5';
+  }
 
   // values resolve through the source's own provider mesh (see app.js):
   // pairs that don't exist — cross-provider or a metric the provider never
@@ -21,20 +27,32 @@
     return v != null && !isNaN(v) && v >= state.thresholdMin && v <= state.threshold;
   }
 
-  function seg(t, b, i) { return { t: String(t), b: !!b, i: !!i }; }
+  function seg(t, b, i, c) { return { t: String(t), b: !!b, i: !!i, c: c || null }; }
 
   function tipNode(lines) {
     var wrap = document.createElement('div');
     lines.forEach(function (line) {
       var div = document.createElement('div');
       line.forEach(function (s) {
+        var n;
         if (s.b || s.i) {
-          var n = document.createElement(s.i ? 'i' : 'b');
+          n = document.createElement(s.i ? 'i' : 'b');
           n.textContent = s.t;
-          div.appendChild(n);
         } else {
-          div.appendChild(document.createTextNode(s.t));
+          n = document.createTextNode(s.t);
         }
+        // optional location color: wraps plain text in a span, tints elements
+        if (s.c) {
+          if (n.nodeType === 3) {
+            var sp = document.createElement('span');
+            sp.style.color = s.c;
+            sp.appendChild(n);
+            n = sp;
+          } else {
+            n.style.color = s.c;
+          }
+        }
+        div.appendChild(n);
       });
       wrap.appendChild(div);
     });
@@ -382,6 +400,7 @@
       })
       .attr('text-anchor', 'start')
       .style('font-size', colFs + 'px')
+      .style('fill', function (d) { return provColor(state, d); })
       .text(function (d) { return nameOf(state, d); });
 
     var rowG = heatSvg.selectAll('g.heat-row-labels').data([1]);
@@ -393,6 +412,7 @@
       .attr('text-anchor', 'end')
       .attr('dominant-baseline', 'middle')
       .style('font-size', rowFs + 'px')
+      .style('fill', function (d) { return provColor(state, d); })
       .text(function (d) { return nameOf(state, d); });
 
     var rows = heatSvg.selectAll('g.heat-row').data(srcRows, function (d) { return d; });
@@ -446,7 +466,7 @@
     var jit = valueAt(state, src, dst, 'jitter');
     var loss = valueAt(state, src, dst, 'loss');
     return tipNode([
-      [seg(nameOf(state, src) + ' → ' + nameOf(state, dst), true), seg(' (' + src + ' → ' + dst + ')')],
+      [seg(nameOf(state, src), true, false, provColor(state, src)), seg(' → '), seg(nameOf(state, dst), true, false, provColor(state, dst)), seg(' (' + src + ' → ' + dst + ')')],
       [seg('latency '), seg(fmtNum(lat), true), seg(' ms · jitter '), seg(fmtNum(jit), true), seg(' ms · loss '), seg(fmtNum(loss), true), seg(' %')],
       [seg('click to toggle source', false, true)]
     ]);
@@ -463,14 +483,14 @@
         return state.sources.has(s) && s !== d.dst && inRange(state, valueAt(state, s, d.dst));
       })
       .map(function (s) {
-        return { v: valueAt(state, s, d.dst), text: nameOf(state, s) + ' → ' + nameOf(state, d.dst) };
+        return { v: valueAt(state, s, d.dst), s: s };
       })
       .sort(function (a, b) { return a.v - b.v; })
       .map(function (p) {
-        return [seg(p.text + ': '), seg(fmt(p.v), true), seg(' ' + unit)];
+        return [seg(nameOf(state, p.s), false, false, provColor(state, p.s)), seg(' → '), seg(nameOf(state, d.dst) + ': ', false, false, provColor(state, d.dst)), seg(fmt(p.v), true), seg(' ' + unit)];
       });
     var head = [
-      [seg(nameOf(state, d.dst), true), seg(' — mean '), seg(fmt(d.v), true), seg(' ' + unit)],
+      [seg(nameOf(state, d.dst), true, false, provColor(state, d.dst)), seg(' — mean '), seg(fmt(d.v), true), seg(' ' + unit)],
       [seg('min '), seg(fmt(d.min), true), seg(' · max '), seg(fmt(d.max), true), seg(' · range '), seg(fmt(d.range), true), seg(' ' + unit)]
     ];
     var tail = [[seg(footer || 'click to toggle source', false, true)]];
@@ -725,6 +745,7 @@
       .attr('y', rowH / 2)
       .attr('text-anchor', 'end')
       .attr('dominant-baseline', 'middle')
+      .style('fill', function (d) { return provColor(state, d.dst); })
       .text(function (d) { return nameOf(state, d.dst); });
 
     g.selectAll('rect.box-rect')
@@ -957,7 +978,7 @@
     var jit = valueAt(state, d.src, d.dst, 'jitter');
     var loss = valueAt(state, d.src, d.dst, 'loss');
     return tipNode([
-      [seg(nameOf(state, d.src) + ' → ' + nameOf(state, d.dst), true), seg(' (' + d.src + ' → ' + d.dst + ')')],
+      [seg(nameOf(state, d.src), true, false, provColor(state, d.src)), seg(' → '), seg(nameOf(state, d.dst), true, false, provColor(state, d.dst)), seg(' (' + d.src + ' → ' + d.dst + ')')],
       [seg(xMetric + ' '), seg(fmtNum(valueAt(state, d.src, d.dst, xMetric)), true), seg(' · ' + yMetric + ' '), seg(fmtNum(valueAt(state, d.src, d.dst, yMetric)), true)],
       [seg('latency '), seg(fmtNum(lat), true), seg(' ms · jitter '), seg(fmtNum(jit), true), seg(' ms · loss '), seg(fmtNum(loss), true), seg(' %')],
       [seg('latency = round-trip time · jitter = variation in latency · loss = % packets lost', false, true)],
